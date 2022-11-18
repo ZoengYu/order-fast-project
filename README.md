@@ -3,9 +3,9 @@
 ---
 # 點餐！！速度！！
 
-This project is design for link base order system via scan QRcode.
+This project is design for link-base order system via scan QRcode.
 
- I've been inspired while ordering foods from a busy resturant, it's crazy and really time consuming to get my food, so I hope this project can help each resturants to speed up their order flows and save everyone time ;).
+ I'm inspired while ordering foods from a busy resturant, it's crazy and really time consuming to get my food, so I hope this project can help each resturants to speed up their order flows and save everyone time ;).
 
  Backend Server is base on **Golang Gin Framework**, Frontend Server is base on **React**.
 

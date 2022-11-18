@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createStore = `-- name: CreateStore :one
@@ -23,11 +22,11 @@ INSERT INTO stores (
 `
 
 type CreateStoreParams struct {
-	StoreName    string         `json:"store_name"`
-	StoreAddress string         `json:"store_address"`
-	StorePhone   string         `json:"store_phone"`
-	StoreOwner   string         `json:"store_owner"`
-	StoreManager sql.NullString `json:"store_manager"`
+	StoreName    string `json:"store_name"`
+	StoreAddress string `json:"store_address"`
+	StorePhone   string `json:"store_phone"`
+	StoreOwner   string `json:"store_owner"`
+	StoreManager string `json:"store_manager"`
 }
 
 func (q *Queries) CreateStore(ctx context.Context, arg CreateStoreParams) (Store, error) {
@@ -79,12 +78,12 @@ RETURNING id, store_name, store_address, store_phone, store_owner, store_manager
 `
 
 type UpdateStoreParams struct {
-	StoreName    string         `json:"store_name"`
-	StoreName_2  string         `json:"store_name_2"`
-	StoreAddress string         `json:"store_address"`
-	StorePhone   string         `json:"store_phone"`
-	StoreOwner   string         `json:"store_owner"`
-	StoreManager sql.NullString `json:"store_manager"`
+	StoreName    string `json:"store_name"`
+	StoreName_2  string `json:"store_name_2"`
+	StoreAddress string `json:"store_address"`
+	StorePhone   string `json:"store_phone"`
+	StoreOwner   string `json:"store_owner"`
+	StoreManager string `json:"store_manager"`
 }
 
 func (q *Queries) UpdateStore(ctx context.Context, arg UpdateStoreParams) (Store, error) {
