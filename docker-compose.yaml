@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  db:
+    container_name: order_fast_db
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_DB=order_fast
+      - POSTGRES_USER=runner
+      - POSTGRES_PASSWORD=password
+      - TZ=Asia/Taipel
+    ports:
+      - "5432:5432"
