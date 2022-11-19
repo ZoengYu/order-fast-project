@@ -50,6 +50,16 @@ func (q *Queries) CreateStore(ctx context.Context, arg CreateStoreParams) (Store
 	return i, err
 }
 
+const deleteStore = `-- name: DeleteStore :exec
+DELETE FROM stores
+WHERE id = $1
+`
+
+func (q *Queries) DeleteStore(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteStore, id)
+	return err
+}
+
 const getStore = `-- name: GetStore :one
 SELECT id, store_name, store_address, store_phone, store_owner, store_manager, created_at FROM stores
 WHERE store_name = $1 LIMIT 1
@@ -73,13 +83,13 @@ func (q *Queries) GetStore(ctx context.Context, storeName string) (Store, error)
 const updateStore = `-- name: UpdateStore :one
 UPDATE stores
 SET store_name = $2, store_address = $3, store_phone = $4, store_owner = $5, store_manager = $6
-WHERE store_name = $1
+WHERE id = $1
 RETURNING id, store_name, store_address, store_phone, store_owner, store_manager, created_at
 `
 
 type UpdateStoreParams struct {
+	ID           int64  `json:"id"`
 	StoreName    string `json:"store_name"`
-	StoreName_2  string `json:"store_name_2"`
 	StoreAddress string `json:"store_address"`
 	StorePhone   string `json:"store_phone"`
 	StoreOwner   string `json:"store_owner"`
@@ -88,8 +98,8 @@ type UpdateStoreParams struct {
 
 func (q *Queries) UpdateStore(ctx context.Context, arg UpdateStoreParams) (Store, error) {
 	row := q.db.QueryRowContext(ctx, updateStore,
+		arg.ID,
 		arg.StoreName,
-		arg.StoreName_2,
 		arg.StoreAddress,
 		arg.StorePhone,
 		arg.StoreOwner,

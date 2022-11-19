@@ -16,5 +16,9 @@ WHERE store_name = $1 LIMIT 1;
 -- name: UpdateStore :one
 UPDATE stores
 SET store_name = $2, store_address = $3, store_phone = $4, store_owner = $5, store_manager = $6
-WHERE store_name = $1
+WHERE id = $1
 RETURNING *;
+
+-- name: DeleteStore :exec
+DELETE FROM stores
+WHERE id = $1;

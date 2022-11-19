@@ -1,7 +1,8 @@
-package db
+package test
 
 import (
 	"context"
+	"database/sql"
 	"testing"
 
 	db "github.com/ZoengYu/order-fast-project/db/sqlc"
@@ -29,4 +30,42 @@ func TestCreateStore(t *testing.T) {
 
 	require.NotZero(t, store.ID)
 	require.NotZero(t, store.CreatedAt)
+}
+
+func TestGetStore(t *testing.T) {
+	store, err := testQueries.GetStore(context.Background(), "Harry")
+	require.NoError(t, err)
+	require.NotEmpty(t, store)
+
+	require.Equal(t, "Harry", store.StoreName)
+}
+
+func TestUpdateStore(t *testing.T) {
+	store, _ := testQueries.GetStore(context.Background(), "Harry")
+	require.NotEmpty(t, store)
+
+	arg := db.UpdateStoreParams{
+		ID: store.ID,
+		StoreName: store.StoreName,
+		StoreAddress: store.StoreAddress,
+		StorePhone: store.StorePhone,
+		StoreOwner: store.StoreOwner,
+		StoreManager: "Alex",
+	}
+	new_store, err := testQueries.UpdateStore(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, new_store)
+
+	require.Equal(t, "Alex", new_store.StoreManager)
+}
+
+func TestDeleteStore(t *testing.T) {
+	store, _ := testQueries.GetStore(context.Background(), "Harry")
+	require.NotEmpty(t, store)
+
+	err := testQueries.DeleteStore(context.Background(), store.ID)
+	require.NoError(t, err)
+	get_store, err := testQueries.GetStore(context.Background(), "Harry")
+	require.Empty(t, get_store)
+	require.Equal(t, err, sql.ErrNoRows)
 }
