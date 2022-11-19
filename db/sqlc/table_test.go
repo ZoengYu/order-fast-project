@@ -1,17 +1,16 @@
-package test
+package db
 
 import (
 	"context"
 	"database/sql"
 	"testing"
 
-	db "github.com/ZoengYu/order-fast-project/db/sqlc"
 	"github.com/stretchr/testify/require"
 )
 
-func getRandomTable(t *testing.T) db.Table{
+func getRandomTable(t *testing.T) Table{
 	store := getRandomStore(t)
-	get_table_arg := db.GetTableParams{
+	get_table_arg := GetTableParams{
 		StoreID: store.ID,
 		TableID: 1,
 	}
@@ -26,7 +25,7 @@ func getRandomTable(t *testing.T) db.Table{
 func TestCreateTable(t *testing.T) {
 	store := createRandomStore(t)
 
-	table1_arg := db.CreateTableParams{
+	table1_arg := CreateTableParams{
 		StoreID: store.ID,
 		TableID: 1,
 		TableName: "none",
@@ -44,7 +43,7 @@ func TestGetTable(t *testing.T) {
 func TestUpdateTable(t *testing.T) {
 	table := getRandomTable(t)
 
-	arg := db.UpdateTableParams{
+	arg := UpdateTableParams{
 		StoreID: table.StoreID,
 		TableID: table.TableID,
 		TableName: "earth",
@@ -62,11 +61,13 @@ func TestDeleteTable(t *testing.T) {
 	err := testQueries.DeleteTable(context.Background(), table.ID)
 	require.NoError(t, err)
 
-	get_table_arg := db.GetTableParams{
+	get_table_arg := GetTableParams{
 		StoreID: table.StoreID,
 		TableID: table.TableID,
 	}
 	empty_table, err := testQueries.GetTable(context.Background(), get_table_arg)
 	require.Empty(t, empty_table)
 	require.Equal(t, err, sql.ErrNoRows)
+	store, _ := testQueries.GetStore(context.Background(), "Harry")
+	testQueries.DeleteStore(context.Background(), store.ID)
 }

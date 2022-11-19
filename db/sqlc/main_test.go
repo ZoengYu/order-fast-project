@@ -1,4 +1,4 @@
-package test
+package db
 
 import (
 	"database/sql"
@@ -6,12 +6,11 @@ import (
 	"os"
 	"testing"
 
-	db "github.com/ZoengYu/order-fast-project/db/sqlc"
 	util "github.com/ZoengYu/order-fast-project/utils"
 	_ "github.com/lib/pq"
 )
 
-var testQueries *db.Queries
+var testQueries *Queries
 
 func TestMain(m *testing.M) {
 	config, err := util.LoadConfig("../..")
@@ -23,6 +22,6 @@ func TestMain(m *testing.M) {
 		log.Fatal("cannot connec to db:", err)
 	}
 
-	testQueries = db.New(conn)
+	testQueries = New(conn)
 	os.Exit(m.Run())
 }

@@ -1,16 +1,15 @@
-package test
+package db
 
 import (
 	"context"
 	"database/sql"
 	"testing"
 
-	db "github.com/ZoengYu/order-fast-project/db/sqlc"
 	"github.com/stretchr/testify/require"
 )
 
-func createRandomStore(t *testing.T) db.Store{
-	arg := db.CreateStoreParams{
+func createRandomStore(t *testing.T) Store{
+	arg := CreateStoreParams{
 		StoreName: "Harry",
 		StoreAddress: "address",
 		StorePhone: "0900000000",
@@ -33,7 +32,7 @@ func createRandomStore(t *testing.T) db.Store{
 	return store
 }
 
-func getRandomStore(t *testing.T) db.Store{
+func getRandomStore(t *testing.T) Store{
 	store, err := testQueries.GetStore(context.Background(), "Harry")
 	require.NoError(t, err)
 	require.NotEmpty(t, store)
@@ -54,7 +53,7 @@ func TestUpdateStore(t *testing.T) {
 	store, _ := testQueries.GetStore(context.Background(), "Harry")
 	require.NotEmpty(t, store)
 
-	arg := db.UpdateStoreParams{
+	arg := UpdateStoreParams{
 		ID: store.ID,
 		StoreName: store.StoreName,
 		StoreAddress: store.StoreAddress,
