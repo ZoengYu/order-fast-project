@@ -8,4 +8,15 @@ CREATE TABLE IF NOT EXISTS stores (
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
+CREATE TABLE IF NOT EXISTS tables (
+  "id" bigserial PRIMARY KEY,
+  "store_id" bigint NOT NULL,
+  "table_id" bigint NOT NULL,
+  "table_name" varchar(60)  NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now())
+);
+
+ALTER TABLE "tables" ADD FOREIGN KEY ("store_id") REFERENCES "stores" ("id");
 CREATE INDEX ON "stores" ("store_name");
+
+CREATE INDEX ON "tables" ("store_id");

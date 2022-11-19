@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreateStore(t *testing.T) {
+func createRandomStore(t *testing.T) db.Store{
 	arg := db.CreateStoreParams{
 		StoreName: "Harry",
 		StoreAddress: "address",
@@ -17,7 +17,6 @@ func TestCreateStore(t *testing.T) {
 		StoreOwner: "王震",
 		StoreManager: "王小棣s",
 	}
-
 	store, err := testQueries.CreateStore(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, store)
@@ -30,14 +29,25 @@ func TestCreateStore(t *testing.T) {
 
 	require.NotZero(t, store.ID)
 	require.NotZero(t, store.CreatedAt)
+
+	return store
 }
 
-func TestGetStore(t *testing.T) {
+func getRandomStore(t *testing.T) db.Store{
 	store, err := testQueries.GetStore(context.Background(), "Harry")
 	require.NoError(t, err)
 	require.NotEmpty(t, store)
 
 	require.Equal(t, "Harry", store.StoreName)
+	return store
+}
+
+func TestCreateStore(t *testing.T) {
+	createRandomStore(t)
+}
+
+func TestGetStore(t *testing.T) {
+	getRandomStore(t)
 }
 
 func TestUpdateStore(t *testing.T) {

@@ -17,3 +17,11 @@ type Store struct {
 	StoreManager string    `json:"store_manager"`
 	CreatedAt    time.Time `json:"created_at"`
 }
+
+type Table struct {
+	ID        int64     `json:"id"`
+	StoreID   int64     `json:"store_id"`
+	TableID   int64     `json:"table_id"`
+	TableName string    `json:"table_name"`
+	CreatedAt time.Time `json:"created_at"`
+}

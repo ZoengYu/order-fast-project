@@ -16,10 +16,13 @@ migrateup:
 migratedown:
 	migrate -path db/migration -database "postgresql://${ORDERFAST_USER}:password@localhost:5432/${ORDERFAST_DB}?sslmode=disable" -verbose down
 
+migrateforce:
+	migrate -path db/migration -database "postgresql://${ORDERFAST_USER}:password@localhost:5432/${ORDERFAST_DB}?sslmode=disable" force 1
+
 sqlc:
 	sqlc generate
 
-tests:
-	go test -v -cover ./tests
+test:
+	go test -v -cover ./tests/...
 
-.PHOMY: postgres createdb dropdb migrateup migratedown sqlc
+.PHOMY: postgres createdb dropdb migrateup migratedown sqlc tests
