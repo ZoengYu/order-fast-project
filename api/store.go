@@ -50,7 +50,7 @@ func (server *Server) getStore(ctx *gin.Context){
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 	}
 
-	store, err := server.db_service.GetStore(ctx, req.StoreName)
+	store, err := server.db_service.GetStoreByName(ctx, req.StoreName)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err = fmt.Errorf("cannot find store name: %s", req.StoreName)

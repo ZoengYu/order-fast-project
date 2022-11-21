@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS tables (
   "id" bigserial PRIMARY KEY,
   "store_id" bigint NOT NULL,
   "table_id" bigint NOT NULL,
-  "table_name" varchar(60)  NOT NULL,
+  "table_name" varchar(60) NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 

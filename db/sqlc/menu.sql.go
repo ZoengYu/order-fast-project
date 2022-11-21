@@ -12,27 +12,6 @@ import (
 	"github.com/lib/pq"
 )
 
-const addFoodTag = `-- name: AddFoodTag :one
-INSERT INTO food_tag (
-	menu_food_id,
-	food_tag
-) VALUES (
-	$1, $2
-) RETURNING id, menu_food_id, food_tag
-`
-
-type AddFoodTagParams struct {
-	MenuFoodID int64  `json:"menu_food_id"`
-	FoodTag    string `json:"food_tag"`
-}
-
-func (q *Queries) AddFoodTag(ctx context.Context, arg AddFoodTagParams) (FoodTag, error) {
-	row := q.db.QueryRowContext(ctx, addFoodTag, arg.MenuFoodID, arg.FoodTag)
-	var i FoodTag
-	err := row.Scan(&i.ID, &i.MenuFoodID, &i.FoodTag)
-	return i, err
-}
-
 const addMenuFood = `-- name: AddMenuFood :one
 INSERT INTO menu_food (
 	menu_id,
@@ -58,6 +37,27 @@ func (q *Queries) AddMenuFood(ctx context.Context, arg AddMenuFoodParams) (MenuF
 		&i.FoodName,
 		pq.Array(&i.CustomOption),
 	)
+	return i, err
+}
+
+const addMenuFoodTag = `-- name: AddMenuFoodTag :one
+INSERT INTO food_tag (
+	menu_food_id,
+	food_tag
+) VALUES (
+	$1, $2
+) RETURNING id, menu_food_id, food_tag
+`
+
+type AddMenuFoodTagParams struct {
+	MenuFoodID int64  `json:"menu_food_id"`
+	FoodTag    string `json:"food_tag"`
+}
+
+func (q *Queries) AddMenuFoodTag(ctx context.Context, arg AddMenuFoodTagParams) (FoodTag, error) {
+	row := q.db.QueryRowContext(ctx, addMenuFoodTag, arg.MenuFoodID, arg.FoodTag)
+	var i FoodTag
+	err := row.Scan(&i.ID, &i.MenuFoodID, &i.FoodTag)
 	return i, err
 }
 
@@ -90,23 +90,6 @@ func (q *Queries) CreateStoreMenu(ctx context.Context, arg CreateStoreMenuParams
 	return i, err
 }
 
-const getFoodTag = `-- name: GetFoodTag :one
-SELECT id, menu_food_id, food_tag FROM food_tag
-WHERE menu_food_id = $1 AND food_tag = $2
-`
-
-type GetFoodTagParams struct {
-	MenuFoodID int64  `json:"menu_food_id"`
-	FoodTag    string `json:"food_tag"`
-}
-
-func (q *Queries) GetFoodTag(ctx context.Context, arg GetFoodTagParams) (FoodTag, error) {
-	row := q.db.QueryRowContext(ctx, getFoodTag, arg.MenuFoodID, arg.FoodTag)
-	var i FoodTag
-	err := row.Scan(&i.ID, &i.MenuFoodID, &i.FoodTag)
-	return i, err
-}
-
 const getMenuFood = `-- name: GetMenuFood :one
 SELECT id, menu_id, food_name, custom_option FROM menu_food
 WHERE menu_id = $1 AND food_name = $2
@@ -126,6 +109,23 @@ func (q *Queries) GetMenuFood(ctx context.Context, arg GetMenuFoodParams) (MenuF
 		&i.FoodName,
 		pq.Array(&i.CustomOption),
 	)
+	return i, err
+}
+
+const getMenuFoodTag = `-- name: GetMenuFoodTag :one
+SELECT id, menu_food_id, food_tag FROM food_tag
+WHERE menu_food_id = $1 AND food_tag = $2
+`
+
+type GetMenuFoodTagParams struct {
+	MenuFoodID int64  `json:"menu_food_id"`
+	FoodTag    string `json:"food_tag"`
+}
+
+func (q *Queries) GetMenuFoodTag(ctx context.Context, arg GetMenuFoodTagParams) (FoodTag, error) {
+	row := q.db.QueryRowContext(ctx, getMenuFoodTag, arg.MenuFoodID, arg.FoodTag)
+	var i FoodTag
+	err := row.Scan(&i.ID, &i.MenuFoodID, &i.FoodTag)
 	return i, err
 }
 
@@ -180,18 +180,18 @@ func (q *Queries) ListMenuFoodTag(ctx context.Context, menuFoodID int64) ([]stri
 	return items, nil
 }
 
-const removeFoodTag = `-- name: RemoveFoodTag :exec
+const removeMenuFoodTag = `-- name: RemoveMenuFoodTag :exec
 DELETE FROM food_tag
 WHERE menu_food_id = $1 AND food_tag = $2
 `
 
-type RemoveFoodTagParams struct {
+type RemoveMenuFoodTagParams struct {
 	MenuFoodID int64  `json:"menu_food_id"`
 	FoodTag    string `json:"food_tag"`
 }
 
-func (q *Queries) RemoveFoodTag(ctx context.Context, arg RemoveFoodTagParams) error {
-	_, err := q.db.ExecContext(ctx, removeFoodTag, arg.MenuFoodID, arg.FoodTag)
+func (q *Queries) RemoveMenuFoodTag(ctx context.Context, arg RemoveMenuFoodTagParams) error {
+	_, err := q.db.ExecContext(ctx, removeMenuFoodTag, arg.MenuFoodID, arg.FoodTag)
 	return err
 }
 

@@ -14,7 +14,6 @@ func createRandomTable(t *testing.T) Table{
 	table1_arg := CreateTableParams{
 		StoreID: store.ID,
 		TableID: 1,
-		TableName: "none",
 	}
 	table, err := testQueries.CreateTable(context.Background(), table1_arg)
 	require.NoError(t, err)
@@ -26,11 +25,11 @@ func createRandomTable(t *testing.T) Table{
 
 func getRandomTable(t *testing.T) Table{
 	store := getRandomStore(t)
-	get_table_arg := GetTableParams{
+	get_table_arg := GetStoreTableParams{
 		StoreID: store.ID,
 		TableID: 1,
 	}
-	table, err := testQueries.GetTable(context.Background(), get_table_arg)
+	table, err := testQueries.GetStoreTable(context.Background(), get_table_arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, table)
 
@@ -46,15 +45,15 @@ func TestGetTable(t *testing.T) {
 	getRandomTable(t)
 }
 
-func TestUpdateTable(t *testing.T) {
+func TestUpdateStoreTable(t *testing.T) {
 	table := getRandomTable(t)
 
-	arg := UpdateTableParams{
+	arg := UpdateStoreTableParams{
 		StoreID: table.StoreID,
 		TableID: table.TableID,
 		TableName: "earth",
 	}
-	err := testQueries.UpdateTable(context.Background(), arg)
+	err := testQueries.UpdateStoreTable(context.Background(), arg)
 	require.NoError(t, err)
 	updated_table := getRandomTable(t)
 	require.NotEmpty(t, updated_table)
@@ -62,16 +61,16 @@ func TestUpdateTable(t *testing.T) {
 	require.Equal(t, "earth", updated_table.TableName)
 }
 
-func TestDeleteTable(t *testing.T) {
+func TestDeleteStoreTable(t *testing.T) {
 	table := getRandomTable(t)
-	err := testQueries.DeleteTable(context.Background(), table.ID)
+	err := testQueries.DeleteStoreTable(context.Background(), table.ID)
 	require.NoError(t, err)
 
-	get_table_arg := GetTableParams{
+	get_table_arg := GetStoreTableParams{
 		StoreID: table.StoreID,
 		TableID: table.TableID,
 	}
-	empty_table, err := testQueries.GetTable(context.Background(), get_table_arg)
+	empty_table, err := testQueries.GetStoreTable(context.Background(), get_table_arg)
 	require.Empty(t, empty_table)
 	require.Equal(t, err, sql.ErrNoRows)
 

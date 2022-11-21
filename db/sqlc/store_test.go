@@ -33,7 +33,7 @@ func createRandomStore(t *testing.T) Store{
 }
 
 func getRandomStore(t *testing.T) Store{
-	store, err := testQueries.GetStore(context.Background(), "Harry")
+	store, err := testQueries.GetStoreByName(context.Background(), "Harry")
 	require.NoError(t, err)
 	require.NotEmpty(t, store)
 
@@ -42,12 +42,12 @@ func getRandomStore(t *testing.T) Store{
 }
 
 func delRandomStore(t *testing.T) {
-	store, _ := testQueries.GetStore(context.Background(), "Harry")
+	store, _ := testQueries.GetStoreByName(context.Background(), "Harry")
 	require.NotEmpty(t, store)
 
 	err := testQueries.DeleteStore(context.Background(), store.ID)
 	require.NoError(t, err)
-	get_store, err := testQueries.GetStore(context.Background(), "Harry")
+	get_store, err := testQueries.GetStoreByName(context.Background(), "Harry")
 	require.Empty(t, get_store)
 	require.Equal(t, err, sql.ErrNoRows)
 }
@@ -60,7 +60,7 @@ func TestGetStore(t *testing.T) {
 }
 
 func TestUpdateStore(t *testing.T) {
-	store, _ := testQueries.GetStore(context.Background(), "Harry")
+	store, _ := testQueries.GetStoreByName(context.Background(), "Harry")
 	require.NotEmpty(t, store)
 
 	arg := UpdateStoreParams{

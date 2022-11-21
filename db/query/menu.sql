@@ -31,7 +31,7 @@ INSERT INTO menu_food (
 SELECT * FROM menu_food
 WHERE menu_id = $1 AND food_name = $2;
 
--- name: AddFoodTag :one
+-- name: AddMenuFoodTag :one
 INSERT INTO food_tag (
 	menu_food_id,
 	food_tag
@@ -39,11 +39,11 @@ INSERT INTO food_tag (
 	$1, $2
 ) RETURNING *;
 
--- name: GetFoodTag :one
+-- name: GetMenuFoodTag :one
 SELECT * FROM food_tag
 WHERE menu_food_id = $1 AND food_tag = $2;
 
--- name: RemoveFoodTag :exec
+-- name: RemoveMenuFoodTag :exec
 DELETE FROM food_tag
 WHERE menu_food_id = $1 AND food_tag = $2;
 

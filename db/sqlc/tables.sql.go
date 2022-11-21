@@ -38,43 +38,43 @@ func (q *Queries) CreateTable(ctx context.Context, arg CreateTableParams) (Table
 	return i, err
 }
 
-const deleteTable = `-- name: DeleteTable :exec
+const deleteStoreTable = `-- name: DeleteStoreTable :exec
 DELETE FROM tables
 WHERE id = $1
 `
 
-func (q *Queries) DeleteTable(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteTable, id)
+func (q *Queries) DeleteStoreTable(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteStoreTable, id)
 	return err
 }
 
-const deleteTableByName = `-- name: DeleteTableByName :exec
+const deleteStoreTableByName = `-- name: DeleteStoreTableByName :exec
 DELETE FROM tables
 WHERE store_id = $1 AND table_name = $2
 `
 
-type DeleteTableByNameParams struct {
+type DeleteStoreTableByNameParams struct {
 	StoreID   int64  `json:"store_id"`
 	TableName string `json:"table_name"`
 }
 
-func (q *Queries) DeleteTableByName(ctx context.Context, arg DeleteTableByNameParams) error {
-	_, err := q.db.ExecContext(ctx, deleteTableByName, arg.StoreID, arg.TableName)
+func (q *Queries) DeleteStoreTableByName(ctx context.Context, arg DeleteStoreTableByNameParams) error {
+	_, err := q.db.ExecContext(ctx, deleteStoreTableByName, arg.StoreID, arg.TableName)
 	return err
 }
 
-const getTable = `-- name: GetTable :one
+const getStoreTable = `-- name: GetStoreTable :one
 SELECT id, store_id, table_id, table_name, created_at FROM tables
 WHERE store_id = $1 and table_id = $2
 `
 
-type GetTableParams struct {
+type GetStoreTableParams struct {
 	StoreID int64 `json:"store_id"`
 	TableID int64 `json:"table_id"`
 }
 
-func (q *Queries) GetTable(ctx context.Context, arg GetTableParams) (Table, error) {
-	row := q.db.QueryRowContext(ctx, getTable, arg.StoreID, arg.TableID)
+func (q *Queries) GetStoreTable(ctx context.Context, arg GetStoreTableParams) (Table, error) {
+	row := q.db.QueryRowContext(ctx, getStoreTable, arg.StoreID, arg.TableID)
 	var i Table
 	err := row.Scan(
 		&i.ID,
@@ -86,14 +86,14 @@ func (q *Queries) GetTable(ctx context.Context, arg GetTableParams) (Table, erro
 	return i, err
 }
 
-const listTables = `-- name: ListTables :many
+const listStoreTables = `-- name: ListStoreTables :many
 SELECT id, store_id, table_id, table_name, created_at FROM tables
 WHERE store_id = $1
 ORDER BY table_id
 `
 
-func (q *Queries) ListTables(ctx context.Context, storeID int64) ([]Table, error) {
-	rows, err := q.db.QueryContext(ctx, listTables, storeID)
+func (q *Queries) ListStoreTables(ctx context.Context, storeID int64) ([]Table, error) {
+	rows, err := q.db.QueryContext(ctx, listStoreTables, storeID)
 	if err != nil {
 		return nil, err
 	}
@@ -121,18 +121,18 @@ func (q *Queries) ListTables(ctx context.Context, storeID int64) ([]Table, error
 	return items, nil
 }
 
-const updateTable = `-- name: UpdateTable :exec
+const updateStoreTable = `-- name: UpdateStoreTable :exec
 UPDATE tables SET table_name = $3
 where store_id = $1 AND table_id = $2
 `
 
-type UpdateTableParams struct {
+type UpdateStoreTableParams struct {
 	StoreID   int64  `json:"store_id"`
 	TableID   int64  `json:"table_id"`
 	TableName string `json:"table_name"`
 }
 
-func (q *Queries) UpdateTable(ctx context.Context, arg UpdateTableParams) error {
-	_, err := q.db.ExecContext(ctx, updateTable, arg.StoreID, arg.TableID, arg.TableName)
+func (q *Queries) UpdateStoreTable(ctx context.Context, arg UpdateStoreTableParams) error {
+	_, err := q.db.ExecContext(ctx, updateStoreTable, arg.StoreID, arg.TableID, arg.TableName)
 	return err
 }
