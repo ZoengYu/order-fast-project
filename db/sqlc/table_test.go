@@ -8,6 +8,22 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func createRandomTable(t *testing.T) Table{
+	store := createRandomStore(t)
+
+	table1_arg := CreateTableParams{
+		StoreID: store.ID,
+		TableID: 1,
+		TableName: "none",
+	}
+	table, err := testQueries.CreateTable(context.Background(), table1_arg)
+	require.NoError(t, err)
+	require.Equal(t, table.TableID, table1_arg.TableID)
+	require.Equal(t, table.StoreID, store.ID)
+	require.Equal(t, table.TableName, table1_arg.TableName)
+	return table
+}
+
 func getRandomTable(t *testing.T) Table{
 	store := getRandomStore(t)
 	get_table_arg := GetTableParams{
@@ -23,17 +39,7 @@ func getRandomTable(t *testing.T) Table{
 }
 
 func TestCreateTable(t *testing.T) {
-	store := createRandomStore(t)
-
-	table1_arg := CreateTableParams{
-		StoreID: store.ID,
-		TableID: 1,
-		TableName: "none",
-	}
-	table, err := testQueries.CreateTable(context.Background(), table1_arg)
-	require.NoError(t, err)
-	require.Equal(t, table.TableID, table1_arg.TableID)
-	require.Equal(t, table.StoreID, store.ID)
+	createRandomTable(t)
 }
 
 func TestGetTable(t *testing.T) {
@@ -68,6 +74,6 @@ func TestDeleteTable(t *testing.T) {
 	empty_table, err := testQueries.GetTable(context.Background(), get_table_arg)
 	require.Empty(t, empty_table)
 	require.Equal(t, err, sql.ErrNoRows)
-	store, _ := testQueries.GetStore(context.Background(), "Harry")
-	testQueries.DeleteStore(context.Background(), store.ID)
+
+	delRandomStore(t)
 }

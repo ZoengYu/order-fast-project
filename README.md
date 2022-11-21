@@ -26,3 +26,7 @@ Generate psql connecting interface for golang
 ```
 make sqlc
 ```
+Running testing
+```
+make test
+```

@@ -14,7 +14,7 @@ migrateup:
 	migrate -path db/migration -database "postgresql://${ORDERFAST_USER}:password@localhost:5432/${ORDERFAST_DB}?sslmode=disable" -verbose up
 
 migratedown:
-	migrate -path db/migration -database "postgresql://${ORDERFAST_USER}:password@localhost:5432/${ORDERFAST_DB}?sslmode=disable" -verbose down
+	migrate -path db/migration -database "postgresql://${ORDERFAST_USER}:password@localhost:5432/${ORDERFAST_DB}?sslmode=disable" -verbose down -all
 
 migrateforce:
 	migrate -path db/migration -database "postgresql://${ORDERFAST_USER}:password@localhost:5432/${ORDERFAST_DB}?sslmode=disable" force 1

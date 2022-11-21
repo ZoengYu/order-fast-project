@@ -41,6 +41,16 @@ func getRandomStore(t *testing.T) Store{
 	return store
 }
 
+func delRandomStore(t *testing.T) {
+	store, _ := testQueries.GetStore(context.Background(), "Harry")
+	require.NotEmpty(t, store)
+
+	err := testQueries.DeleteStore(context.Background(), store.ID)
+	require.NoError(t, err)
+	get_store, err := testQueries.GetStore(context.Background(), "Harry")
+	require.Empty(t, get_store)
+	require.Equal(t, err, sql.ErrNoRows)
+}
 func TestCreateStore(t *testing.T) {
 	createRandomStore(t)
 }
@@ -69,12 +79,5 @@ func TestUpdateStore(t *testing.T) {
 }
 
 func TestDeleteStore(t *testing.T) {
-	store, _ := testQueries.GetStore(context.Background(), "Harry")
-	require.NotEmpty(t, store)
-
-	err := testQueries.DeleteStore(context.Background(), store.ID)
-	require.NoError(t, err)
-	get_store, err := testQueries.GetStore(context.Background(), "Harry")
-	require.Empty(t, get_store)
-	require.Equal(t, err, sql.ErrNoRows)
+	delRandomStore(t)
 }
