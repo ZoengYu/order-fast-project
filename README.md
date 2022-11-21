@@ -30,3 +30,7 @@ Running testing
 ```
 make test
 ```
+Running the gin server
+```
+go run main.go
+```

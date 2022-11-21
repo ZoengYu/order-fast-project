@@ -1,29 +1,34 @@
 package main
 
 import (
-	"context"
 	"database/sql"
-	"fmt"
+	"log"
+
+	"github.com/ZoengYu/order-fast-project/api"
+	db "github.com/ZoengYu/order-fast-project/db/sqlc"
+	util "github.com/ZoengYu/order-fast-project/utils"
 )
 
-const (
-	HOST = "localhost"
-	PORT = "5432"
-	DATABASE = "postgres"
-	USER = "runner"
-	PASSWORD = "password"
-	SSL = "disable"
-)
-
-func OpenDB(ctx context.Context) *sql.DB {
-	driver := "postgres"
-	dsn := fmt.Sprintf(
-        "host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-        HOST, PORT, USER, PASSWORD, DATABASE, SSL)
-
-	db, err := sql.Open(driver, dsn)
+func main(){
+	config, err := util.LoadConfig(".")
 	if err != nil {
-		panic("open database error")
+		log.Fatal("cannot load config:", err)
 	}
-	return db
+
+	conn, err := sql.Open(config.DBDriver, config.DBSource)
+	if err != nil {
+		log.Fatal("cannot connect to db:", err)
+	}
+
+	db_service := db.NewDBService(conn)
+
+	api_server, err := api.NewServer(config, db_service)
+	if err != nil {
+		log.Fatal("cannot create the api server:", err)
+	}
+
+	err = api_server.Start(config.ServerAddress)
+	if err != nil {
+		log.Fatal("cannot start the api server:", err)
+	}
 }
