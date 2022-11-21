@@ -43,10 +43,9 @@ INSERT INTO food_tag (
 SELECT * FROM food_tag
 WHERE menu_food_id = $1 AND food_tag = $2;
 
--- name: RemoveFoodTag :one
+-- name: RemoveFoodTag :exec
 DELETE FROM food_tag
-WHERE menu_food_id = $1 AND food_tag = $2
-RETURNING *;
+WHERE menu_food_id = $1 AND food_tag = $2;
 
 -- name: ListMenuFoodTag :many
 SELECT food_tag.food_tag FROM food_tag

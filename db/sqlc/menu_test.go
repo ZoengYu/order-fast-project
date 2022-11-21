@@ -83,6 +83,7 @@ func TestAddMenuFoodWithTag(t *testing.T) {
 	}
 	add_foodtag2, _ := testQueries.AddFoodTag(context.Background(), add_foodtag_arg2)
 	foodtag_list, err := testQueries.ListMenuFoodTag(context.Background(), menu_food.ID)
+	require.NoError(t, err)
 	require.Contains(t, foodtag_list, add_foodtag.FoodTag, add_foodtag2.FoodTag)
 }
 
@@ -97,20 +98,23 @@ func TestRemoveFoodTag(t *testing.T){
 		MenuFoodID: menu.ID,
 		FoodTag: "三明治",
 	}
-	testQueries.RemoveFoodTag(context.Background(), remove_foodtag_arg)
+	err := testQueries.RemoveFoodTag(context.Background(), remove_foodtag_arg)
+	require.NoError(t, err)
 	get_menu_food_arg := GetMenuFoodParams{
 		MenuID: menu.ID,
 		FoodName: "food",
 	}
 	menu_food, _ := testQueries.GetMenuFood(context.Background(), get_menu_food_arg)
-	foodtag_list, _ := testQueries.ListMenuFoodTag(context.Background(), menu_food.ID)
+	foodtag_list, err := testQueries.ListMenuFoodTag(context.Background(), menu_food.ID)
+	require.NoError(t, err)
 	require.NotContains(t, foodtag_list, remove_foodtag_arg.FoodTag)
 
 	remove_foodtag_arg2 := RemoveFoodTagParams{
 		MenuFoodID: menu.ID,
 		FoodTag: "top1",
 	}
-	testQueries.RemoveFoodTag(context.Background(), remove_foodtag_arg2)
+	err = testQueries.RemoveFoodTag(context.Background(), remove_foodtag_arg2)
+	require.NoError(t, err)
 	foodtag_list, _ = testQueries.ListMenuFoodTag(context.Background(), menu_food.ID)
 	require.Empty(t, foodtag_list)
 	delRandomStore(t)

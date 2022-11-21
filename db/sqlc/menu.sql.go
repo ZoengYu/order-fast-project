@@ -180,10 +180,9 @@ func (q *Queries) ListMenuFoodTag(ctx context.Context, menuFoodID int64) ([]stri
 	return items, nil
 }
 
-const removeFoodTag = `-- name: RemoveFoodTag :one
+const removeFoodTag = `-- name: RemoveFoodTag :exec
 DELETE FROM food_tag
 WHERE menu_food_id = $1 AND food_tag = $2
-RETURNING id, menu_food_id, food_tag
 `
 
 type RemoveFoodTagParams struct {
@@ -191,11 +190,9 @@ type RemoveFoodTagParams struct {
 	FoodTag    string `json:"food_tag"`
 }
 
-func (q *Queries) RemoveFoodTag(ctx context.Context, arg RemoveFoodTagParams) (FoodTag, error) {
-	row := q.db.QueryRowContext(ctx, removeFoodTag, arg.MenuFoodID, arg.FoodTag)
-	var i FoodTag
-	err := row.Scan(&i.ID, &i.MenuFoodID, &i.FoodTag)
-	return i, err
+func (q *Queries) RemoveFoodTag(ctx context.Context, arg RemoveFoodTagParams) error {
+	_, err := q.db.ExecContext(ctx, removeFoodTag, arg.MenuFoodID, arg.FoodTag)
+	return err
 }
 
 const updateStoreMenu = `-- name: UpdateStoreMenu :one
