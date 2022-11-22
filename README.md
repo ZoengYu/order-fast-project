@@ -30,7 +30,11 @@ Running testing
 ```
 make test
 ```
-Running the gin server
+Launch the gin backend server
 ```
 go run main.go
+```
+If you change the content of db/sql/., running the following cmd which generate the Querier for api testing are required
+```
+make mock
 ```

@@ -5,15 +5,16 @@ import (
 	"database/sql"
 	"testing"
 
+	util "github.com/ZoengYu/order-fast-project/utils"
 	"github.com/stretchr/testify/require"
 )
 
 func createRandomStore(t *testing.T) Store{
 	arg := CreateStoreParams{
-		StoreName: "Harry",
+		StoreName: util.RandomStoreName(),
 		StoreAddress: "address",
-		StorePhone: "0900000000",
-		StoreOwner: "王震",
+		StorePhone: util.RandomPhone(),
+		StoreOwner: util.RandomOwner(),
 		StoreManager: "王小棣s",
 	}
 	store, err := testQueries.CreateStore(context.Background(), arg)
@@ -32,37 +33,21 @@ func createRandomStore(t *testing.T) Store{
 	return store
 }
 
-func getRandomStore(t *testing.T) Store{
-	store, err := testQueries.GetStoreByName(context.Background(), "Harry")
-	require.NoError(t, err)
-	require.NotEmpty(t, store)
-
-	require.Equal(t, "Harry", store.StoreName)
-	return store
-}
-
-func delRandomStore(t *testing.T) {
-	store, _ := testQueries.GetStoreByName(context.Background(), "Harry")
-	require.NotEmpty(t, store)
-
-	err := testQueries.DeleteStore(context.Background(), store.ID)
-	require.NoError(t, err)
-	get_store, err := testQueries.GetStoreByName(context.Background(), "Harry")
-	require.Empty(t, get_store)
-	require.Equal(t, err, sql.ErrNoRows)
-}
-
 func TestCreateStore(t *testing.T) {
 	createRandomStore(t)
 }
 
 func TestGetStore(t *testing.T) {
-	getRandomStore(t)
+	store := createRandomStore(t)
+	get_store, err := testQueries.GetStoreByName(context.Background(), store.StoreName)
+	require.NoError(t, err)
+	require.NotEmpty(t, get_store)
+
+	require.Equal(t, get_store.StoreName, store.StoreName)
 }
 
 func TestUpdateStore(t *testing.T) {
-	store, _ := testQueries.GetStoreByName(context.Background(), "Harry")
-	require.NotEmpty(t, store)
+	store := createRandomStore(t)
 
 	arg := UpdateStoreParams{
 		ID: store.ID,
@@ -80,5 +65,12 @@ func TestUpdateStore(t *testing.T) {
 }
 
 func TestDeleteStore(t *testing.T) {
-	delRandomStore(t)
+	store := createRandomStore(t)
+	require.NotEmpty(t, store)
+
+	err := testQueries.DeleteStore(context.Background(), store.ID)
+	require.NoError(t, err)
+	get_store, err := testQueries.GetStoreByName(context.Background(), store.StoreName)
+	require.Empty(t, get_store)
+	require.Equal(t, err, sql.ErrNoRows)
 }

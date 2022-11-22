@@ -14,7 +14,9 @@ WHERE store_id = $1 and table_id = $2;
 -- name: ListStoreTables :many
 SELECT * FROM tables
 WHERE store_id = $1
-ORDER BY table_id;
+ORDER BY table_id
+LIMIT $2
+OFFSET $3;
 
 -- name: UpdateStoreTable :exec
 UPDATE tables SET table_name = $3

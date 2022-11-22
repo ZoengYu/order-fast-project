@@ -4,14 +4,14 @@ import (
 	"context"
 	"testing"
 
+	util "github.com/ZoengYu/order-fast-project/utils"
 	"github.com/stretchr/testify/require"
 )
 
-func createRandomMenu(t *testing.T) Menu{
-	store := createRandomStore(t)
+func createRandomStoreMenu(t *testing.T, store Store) Menu{
 	arg := CreateStoreMenuParams{
 		StoreID: store.ID,
-		MenuName: "My Menu",
+		MenuName: util.RandomMenuName(),
 	}
 	menu, err := testQueries.CreateStoreMenu(context.Background(), arg)
 	require.NoError(t, err)
@@ -25,23 +25,26 @@ func createRandomMenu(t *testing.T) Menu{
 	return menu
 }
 
-func getRandomMenu(t *testing.T) Menu{
-	store := getRandomStore(t)
+func TestGetRandomMenu(t *testing.T) {
+	store := createRandomStore(t)
+	menu := createRandomStoreMenu(t, store)
 	get_menu_arg := GetStoreMenuParams{
 		StoreID: store.ID,
-		MenuName: "My Menu",
+		MenuName: menu.MenuName,
 	}
 	menu, err := testQueries.GetStoreMenu(context.Background(), get_menu_arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, menu)
-	return menu
 }
+
 func TestCreateStoreMenu(t *testing.T) {
-	createRandomMenu(t)
+	store := createRandomStore(t)
+	createRandomStoreMenu(t, store)
 }
 
 func TestUpdateStoreMenu(t *testing.T) {
-	menu := getRandomMenu(t)
+	store := createRandomStore(t)
+	menu := createRandomStoreMenu(t, store)
 	update_menu_arg := UpdateStoreMenuParams{
 		ID: menu.ID,
 		MenuName: "My Menu2",
@@ -54,12 +57,9 @@ func TestUpdateStoreMenu(t *testing.T) {
 }
 
 func TestAddMenuFoodWithTag(t *testing.T) {
-	store := getRandomStore(t)
-	get_menu_arg := GetStoreMenuParams{
-		StoreID: store.ID,
-		MenuName: "My Menu2",
-	}
-	menu, _ := testQueries.GetStoreMenu(context.Background(), get_menu_arg)
+	store := createRandomStore(t)
+	menu := createRandomStoreMenu(t, store)
+
 	add_food_arg := AddMenuFoodParams{
 		MenuID: menu.ID,
 		FoodName: "food1",
@@ -88,12 +88,8 @@ func TestAddMenuFoodWithTag(t *testing.T) {
 }
 
 func TestRemoveMenuFoodTag(t *testing.T){
-	store := getRandomStore(t)
-	get_menu_arg := GetStoreMenuParams{
-		StoreID: store.ID,
-		MenuName: "My Menu2",
-	}
-	menu, _ := testQueries.GetStoreMenu(context.Background(), get_menu_arg)
+	store := createRandomStore(t)
+	menu := createRandomStoreMenu(t, store)
 	remove_foodtag_arg := RemoveMenuFoodTagParams{
 		MenuFoodID: menu.ID,
 		FoodTag: "三明治",
@@ -117,5 +113,4 @@ func TestRemoveMenuFoodTag(t *testing.T){
 	require.NoError(t, err)
 	foodtag_list, _ = testQueries.ListMenuFoodTag(context.Background(), menu_food.ID)
 	require.Empty(t, foodtag_list)
-	delRandomStore(t)
 }

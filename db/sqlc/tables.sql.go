@@ -90,10 +90,18 @@ const listStoreTables = `-- name: ListStoreTables :many
 SELECT id, store_id, table_id, table_name, created_at FROM tables
 WHERE store_id = $1
 ORDER BY table_id
+LIMIT $2
+OFFSET $3
 `
 
-func (q *Queries) ListStoreTables(ctx context.Context, storeID int64) ([]Table, error) {
-	rows, err := q.db.QueryContext(ctx, listStoreTables, storeID)
+type ListStoreTablesParams struct {
+	StoreID int64 `json:"store_id"`
+	Limit   int32 `json:"limit"`
+	Offset  int32 `json:"offset"`
+}
+
+func (q *Queries) ListStoreTables(ctx context.Context, arg ListStoreTablesParams) ([]Table, error) {
+	rows, err := q.db.QueryContext(ctx, listStoreTables, arg.StoreID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

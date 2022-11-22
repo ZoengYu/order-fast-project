@@ -243,7 +243,7 @@ func (mr *MockDBServiceMockRecorder) ListMenuFoodTag(arg0, arg1 interface{}) *go
 }
 
 // ListStoreTables mocks base method.
-func (m *MockDBService) ListStoreTables(arg0 context.Context, arg1 int64) ([]db.Table, error) {
+func (m *MockDBService) ListStoreTables(arg0 context.Context, arg1 db.ListStoreTablesParams) ([]db.Table, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListStoreTables", arg0, arg1)
 	ret0, _ := ret[0].([]db.Table)
