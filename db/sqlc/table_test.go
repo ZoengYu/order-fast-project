@@ -95,3 +95,21 @@ func TestListStoreTable(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, tables, 4)
 }
+
+func TestDeleteStoreTableByName(t *testing.T) {
+	store := createRandomStore(t)
+	table := createRandomStoreTable(t, store)
+	arg := DeleteStoreTableByNameParams{
+		StoreID: store.ID,
+		TableName: table.TableName,
+	}
+	err := testQueries.DeleteStoreTableByName(context.Background(), arg)
+	require.NoError(t, err)
+	get_table_arg := GetStoreTableParams{
+		StoreID: store.ID,
+		TableID: table.TableID,
+	}
+	empty_table, err := testQueries.GetStoreTable(context.Background(), get_table_arg)
+	require.Empty(t, empty_table)
+	require.Equal(t, err, sql.ErrNoRows)
+}

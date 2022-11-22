@@ -18,19 +18,6 @@ RETURNING *;
 SELECT * FROM menu
 WHERE store_id = $1 AND menu_name = $2;
 
--- name: AddMenuFood :one
-INSERT INTO menu_food (
-	menu_id,
-	food_name,
-	custom_option
-) VALUES (
-	$1, $2, $3
-) RETURNING *;
-
--- name: GetMenuFood :one
-SELECT * FROM menu_food
-WHERE menu_id = $1 AND food_name = $2;
-
 -- name: AddMenuFoodTag :one
 INSERT INTO food_tag (
 	menu_food_id,
@@ -38,15 +25,3 @@ INSERT INTO food_tag (
 ) VALUES (
 	$1, $2
 ) RETURNING *;
-
--- name: GetMenuFoodTag :one
-SELECT * FROM food_tag
-WHERE menu_food_id = $1 AND food_tag = $2;
-
--- name: RemoveMenuFoodTag :exec
-DELETE FROM food_tag
-WHERE menu_food_id = $1 AND food_tag = $2;
-
--- name: ListMenuFoodTag :many
-SELECT food_tag.food_tag FROM food_tag
-WHERE menu_food_id = $1;
