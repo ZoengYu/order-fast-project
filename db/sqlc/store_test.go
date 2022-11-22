@@ -51,6 +51,7 @@ func delRandomStore(t *testing.T) {
 	require.Empty(t, get_store)
 	require.Equal(t, err, sql.ErrNoRows)
 }
+
 func TestCreateStore(t *testing.T) {
 	createRandomStore(t)
 }

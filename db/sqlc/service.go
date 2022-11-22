@@ -2,13 +2,18 @@ package db
 
 import "database/sql"
 
-type DBService struct {
+type DBService interface {
+	Querier
+}
+
+// DBQuery connect to the real postgresql to execute SQL queries and transaction
+type DBQuery struct {
 	*Queries
 	db *sql.DB
 }
 
-func NewDBService(db *sql.DB) *DBService{
-	return &DBService{
+func NewDBService(db *sql.DB) DBService{
+	return &DBQuery{
 		db: db,
 		Queries: New(db),
 	}

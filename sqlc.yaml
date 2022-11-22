@@ -7,8 +7,8 @@ packages:
     queries: "./db/query"
     emit_json_tags: true
     emit_prepared_queries: false
-    #tell sqlc generate Querier interface for the generated package, use for mock testing
-    emit_interface: false
+    #tell sqlc generate Querier interface for all the function, use for mock testing
+    emit_interface: true
     #sqlc will singularize the table name to use as model struct name, accounts -> account
     emit_exact_table_names: false
 

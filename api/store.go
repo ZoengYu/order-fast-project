@@ -48,6 +48,7 @@ func (server *Server) getStore(ctx *gin.Context){
 	var req getStoreRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil{
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 
 	store, err := server.db_service.GetStoreByName(ctx, req.StoreName)

@@ -25,4 +25,7 @@ sqlc:
 test:
 	go test -v -cover ./...
 
-.PHOMY: postgres createdb dropdb migrateup migratedown sqlc tests
+mock:
+	mockgen --package mockdb --destination db/mock/db_service.go github.com/ZoengYu/order-fast-project/db/sqlc DBService
+
+.PHOMY: postgres createdb dropdb migrateup migratedown sqlc tests mock

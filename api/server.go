@@ -10,12 +10,12 @@ import (
 )
 
 type Server struct {
-	db_service	*db.DBService
+	db_service	db.DBService
 	router		*gin.Engine
 	config		util.Config
 }
 
-func NewServer(config util.Config, db_service *db.DBService) (*Server, error) {
+func NewServer(config util.Config, db_service db.DBService) (*Server, error) {
 	server := &Server{
 		db_service:	db_service,
 		config:		config,
