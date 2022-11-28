@@ -38,6 +38,10 @@ func RandomStoreName() string {
 	return fmt.Sprintf("Store-%s", RandomString(4))
 }
 
+func RandomStoreAddress() string {
+	return fmt.Sprintf("Address-%s-%s", RandomString(4), RandomString(4))
+}
+
 func RandomTableNumber() int64 {
 	return RandomInt(0, 100)
 }

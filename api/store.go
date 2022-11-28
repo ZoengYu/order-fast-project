@@ -22,6 +22,7 @@ func (server *Server) createStore(ctx *gin.Context){
 
 	if err := ctx.ShouldBindJSON(&req); err != nil{
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 
 	arg := db.CreateStoreParams{

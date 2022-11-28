@@ -1,8 +1,6 @@
 package api
 
 import (
-	"net/http"
-
 	db "github.com/ZoengYu/order-fast-project/db/sqlc"
 	util "github.com/ZoengYu/order-fast-project/utils"
 	"github.com/gin-contrib/cors"
@@ -31,12 +29,6 @@ func (server *Server) setupRouter() {
 	v1 := router.Group("/v1")
 	// allow all origins request
 	router.Use(cors.Default())
-
-	v1.GET("/ping", func(c *gin.Context){
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
 
 	v1.POST("/store", server.createStore)
 	v1.GET("/store", server.getStore)
