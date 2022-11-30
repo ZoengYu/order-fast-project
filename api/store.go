@@ -42,11 +42,35 @@ func (server *Server) createStore(ctx *gin.Context){
 }
 
 type getStoreRequest struct {
+	StoreID int64 `uri:"id" binding:"required,min=1"`
+}
+
+func (server *Server) getStore(ctx *gin.Context){
+	var req getStoreRequest
+	if err := ctx.ShouldBindUri(&req); err != nil{
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	store, err := server.db_service.GetStore(ctx, req.StoreID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = fmt.Errorf("cannot find store id: %d", req.StoreID)
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, store)
+}
+
+type getStoreByNameRequest struct {
 	StoreName 	string 	`json:"name" binding:"required"`
 }
 
 func (server *Server) getStoreByName(ctx *gin.Context){
-	var req getStoreRequest
+	var req getStoreByNameRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil{
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return

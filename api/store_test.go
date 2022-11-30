@@ -19,6 +19,88 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestGetStoreAPI(t *testing.T) {
+	store := randomStore()
+
+	testCases := []struct {
+		name 			string
+		storeID			int64
+		buildStubs 		func(mock_db *mockdb.MockDBService)
+		checkResponse 	func(t *testing.T, recoder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "OK",
+			storeID: store.ID,
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				mockdb.EXPECT().
+				GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(1).
+					Return(store, nil)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusOK, recoder.Code)
+			},
+		},
+		{
+			name: "NotFound",
+			storeID: store.ID,
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				mockdb.EXPECT().
+					GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(1).
+					Return(db.Store{}, sql.ErrNoRows)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusNotFound, recoder.Code)
+			},
+		},
+		{
+			name: "InvalidID",
+			storeID: 0,
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				mockdb.EXPECT().
+				GetStore(gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusBadRequest, recoder.Code)
+			},
+		},
+		{
+			name: "DBError",
+			storeID: store.ID,
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				mockdb.EXPECT().
+				GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(1).
+					Return(db.Store{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusInternalServerError, recoder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mockdb_service := mock_db.NewMockDBService(ctrl)
+			tc.buildStubs(mockdb_service)
+			server := newTestServer(t, mockdb_service)
+			recorder := httptest.NewRecorder()
+			url := fmt.Sprintf("/v1/store/%d", tc.storeID)
+			request, err := http.NewRequest(http.MethodGet, url, nil)
+			require.NoError(t, err)
+
+			server.router.ServeHTTP(recorder, request)
+			tc.checkResponse(t, recorder)
+		})
+	}
+}
+
 func TestGetStoreByNameAPI(t *testing.T) {
 	store := randomStore()
 
