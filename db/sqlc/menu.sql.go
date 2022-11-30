@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"time"
 )
 
 const addMenuFoodTag = `-- name: AddMenuFoodTag :one
@@ -34,21 +33,19 @@ func (q *Queries) AddMenuFoodTag(ctx context.Context, arg AddMenuFoodTagParams) 
 const createStoreMenu = `-- name: CreateStoreMenu :one
 INSERT INTO menu (
     store_id,
-	menu_name,
-	created_at
+	menu_name
 ) VALUES (
-    $1, $2, $3
+    $1, $2
 ) RETURNING id, store_id, menu_name, created_at, updated_at
 `
 
 type CreateStoreMenuParams struct {
-	StoreID   int64     `json:"store_id"`
-	MenuName  string    `json:"menu_name"`
-	CreatedAt time.Time `json:"created_at"`
+	StoreID  int64  `json:"store_id"`
+	MenuName string `json:"menu_name"`
 }
 
 func (q *Queries) CreateStoreMenu(ctx context.Context, arg CreateStoreMenuParams) (Menu, error) {
-	row := q.db.QueryRowContext(ctx, createStoreMenu, arg.StoreID, arg.MenuName, arg.CreatedAt)
+	row := q.db.QueryRowContext(ctx, createStoreMenu, arg.StoreID, arg.MenuName)
 	var i Menu
 	err := row.Scan(
 		&i.ID,

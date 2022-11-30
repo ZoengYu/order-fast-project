@@ -1,10 +1,9 @@
 -- name: CreateStoreMenu :one
 INSERT INTO menu (
     store_id,
-	menu_name,
-	created_at
+	menu_name
 ) VALUES (
-    $1, $2, $3
+    $1, $2
 ) RETURNING *;
 
 
