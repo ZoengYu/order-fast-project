@@ -39,6 +39,15 @@ func TestCreateStore(t *testing.T) {
 
 func TestGetStore(t *testing.T) {
 	store := createRandomStore(t)
+	get_store, err := testQueries.GetStore(context.Background(), store.ID)
+	require.NoError(t, err)
+	require.NotEmpty(t, get_store)
+
+	require.Equal(t, get_store.StoreName, store.StoreName)
+}
+
+func TestGetStoreByName(t *testing.T) {
+	store := createRandomStore(t)
 	get_store, err := testQueries.GetStoreByName(context.Background(), store.StoreName)
 	require.NoError(t, err)
 	require.NotEmpty(t, get_store)

@@ -182,6 +182,21 @@ func (mr *MockDBServiceMockRecorder) GetMenuFoodTag(arg0, arg1 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMenuFoodTag", reflect.TypeOf((*MockDBService)(nil).GetMenuFoodTag), arg0, arg1)
 }
 
+// GetStore mocks base method.
+func (m *MockDBService) GetStore(arg0 context.Context, arg1 int64) (db.Store, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetStore", arg0, arg1)
+	ret0, _ := ret[0].(db.Store)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetStore indicates an expected call of GetStore.
+func (mr *MockDBServiceMockRecorder) GetStore(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStore", reflect.TypeOf((*MockDBService)(nil).GetStore), arg0, arg1)
+}
+
 // GetStoreByName mocks base method.
 func (m *MockDBService) GetStoreByName(arg0 context.Context, arg1 string) (db.Store, error) {
 	m.ctrl.T.Helper()

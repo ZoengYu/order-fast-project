@@ -9,6 +9,10 @@ INSERT INTO stores (
     $1, $2, $3, $4, $5
 ) RETURNING *;
 
+-- name: GetStore :one
+SELECT * FROM stores
+WHERE id = $1 LIMIT 1;
+
 -- name: GetStoreByName :one
 SELECT * FROM stores
 WHERE store_name = $1 LIMIT 1;

@@ -31,7 +31,11 @@ func RandomString(n int) string {
 }
 
 func RandomOwner() string {
-	return RandomString(8)
+	return fmt.Sprintf("Owner-%s", RandomString(4))
+}
+
+func RandomManager() string {
+	return fmt.Sprintf("Manager-%s", RandomString(4))
 }
 
 func RandomStoreName() string {

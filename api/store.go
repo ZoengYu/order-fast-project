@@ -10,10 +10,10 @@ import (
 )
 
 type createStoreRequest struct {
-	Name string `json:"name" binding:"required"`
+	Name 	string `json:"name" binding:"required"`
 	Address string `json:"address" binding:"required"`
-	Phone string `json:"phone" binding:"required"`
-	Owner string `json:"owner" binding:"required"`
+	Phone 	string `json:"phone" binding:"required"`
+	Owner 	string `json:"owner" binding:"required"`
 	Manager string `json:"manager"`
 }
 
@@ -45,7 +45,7 @@ type getStoreRequest struct {
 	StoreName 	string 	`json:"name" binding:"required"`
 }
 
-func (server *Server) getStore(ctx *gin.Context){
+func (server *Server) getStoreByName(ctx *gin.Context){
 	var req getStoreRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil{
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -56,11 +56,56 @@ func (server *Server) getStore(ctx *gin.Context){
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err = fmt.Errorf("cannot find store name: %s", req.StoreName)
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
 		}
-		ctx.JSON(http.StatusNotFound, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 	ctx.JSON(http.StatusOK, store)
+}
+
+type updateStoreRequest struct {
+	StoreID			int64	`json:"store_id" binding:"required"`
+	StoreName 		string	`json:"store_name" binding:"required"`
+	StoreAddress	string	`json:"store_address" binding:"required"`
+	StorePhone		string 	`json:"store_phone" binding:"required"`
+	StoreOwner		string 	`json:"store_owner" binding:"required"`
+	StoreManager	string 	`json:"store_manager"`
+}
+
+func (server *Server) updateStore(ctx *gin.Context){
+	var req updateStoreRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil{
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	store , err := server.db_service.GetStore(ctx, req.StoreID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = fmt.Errorf("store %s is not exist", req.StoreName)
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	arg := db.UpdateStoreParams{
+		ID:				store.ID,
+		StoreName: 		req.StoreName,
+		StoreAddress: 	req.StoreAddress,
+		StorePhone: 	req.StorePhone,
+		StoreOwner: 	req.StoreOwner,
+		StoreManager: 	req.StoreManager,
+	}
+	updated_store, err := server.db_service.UpdateStore(ctx, arg)
+	if err != nil{
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, updated_store.ID)
 }
 
 func errorResponse(err error) gin.H {

@@ -60,6 +60,26 @@ func (q *Queries) DeleteStore(ctx context.Context, id int64) error {
 	return err
 }
 
+const getStore = `-- name: GetStore :one
+SELECT id, store_name, store_address, store_phone, store_owner, store_manager, created_at FROM stores
+WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetStore(ctx context.Context, id int64) (Store, error) {
+	row := q.db.QueryRowContext(ctx, getStore, id)
+	var i Store
+	err := row.Scan(
+		&i.ID,
+		&i.StoreName,
+		&i.StoreAddress,
+		&i.StorePhone,
+		&i.StoreOwner,
+		&i.StoreManager,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getStoreByName = `-- name: GetStoreByName :one
 SELECT id, store_name, store_address, store_phone, store_owner, store_manager, created_at FROM stores
 WHERE store_name = $1 LIMIT 1
