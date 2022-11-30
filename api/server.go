@@ -34,6 +34,7 @@ func (server *Server) setupRouter() {
 	v1.GET("/store/:id", server.getStore)
 	v1.GET("/store/name", server.getStoreByName)
 	v1.PUT("/store", server.updateStore)
+	v1.DELETE("/store/:id", server.delStore)
 	server.router = router
 }
 

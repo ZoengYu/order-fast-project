@@ -135,3 +135,27 @@ func (server *Server) updateStore(ctx *gin.Context){
 func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
 }
+
+type delStoreRequest struct {
+	StoreID int64 `uri:"id" binding:"required,min=1"`
+}
+
+func (server *Server) delStore(ctx *gin.Context){
+	var req delStoreRequest
+	if err := ctx.ShouldBindUri(&req); err != nil{
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	err := server.db_service.DeleteStore(ctx, req.StoreID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = fmt.Errorf("cannot find store id: %d", req.StoreID)
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusNoContent, nil)
+}
