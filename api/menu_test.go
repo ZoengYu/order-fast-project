@@ -138,7 +138,7 @@ func TestCreateStoreMenuAPI(t *testing.T) {
 			data, err := json.Marshal(tc.body)
 			require.NoError(t, err)
 
-			url := "/v1/menu"
+			url := "/v1/store/menu"
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
@@ -259,10 +259,145 @@ func TestGetStoreMenuAPI(t *testing.T) {
 			tc.buildStubs(mockdb_service)
 			server := newTestServer(t, mockdb_service)
 			recorder := httptest.NewRecorder()
-			url := "/v1/menu"
+			url := "/v1/store/menu"
 			data, err := json.Marshal(tc.body)
 			require.NoError(t, err)
 			request, err := http.NewRequest(http.MethodGet, url, bytes.NewReader(data))
+			require.NoError(t, err)
+
+			server.router.ServeHTTP(recorder, request)
+			tc.checkResponse(t, recorder)
+		})
+	}
+}
+
+func TestUpdateStoreMenuAPI(t *testing.T) {
+	store := randomStore()
+	menu := randomStoreMenu(store)
+	update_menu := randomStoreMenu(store)
+
+	testCases := []struct {
+		name			string
+		body 			gin.H
+		buildStubs 		func(mock_db *mockdb.MockDBService)
+		checkResponse 	func(t *testing.T, recoder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "OK",
+			body: gin.H{
+				"store_id":		store.ID,
+				"menu_id":		menu.ID,
+				"menu_name":	update_menu.MenuName,
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				updated_arg := db.UpdateStoreMenuParams{
+					StoreID: 	store.ID,
+					ID:			menu.ID,
+					MenuName: 	update_menu.MenuName,
+				}
+				mockdb.EXPECT().
+					GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(1).
+					Return(store, nil)
+
+				mockdb.EXPECT().
+					UpdateStoreMenu(gomock.Any(), gomock.Eq(updated_arg)).
+					Times(1).
+					Return(update_menu, nil)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusOK, recoder.Code)
+			},
+		},
+		{
+			name: "BadRequestPayload",
+			body: gin.H{
+				"store_id":		"15",
+				"menu_id":		menu.ID,
+				"menu_name":	update_menu.MenuName,
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				mockdb.EXPECT().
+				GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusBadRequest, recoder.Code)
+			},
+		},
+		{
+			name: "NotFound",
+			body: gin.H{
+				"store_id":		store.ID,
+				"menu_id":		menu.ID,
+				"menu_name":	update_menu.MenuName,
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				updated_arg := db.UpdateStoreMenuParams{
+					StoreID: 	store.ID,
+					ID:			menu.ID,
+					MenuName: 	update_menu.MenuName,
+				}
+				mockdb.EXPECT().
+				GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(1).
+					Return(store, nil)
+
+				mockdb.EXPECT().
+				UpdateStoreMenu(gomock.Any(), gomock.Eq(updated_arg)).
+					Times(1).
+					Return(db.Menu{}, sql.ErrNoRows)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusNotFound, recoder.Code)
+			},
+		},
+		{
+			name: "UnexpectedDBErrGetStore",
+			body: gin.H{
+				"store_id":		store.ID,
+				"menu_id":		menu.ID,
+				"menu_name":	update_menu.MenuName,
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				updated_arg := db.UpdateStoreMenuParams{
+					StoreID: 	store.ID,
+					ID:			menu.ID,
+					MenuName: 	update_menu.MenuName,
+				}
+				mockdb.EXPECT().
+				GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(1).
+					Return(store, nil)
+
+				mockdb.EXPECT().
+				UpdateStoreMenu(gomock.Any(), gomock.Eq(updated_arg)).
+					Times(1).
+					Return(db.Menu{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusInternalServerError, recoder.Code)
+			},
+		},
+	}
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			mockdb_service := mock_db.NewMockDBService(ctrl)
+			tc.buildStubs(mockdb_service)
+
+			server := newTestServer(t, mockdb_service)
+			recorder := httptest.NewRecorder()
+
+			data, err := json.Marshal(tc.body)
+			require.NoError(t, err)
+
+			url := "/v1/store/menu"
+			request, err := http.NewRequest(http.MethodPut, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
 			server.router.ServeHTTP(recorder, request)

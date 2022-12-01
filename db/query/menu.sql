@@ -9,8 +9,8 @@ INSERT INTO menu (
 
 -- name: UpdateStoreMenu :one
 UPDATE menu
-SET menu_name = $2
-WHERE id = $1
+SET menu_name = $3
+WHERE store_id = $1 AND id = $2
 RETURNING *;
 
 -- name: GetStoreMenu :one

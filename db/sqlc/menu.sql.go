@@ -82,18 +82,19 @@ func (q *Queries) GetStoreMenu(ctx context.Context, arg GetStoreMenuParams) (Men
 
 const updateStoreMenu = `-- name: UpdateStoreMenu :one
 UPDATE menu
-SET menu_name = $2
-WHERE id = $1
+SET menu_name = $3
+WHERE store_id = $1 AND id = $2
 RETURNING id, store_id, menu_name, created_at, updated_at
 `
 
 type UpdateStoreMenuParams struct {
+	StoreID  int64  `json:"store_id"`
 	ID       int64  `json:"id"`
 	MenuName string `json:"menu_name"`
 }
 
 func (q *Queries) UpdateStoreMenu(ctx context.Context, arg UpdateStoreMenuParams) (Menu, error) {
-	row := q.db.QueryRowContext(ctx, updateStoreMenu, arg.ID, arg.MenuName)
+	row := q.db.QueryRowContext(ctx, updateStoreMenu, arg.StoreID, arg.ID, arg.MenuName)
 	var i Menu
 	err := row.Scan(
 		&i.ID,

@@ -46,8 +46,9 @@ func TestUpdateStoreMenu(t *testing.T) {
 	store := createRandomStore(t)
 	menu := createRandomStoreMenu(t, store)
 	update_menu_arg := UpdateStoreMenuParams{
-		ID: menu.ID,
-		MenuName: "My Menu2",
+		StoreID: 	store.ID,
+		ID: 		menu.ID,
+		MenuName: 	"My Menu2",
 	}
 	updated_menu, err := testQueries.UpdateStoreMenu(context.Background(), update_menu_arg)
 	require.NoError(t, err)
