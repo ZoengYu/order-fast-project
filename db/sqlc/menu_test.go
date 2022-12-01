@@ -70,5 +70,19 @@ func TestDeleteMenu(t *testing.T) {
 	get_menu, err := testQueries.GetStoreMenu(context.Background(), arg)
 	require.Empty(t, get_menu)
 	require.Equal(t, err, sql.ErrNoRows)
+}
 
+func TestListMenu(t *testing.T) {
+	store := createRandomStore(t)
+	for i := 0; i < 10; i++ {
+		createRandomStoreMenu(t, store)
+	}
+	arg := ListStoreMenuParams{
+		StoreID: store.ID,
+		Limit: 5,
+		Offset: 5,
+	}
+	menu_list, err := testQueries.ListStoreMenu(context.Background(), arg)
+	require.NoError(t, err)
+	require.Len(t, menu_list, 5)
 }

@@ -90,6 +90,49 @@ func (q *Queries) GetStoreMenu(ctx context.Context, arg GetStoreMenuParams) (Men
 	return i, err
 }
 
+const listStoreMenu = `-- name: ListStoreMenu :many
+SELECT id, store_id, menu_name, created_at, updated_at FROM menu
+WHERE store_id = $1
+ORDER BY id
+LIMIT $2
+OFFSET $3
+`
+
+type ListStoreMenuParams struct {
+	StoreID int64 `json:"store_id"`
+	Limit   int32 `json:"limit"`
+	Offset  int32 `json:"offset"`
+}
+
+func (q *Queries) ListStoreMenu(ctx context.Context, arg ListStoreMenuParams) ([]Menu, error) {
+	rows, err := q.db.QueryContext(ctx, listStoreMenu, arg.StoreID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Menu{}
+	for rows.Next() {
+		var i Menu
+		if err := rows.Scan(
+			&i.ID,
+			&i.StoreID,
+			&i.MenuName,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateStoreMenu = `-- name: UpdateStoreMenu :one
 UPDATE menu
 SET menu_name = $3

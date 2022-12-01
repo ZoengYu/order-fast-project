@@ -490,6 +490,151 @@ func TestDelMenuAPI(t *testing.T) {
 	}
 }
 
+func TestListMenuAPI(t *testing.T){
+	store := randomStore()
+	n := 5
+	menu_list := make([]db.Menu, n)
+	for i := 0; i < n; i++ {
+		menu_list[i] = randomStoreMenu(store)
+	}
+
+	type ListQuery struct{
+		storeID		int64
+		pageID		int
+		pageSize	int
+	}
+
+	testCases := []struct {
+		name 			string
+		query			ListQuery
+		buildStubs 		func(mock_db *mockdb.MockDBService)
+		checkResponse 	func(t *testing.T, recoder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "OK",
+			query: ListQuery{
+				storeID: 	store.ID,
+				pageID:		1,
+				pageSize:	n,
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				arg := db.ListStoreMenuParams{
+					StoreID: store.ID,
+					Limit:	int32(n),
+					Offset: 0,
+				}
+				mockdb.EXPECT().
+				ListStoreMenu(gomock.Any(), gomock.Eq(arg)).
+					Times(1).
+					Return(menu_list, nil)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusOK, recoder.Code)
+			},
+		},
+		{
+			name: "InvalidPageID",
+			query: ListQuery{
+				storeID: 	store.ID,
+				pageID:		-1,
+				pageSize:	n,
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				mockdb.EXPECT().
+				ListStoreMenu(gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusBadRequest, recoder.Code)
+			},
+		},
+		{
+			name: "InvalidPageSize",
+			query: ListQuery{
+				storeID: 	store.ID,
+				pageID:		1,
+				pageSize:	20,
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				mockdb.EXPECT().
+				ListStoreMenu(gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusBadRequest, recoder.Code)
+			},
+		},
+		{
+			name: "NotFoundReturnStatusOK",
+			query: ListQuery{
+				storeID: 	store.ID,
+				pageID:		1,
+				pageSize:	n,
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				arg := db.ListStoreMenuParams{
+					StoreID: store.ID,
+					Limit:	int32(n),
+					Offset: 0,
+				}
+				mockdb.EXPECT().
+				ListStoreMenu(gomock.Any(), gomock.Eq(arg)).
+					Times(1).
+					Return(menu_list, sql.ErrNoRows)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusOK, recoder.Code)
+			},
+		},
+		{
+			name: "UnexpectedDBErr",
+			query: ListQuery{
+				storeID: 	store.ID,
+				pageID:		1,
+				pageSize:	n,
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				arg := db.ListStoreMenuParams{
+					StoreID: store.ID,
+					Limit:	int32(n),
+					Offset: 0,
+				}
+				mockdb.EXPECT().
+				ListStoreMenu(gomock.Any(), gomock.Eq(arg)).
+					Times(1).
+					Return(menu_list, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusInternalServerError, recoder.Code)
+			},
+		},
+	}
+		for i := range testCases {
+			tc := testCases[i]
+
+			t.Run(tc.name, func(t *testing.T) {
+				ctrl := gomock.NewController(t)
+				defer ctrl.Finish()
+				mockdb_service := mock_db.NewMockDBService(ctrl)
+				tc.buildStubs(mockdb_service)
+				server := newTestServer(t, mockdb_service)
+				recorder := httptest.NewRecorder()
+				url := "/v1/store/menu_list"
+				request, err := http.NewRequest(http.MethodGet, url, nil)
+				require.NoError(t, err)
+
+				q := request.URL.Query()
+				q.Add("store_id", fmt.Sprintf("%d", tc.query.storeID))
+				q.Add("page_id", fmt.Sprintf("%d", tc.query.pageID))
+				q.Add("page_size", fmt.Sprintf("%d", tc.query.pageSize))
+				request.URL.RawQuery = q.Encode()
+
+				server.router.ServeHTTP(recorder, request)
+				tc.checkResponse(t, recorder)
+			})
+		}
+}
+
 func randomStoreMenu(store db.Store) db.Menu {
 	return db.Menu{
 		ID:	1,

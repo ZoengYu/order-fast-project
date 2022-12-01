@@ -25,6 +25,7 @@ type Querier interface {
 	GetStoreMenu(ctx context.Context, arg GetStoreMenuParams) (Menu, error)
 	GetStoreTable(ctx context.Context, arg GetStoreTableParams) (Table, error)
 	ListMenuFoodTag(ctx context.Context, menuFoodID int64) ([]string, error)
+	ListStoreMenu(ctx context.Context, arg ListStoreMenuParams) ([]Menu, error)
 	ListStoreTables(ctx context.Context, arg ListStoreTablesParams) ([]Table, error)
 	RemoveMenuFoodTag(ctx context.Context, arg RemoveMenuFoodTagParams) error
 	UpdateStore(ctx context.Context, arg UpdateStoreParams) (Store, error)

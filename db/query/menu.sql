@@ -28,3 +28,10 @@ INSERT INTO food_tag (
 -- name: DeleteMenu :exec
 DELETE FROM menu
 WHERE id = $1;
+
+-- name: ListStoreMenu :many
+SELECT * FROM menu
+WHERE store_id = $1
+ORDER BY id
+LIMIT $2
+OFFSET $3;

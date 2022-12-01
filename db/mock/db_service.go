@@ -271,6 +271,21 @@ func (mr *MockDBServiceMockRecorder) ListMenuFoodTag(arg0, arg1 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListMenuFoodTag", reflect.TypeOf((*MockDBService)(nil).ListMenuFoodTag), arg0, arg1)
 }
 
+// ListStoreMenu mocks base method.
+func (m *MockDBService) ListStoreMenu(arg0 context.Context, arg1 db.ListStoreMenuParams) ([]db.Menu, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListStoreMenu", arg0, arg1)
+	ret0, _ := ret[0].([]db.Menu)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListStoreMenu indicates an expected call of ListStoreMenu.
+func (mr *MockDBServiceMockRecorder) ListStoreMenu(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListStoreMenu", reflect.TypeOf((*MockDBService)(nil).ListStoreMenu), arg0, arg1)
+}
+
 // ListStoreTables mocks base method.
 func (m *MockDBService) ListStoreTables(arg0 context.Context, arg1 db.ListStoreTablesParams) ([]db.Table, error) {
 	m.ctrl.T.Helper()
