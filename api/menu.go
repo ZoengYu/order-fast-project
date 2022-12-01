@@ -122,3 +122,27 @@ func (server *Server) updateStoreMenu(ctx *gin.Context){
 	}
 	ctx.JSON(http.StatusOK, menu)
 }
+
+type delStoreMenuRequest struct{
+	MenuID int64 `uri:"id" binding:"required,min=1"`
+}
+
+func (server *Server) deleteStoreMenu(ctx *gin.Context){
+	var req delStoreMenuRequest
+	if err := ctx.ShouldBindUri(&req); err != nil{
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	err := server.db_service.DeleteMenu(ctx, req.MenuID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = fmt.Errorf("cannot find menu id: %d", req.MenuID)
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusNoContent, nil)
+}

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -398,6 +399,89 @@ func TestUpdateStoreMenuAPI(t *testing.T) {
 
 			url := "/v1/store/menu"
 			request, err := http.NewRequest(http.MethodPut, url, bytes.NewReader(data))
+			require.NoError(t, err)
+
+			server.router.ServeHTTP(recorder, request)
+			tc.checkResponse(t, recorder)
+		})
+	}
+}
+
+func TestDelMenuAPI(t *testing.T) {
+	store := randomStore()
+	menu := randomStoreMenu(store)
+
+	testCases := []struct {
+		name 			string
+		menuID			int64
+		buildStubs 		func(mock_db *mockdb.MockDBService)
+		checkResponse 	func(t *testing.T, recoder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "OK",
+			menuID: menu.ID,
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				mockdb.EXPECT().
+				DeleteMenu(gomock.Any(), gomock.Eq(menu.ID)).
+					Times(1).
+					Return(nil)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusNoContent, recoder.Code)
+			},
+		},
+		{
+			name: "NotFound",
+			menuID: menu.ID,
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				mockdb.EXPECT().
+					DeleteMenu(gomock.Any(), gomock.Eq(menu.ID)).
+					Times(1).
+					Return(sql.ErrNoRows)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusNotFound, recoder.Code)
+			},
+		},
+		{
+			name: "InvalidID",
+			menuID: 0,
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				mockdb.EXPECT().
+				DeleteMenu(gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusBadRequest, recoder.Code)
+			},
+		},
+		{
+			name: "DBError",
+			menuID: menu.ID,
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				mockdb.EXPECT().
+				DeleteMenu(gomock.Any(), gomock.Eq(menu.ID)).
+					Times(1).
+					Return(sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusInternalServerError, recoder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mockdb_service := mock_db.NewMockDBService(ctrl)
+			tc.buildStubs(mockdb_service)
+			server := newTestServer(t, mockdb_service)
+			recorder := httptest.NewRecorder()
+			url := fmt.Sprintf("/v1/store/menu/%d", tc.menuID)
+			request, err := http.NewRequest(http.MethodDelete, url, nil)
 			require.NoError(t, err)
 
 			server.router.ServeHTTP(recorder, request)

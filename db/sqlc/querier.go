@@ -14,6 +14,7 @@ type Querier interface {
 	CreateStore(ctx context.Context, arg CreateStoreParams) (Store, error)
 	CreateStoreMenu(ctx context.Context, arg CreateStoreMenuParams) (Menu, error)
 	CreateTable(ctx context.Context, arg CreateTableParams) (Table, error)
+	DeleteMenu(ctx context.Context, id int64) error
 	DeleteStore(ctx context.Context, id int64) error
 	DeleteStoreTable(ctx context.Context, id int64) error
 	DeleteStoreTableByName(ctx context.Context, arg DeleteStoreTableByNameParams) error

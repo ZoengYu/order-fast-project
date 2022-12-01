@@ -110,6 +110,20 @@ func (mr *MockDBServiceMockRecorder) CreateTable(arg0, arg1 interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTable", reflect.TypeOf((*MockDBService)(nil).CreateTable), arg0, arg1)
 }
 
+// DeleteMenu mocks base method.
+func (m *MockDBService) DeleteMenu(arg0 context.Context, arg1 int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteMenu", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteMenu indicates an expected call of DeleteMenu.
+func (mr *MockDBServiceMockRecorder) DeleteMenu(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteMenu", reflect.TypeOf((*MockDBService)(nil).DeleteMenu), arg0, arg1)
+}
+
 // DeleteStore mocks base method.
 func (m *MockDBService) DeleteStore(arg0 context.Context, arg1 int64) error {
 	m.ctrl.T.Helper()

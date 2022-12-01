@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"testing"
 
 	util "github.com/ZoengYu/order-fast-project/utils"
@@ -55,4 +56,19 @@ func TestUpdateStoreMenu(t *testing.T) {
 
 	require.Equal(t, updated_menu.ID, menu.ID)
 	require.Equal(t, updated_menu.MenuName, update_menu_arg.MenuName)
+}
+
+func TestDeleteMenu(t *testing.T) {
+	store := createRandomStore(t)
+	menu := createRandomStoreMenu(t, store)
+	err := testQueries.DeleteMenu(context.Background(), menu.ID)
+	require.NoError(t, err)
+	arg := GetStoreMenuParams{
+		StoreID: 	store.ID,
+		ID:			menu.ID,
+	}
+	get_menu, err := testQueries.GetStoreMenu(context.Background(), arg)
+	require.Empty(t, get_menu)
+	require.Equal(t, err, sql.ErrNoRows)
+
 }

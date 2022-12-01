@@ -24,3 +24,7 @@ INSERT INTO food_tag (
 ) VALUES (
 	$1, $2
 ) RETURNING *;
+
+-- name: DeleteMenu :exec
+DELETE FROM menu
+WHERE id = $1;

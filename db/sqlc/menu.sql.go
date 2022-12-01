@@ -57,6 +57,16 @@ func (q *Queries) CreateStoreMenu(ctx context.Context, arg CreateStoreMenuParams
 	return i, err
 }
 
+const deleteMenu = `-- name: DeleteMenu :exec
+DELETE FROM menu
+WHERE id = $1
+`
+
+func (q *Queries) DeleteMenu(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteMenu, id)
+	return err
+}
+
 const getStoreMenu = `-- name: GetStoreMenu :one
 SELECT id, store_id, menu_name, created_at, updated_at FROM menu
 WHERE store_id = $1 AND id = $2
