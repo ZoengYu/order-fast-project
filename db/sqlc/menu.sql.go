@@ -59,16 +59,16 @@ func (q *Queries) CreateStoreMenu(ctx context.Context, arg CreateStoreMenuParams
 
 const getStoreMenu = `-- name: GetStoreMenu :one
 SELECT id, store_id, menu_name, created_at, updated_at FROM menu
-WHERE store_id = $1 AND menu_name = $2
+WHERE store_id = $1 AND id = $2
 `
 
 type GetStoreMenuParams struct {
-	StoreID  int64  `json:"store_id"`
-	MenuName string `json:"menu_name"`
+	StoreID int64 `json:"store_id"`
+	ID      int64 `json:"id"`
 }
 
 func (q *Queries) GetStoreMenu(ctx context.Context, arg GetStoreMenuParams) (Menu, error) {
-	row := q.db.QueryRowContext(ctx, getStoreMenu, arg.StoreID, arg.MenuName)
+	row := q.db.QueryRowContext(ctx, getStoreMenu, arg.StoreID, arg.ID)
 	var i Menu
 	err := row.Scan(
 		&i.ID,

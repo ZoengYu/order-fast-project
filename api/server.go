@@ -36,7 +36,8 @@ func (server *Server) setupRouter() {
 	v1.PUT("/store", server.updateStore)
 	v1.DELETE("/store/:id", server.delStore)
 
-	v1.POST("/menu", server.createMenu)
+	v1.POST("/menu", server.createStoreMenu)
+	v1.GET("/menu", server.getStoreMenu)
 	server.router = router
 }
 

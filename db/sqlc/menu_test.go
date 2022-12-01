@@ -30,7 +30,7 @@ func TestGetRandomMenu(t *testing.T) {
 	menu := createRandomStoreMenu(t, store)
 	get_menu_arg := GetStoreMenuParams{
 		StoreID: store.ID,
-		MenuName: menu.MenuName,
+		ID: menu.ID,
 	}
 	menu, err := testQueries.GetStoreMenu(context.Background(), get_menu_arg)
 	require.NoError(t, err)

@@ -15,7 +15,7 @@ RETURNING *;
 
 -- name: GetStoreMenu :one
 SELECT * FROM menu
-WHERE store_id = $1 AND menu_name = $2;
+WHERE store_id = $1 AND id = $2;
 
 -- name: AddMenuFoodTag :one
 INSERT INTO food_tag (
