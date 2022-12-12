@@ -1,11 +1,11 @@
--- name: AddMenuFood :one
+-- name: CreateMenuFood :one
 INSERT INTO food (
 	menu_id,
-	food_name
+	name
 ) VALUES (
 	$1, $2
 ) RETURNING *;
 
 -- name: GetMenuFood :one
 SELECT * FROM food
-WHERE menu_id = $1 AND food_name = $2;
+WHERE menu_id = $1 AND name = $2;

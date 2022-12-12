@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS menu (
 CREATE TABLE IF NOT EXISTS food (
   "id" bigserial PRIMARY KEY,
   "menu_id" bigint NOT NULL,
-  "food_name" varchar(60) NOT NULL
+  "name" varchar(60) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS food_tag (

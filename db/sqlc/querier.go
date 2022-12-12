@@ -9,8 +9,8 @@ import (
 )
 
 type Querier interface {
-	AddMenuFood(ctx context.Context, arg AddMenuFoodParams) (Food, error)
-	AddMenuFoodTag(ctx context.Context, arg AddMenuFoodTagParams) (FoodTag, error)
+	CreateMenuFood(ctx context.Context, arg CreateMenuFoodParams) (Food, error)
+	CreateMenuFoodTag(ctx context.Context, arg CreateMenuFoodTagParams) (FoodTag, error)
 	CreateStore(ctx context.Context, arg CreateStoreParams) (Store, error)
 	CreateStoreMenu(ctx context.Context, arg CreateStoreMenuParams) (Menu, error)
 	CreateTable(ctx context.Context, arg CreateTableParams) (Table, error)

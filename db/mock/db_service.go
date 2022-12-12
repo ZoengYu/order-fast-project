@@ -35,34 +35,34 @@ func (m *MockDBService) EXPECT() *MockDBServiceMockRecorder {
 	return m.recorder
 }
 
-// AddMenuFood mocks base method.
-func (m *MockDBService) AddMenuFood(arg0 context.Context, arg1 db.AddMenuFoodParams) (db.Food, error) {
+// CreateMenuFood mocks base method.
+func (m *MockDBService) CreateMenuFood(arg0 context.Context, arg1 db.CreateMenuFoodParams) (db.Food, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddMenuFood", arg0, arg1)
+	ret := m.ctrl.Call(m, "CreateMenuFood", arg0, arg1)
 	ret0, _ := ret[0].(db.Food)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// AddMenuFood indicates an expected call of AddMenuFood.
-func (mr *MockDBServiceMockRecorder) AddMenuFood(arg0, arg1 interface{}) *gomock.Call {
+// CreateMenuFood indicates an expected call of CreateMenuFood.
+func (mr *MockDBServiceMockRecorder) CreateMenuFood(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddMenuFood", reflect.TypeOf((*MockDBService)(nil).AddMenuFood), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateMenuFood", reflect.TypeOf((*MockDBService)(nil).CreateMenuFood), arg0, arg1)
 }
 
-// AddMenuFoodTag mocks base method.
-func (m *MockDBService) AddMenuFoodTag(arg0 context.Context, arg1 db.AddMenuFoodTagParams) (db.FoodTag, error) {
+// CreateMenuFoodTag mocks base method.
+func (m *MockDBService) CreateMenuFoodTag(arg0 context.Context, arg1 db.CreateMenuFoodTagParams) (db.FoodTag, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddMenuFoodTag", arg0, arg1)
+	ret := m.ctrl.Call(m, "CreateMenuFoodTag", arg0, arg1)
 	ret0, _ := ret[0].(db.FoodTag)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// AddMenuFoodTag indicates an expected call of AddMenuFoodTag.
-func (mr *MockDBServiceMockRecorder) AddMenuFoodTag(arg0, arg1 interface{}) *gomock.Call {
+// CreateMenuFoodTag indicates an expected call of CreateMenuFoodTag.
+func (mr *MockDBServiceMockRecorder) CreateMenuFoodTag(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddMenuFoodTag", reflect.TypeOf((*MockDBService)(nil).AddMenuFoodTag), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateMenuFoodTag", reflect.TypeOf((*MockDBService)(nil).CreateMenuFoodTag), arg0, arg1)
 }
 
 // CreateStore mocks base method.

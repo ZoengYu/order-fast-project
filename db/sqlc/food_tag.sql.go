@@ -9,7 +9,7 @@ import (
 	"context"
 )
 
-const addMenuFoodTag = `-- name: AddMenuFoodTag :one
+const createMenuFoodTag = `-- name: CreateMenuFoodTag :one
 INSERT INTO food_tag (
 	food_id,
 	food_tag
@@ -18,13 +18,13 @@ INSERT INTO food_tag (
 ) RETURNING id, food_id, food_tag
 `
 
-type AddMenuFoodTagParams struct {
+type CreateMenuFoodTagParams struct {
 	FoodID  int64  `json:"food_id"`
 	FoodTag string `json:"food_tag"`
 }
 
-func (q *Queries) AddMenuFoodTag(ctx context.Context, arg AddMenuFoodTagParams) (FoodTag, error) {
-	row := q.db.QueryRowContext(ctx, addMenuFoodTag, arg.FoodID, arg.FoodTag)
+func (q *Queries) CreateMenuFoodTag(ctx context.Context, arg CreateMenuFoodTagParams) (FoodTag, error) {
+	row := q.db.QueryRowContext(ctx, createMenuFoodTag, arg.FoodID, arg.FoodTag)
 	var i FoodTag
 	err := row.Scan(&i.ID, &i.FoodID, &i.FoodTag)
 	return i, err

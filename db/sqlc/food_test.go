@@ -11,13 +11,13 @@ import (
 func CreateRandomMenuFood(t *testing.T) (Menu, Food){
 	store := createRandomStore(t)
 	menu := createRandomStoreMenu(t, store)
-	arg := AddMenuFoodParams{
+	arg := CreateMenuFoodParams{
 		MenuID: menu.ID,
-		FoodName: util.RandomFoodName(),
+		Name: 	util.RandomFoodName(),
 	}
-	food, err := testQueries.AddMenuFood(context.Background(), arg)
+	food, err := testQueries.CreateMenuFood(context.Background(), arg)
 	require.NoError(t, err)
-	require.Equal(t, food.FoodName, arg.FoodName)
+	require.Equal(t, food.Name, arg.Name)
 	return menu, food
 }
 
@@ -29,9 +29,9 @@ func TestGetMenuFood(t *testing.T) {
 	menu, food := CreateRandomMenuFood(t)
 	arg := GetMenuFoodParams{
 		MenuID: menu.ID,
-		FoodName: food.FoodName,
+		Name: food.Name,
 	}
 	get_food, err := testQueries.GetMenuFood(context.Background(), arg)
 	require.NoError(t, err)
-	require.Equal(t, arg.FoodName, get_food.FoodName)
+	require.Equal(t, arg.Name, get_food.Name)
 }

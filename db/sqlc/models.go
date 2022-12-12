@@ -10,9 +10,9 @@ import (
 )
 
 type Food struct {
-	ID       int64  `json:"id"`
-	MenuID   int64  `json:"menu_id"`
-	FoodName string `json:"food_name"`
+	ID     int64  `json:"id"`
+	MenuID int64  `json:"menu_id"`
+	Name   string `json:"name"`
 }
 
 type FoodTag struct {
