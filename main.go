@@ -7,6 +7,7 @@ import (
 	"github.com/ZoengYu/order-fast-project/api"
 	db "github.com/ZoengYu/order-fast-project/db/sqlc"
 	util "github.com/ZoengYu/order-fast-project/utils"
+	_ "github.com/lib/pq"
 )
 
 func main(){
