@@ -29,10 +29,11 @@ jobs:
           --health-retries 5
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout WorkSpace
+      uses: actions/checkout@v3
 
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v3
       with:
         go-version: 1.19
     #Install v4.15.1 to align with local test
