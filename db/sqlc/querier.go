@@ -9,7 +9,7 @@ import (
 )
 
 type Querier interface {
-	AddMenuFood(ctx context.Context, arg AddMenuFoodParams) (MenuFood, error)
+	AddMenuFood(ctx context.Context, arg AddMenuFoodParams) (Food, error)
 	AddMenuFoodTag(ctx context.Context, arg AddMenuFoodTagParams) (FoodTag, error)
 	CreateStore(ctx context.Context, arg CreateStoreParams) (Store, error)
 	CreateStoreMenu(ctx context.Context, arg CreateStoreMenuParams) (Menu, error)
@@ -18,13 +18,13 @@ type Querier interface {
 	DeleteStore(ctx context.Context, id int64) error
 	DeleteStoreTable(ctx context.Context, id int64) error
 	DeleteStoreTableByName(ctx context.Context, arg DeleteStoreTableByNameParams) error
-	GetMenuFood(ctx context.Context, arg GetMenuFoodParams) (MenuFood, error)
+	GetMenuFood(ctx context.Context, arg GetMenuFoodParams) (Food, error)
 	GetMenuFoodTag(ctx context.Context, arg GetMenuFoodTagParams) (FoodTag, error)
 	GetStore(ctx context.Context, id int64) (Store, error)
 	GetStoreByName(ctx context.Context, storeName string) (Store, error)
 	GetStoreMenu(ctx context.Context, arg GetStoreMenuParams) (Menu, error)
 	GetStoreTable(ctx context.Context, arg GetStoreTableParams) (Table, error)
-	ListMenuFoodTag(ctx context.Context, menuFoodID int64) ([]string, error)
+	ListMenuFoodTag(ctx context.Context, foodID int64) ([]string, error)
 	ListStoreMenu(ctx context.Context, arg ListStoreMenuParams) ([]Menu, error)
 	ListStoreTables(ctx context.Context, arg ListStoreTablesParams) ([]Table, error)
 	RemoveMenuFoodTag(ctx context.Context, arg RemoveMenuFoodTagParams) error

@@ -8,18 +8,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func CreateRandomMenuFood(t *testing.T) (Menu, MenuFood){
+func CreateRandomMenuFood(t *testing.T) (Menu, Food){
 	store := createRandomStore(t)
 	menu := createRandomStoreMenu(t, store)
 	arg := AddMenuFoodParams{
 		MenuID: menu.ID,
 		FoodName: util.RandomFoodName(),
-		CustomOption: util.RandomFoodCustom(),
 	}
 	food, err := testQueries.AddMenuFood(context.Background(), arg)
 	require.NoError(t, err)
 	require.Equal(t, food.FoodName, arg.FoodName)
-	require.Equal(t, food.CustomOption, arg.CustomOption)
 	return menu, food
 }
 

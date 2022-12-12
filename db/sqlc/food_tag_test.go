@@ -13,14 +13,14 @@ func TestAddMenuFoodWithTag(t *testing.T) {
 	_, food := CreateRandomMenuFood(t)
 
 	add_foodtag_arg := AddMenuFoodTagParams{
-		MenuFoodID: food.ID,
+		FoodID: food.ID,
 		FoodTag: util.RandomFoodTag(),
 	}
 	add_foodtag, err := testQueries.AddMenuFoodTag(context.Background(), add_foodtag_arg)
 	require.NoError(t, err)
 	require.Equal(t, add_foodtag_arg.FoodTag, add_foodtag.FoodTag)
 	get_foodtag_arg := GetMenuFoodTagParams{
-		MenuFoodID: food.ID,
+		FoodID: food.ID,
 		FoodTag: add_foodtag.FoodTag,
 	}
 	get_foodtag, err := testQueries.GetMenuFoodTag(context.Background(), get_foodtag_arg)
@@ -33,7 +33,7 @@ func TestListMenuFoodeTag(t *testing.T) {
 	_, food := CreateRandomMenuFood(t)
 	for i := 0; i < 3; i++ {
 		arg := AddMenuFoodTagParams{
-			MenuFoodID: food.ID,
+			FoodID: food.ID,
 			FoodTag: util.RandomFoodTag(),
 		}
 		_, err := testQueries.AddMenuFoodTag(context.Background(), arg)
@@ -48,7 +48,7 @@ func TestListMenuFoodeTag(t *testing.T) {
 func TestRemoveMenuFoodTag(t *testing.T){
 	menu, food := CreateRandomMenuFood(t)
 	add_foodtag_arg := AddMenuFoodTagParams{
-		MenuFoodID: food.ID,
+		FoodID: food.ID,
 		FoodTag: util.RandomFoodTag(),
 	}
 	add_foodtag, err := testQueries.AddMenuFoodTag(context.Background(), add_foodtag_arg)
@@ -56,13 +56,13 @@ func TestRemoveMenuFoodTag(t *testing.T){
 	require.NotEmpty(t, add_foodtag)
 
 	remove_arg := RemoveMenuFoodTagParams{
-		MenuFoodID: menu.ID,
+		FoodID: menu.ID,
 		FoodTag: add_foodtag.FoodTag,
 	}
 	err = testQueries.RemoveMenuFoodTag(context.Background(), remove_arg)
 	require.NoError(t, err)
 	get_arg := GetMenuFoodTagParams{
-		MenuFoodID: menu.ID,
+		FoodID: menu.ID,
 		FoodTag: remove_arg.FoodTag,
 	}
 	get_foodtag, err := testQueries.GetMenuFoodTag(context.Background(), get_arg)

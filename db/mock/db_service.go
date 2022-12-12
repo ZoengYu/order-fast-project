@@ -36,10 +36,10 @@ func (m *MockDBService) EXPECT() *MockDBServiceMockRecorder {
 }
 
 // AddMenuFood mocks base method.
-func (m *MockDBService) AddMenuFood(arg0 context.Context, arg1 db.AddMenuFoodParams) (db.MenuFood, error) {
+func (m *MockDBService) AddMenuFood(arg0 context.Context, arg1 db.AddMenuFoodParams) (db.Food, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddMenuFood", arg0, arg1)
-	ret0, _ := ret[0].(db.MenuFood)
+	ret0, _ := ret[0].(db.Food)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -167,10 +167,10 @@ func (mr *MockDBServiceMockRecorder) DeleteStoreTableByName(arg0, arg1 interface
 }
 
 // GetMenuFood mocks base method.
-func (m *MockDBService) GetMenuFood(arg0 context.Context, arg1 db.GetMenuFoodParams) (db.MenuFood, error) {
+func (m *MockDBService) GetMenuFood(arg0 context.Context, arg1 db.GetMenuFoodParams) (db.Food, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMenuFood", arg0, arg1)
-	ret0, _ := ret[0].(db.MenuFood)
+	ret0, _ := ret[0].(db.Food)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

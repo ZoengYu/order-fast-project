@@ -1,12 +1,11 @@
 -- name: AddMenuFood :one
-INSERT INTO menu_food (
+INSERT INTO food (
 	menu_id,
-	food_name,
-	custom_option
+	food_name
 ) VALUES (
-	$1, $2, $3
+	$1, $2
 ) RETURNING *;
 
 -- name: GetMenuFood :one
-SELECT * FROM menu_food
+SELECT * FROM food
 WHERE menu_id = $1 AND food_name = $2;

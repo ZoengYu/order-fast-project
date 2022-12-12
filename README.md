@@ -22,6 +22,7 @@ This project is design for link-base order system via scan QRcode.
 
 ## *Install required package*
 ```
+go get -u github.com/gin-gonic/gin
 go install github.com/kyleconroy/sqlc/cmd/sqlc@latest
 go install github.com/golang/mock/mockgen@v1.6.0
 ```

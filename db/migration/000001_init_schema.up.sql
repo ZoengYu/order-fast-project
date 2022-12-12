@@ -24,22 +24,21 @@ CREATE TABLE IF NOT EXISTS menu (
   "updated_at" timestamptz
 );
 
-CREATE TABLE IF NOT EXISTS menu_food (
+CREATE TABLE IF NOT EXISTS food (
   "id" bigserial PRIMARY KEY,
   "menu_id" bigint NOT NULL,
-  "food_name" varchar(60) NOT NULL,
-  "custom_option" text[]
+  "food_name" varchar(60) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS food_tag (
   "id" bigserial PRIMARY KEY,
-  "menu_food_id" bigint NOT NULL,
+  "food_id" bigint NOT NULL,
   "food_tag" varchar(60) NOT NULL
 );
 
 ALTER TABLE "tables" ADD FOREIGN KEY ("store_id") REFERENCES "stores" ("id");
-ALTER TABLE "menu_food" ADD FOREIGN KEY ("menu_id") REFERENCES "menu" ("id");
-ALTER TABLE "food_tag" ADD FOREIGN KEY ("menu_food_id") REFERENCES "menu_food" ("id");
+ALTER TABLE "food" ADD FOREIGN KEY ("menu_id") REFERENCES "menu" ("id");
+ALTER TABLE "food_tag" ADD FOREIGN KEY ("food_id") REFERENCES "food" ("id");
 
 CREATE INDEX ON "stores" ("store_name");
 

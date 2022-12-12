@@ -9,30 +9,51 @@ import (
 	"context"
 )
 
+const addMenuFoodTag = `-- name: AddMenuFoodTag :one
+INSERT INTO food_tag (
+	food_id,
+	food_tag
+) VALUES (
+	$1, $2
+) RETURNING id, food_id, food_tag
+`
+
+type AddMenuFoodTagParams struct {
+	FoodID  int64  `json:"food_id"`
+	FoodTag string `json:"food_tag"`
+}
+
+func (q *Queries) AddMenuFoodTag(ctx context.Context, arg AddMenuFoodTagParams) (FoodTag, error) {
+	row := q.db.QueryRowContext(ctx, addMenuFoodTag, arg.FoodID, arg.FoodTag)
+	var i FoodTag
+	err := row.Scan(&i.ID, &i.FoodID, &i.FoodTag)
+	return i, err
+}
+
 const getMenuFoodTag = `-- name: GetMenuFoodTag :one
-SELECT id, menu_food_id, food_tag FROM food_tag
-WHERE menu_food_id = $1 AND food_tag = $2
+SELECT id, food_id, food_tag FROM food_tag
+WHERE food_id = $1 AND food_tag = $2
 `
 
 type GetMenuFoodTagParams struct {
-	MenuFoodID int64  `json:"menu_food_id"`
-	FoodTag    string `json:"food_tag"`
+	FoodID  int64  `json:"food_id"`
+	FoodTag string `json:"food_tag"`
 }
 
 func (q *Queries) GetMenuFoodTag(ctx context.Context, arg GetMenuFoodTagParams) (FoodTag, error) {
-	row := q.db.QueryRowContext(ctx, getMenuFoodTag, arg.MenuFoodID, arg.FoodTag)
+	row := q.db.QueryRowContext(ctx, getMenuFoodTag, arg.FoodID, arg.FoodTag)
 	var i FoodTag
-	err := row.Scan(&i.ID, &i.MenuFoodID, &i.FoodTag)
+	err := row.Scan(&i.ID, &i.FoodID, &i.FoodTag)
 	return i, err
 }
 
 const listMenuFoodTag = `-- name: ListMenuFoodTag :many
 SELECT food_tag.food_tag FROM food_tag
-WHERE menu_food_id = $1
+WHERE food_id = $1
 `
 
-func (q *Queries) ListMenuFoodTag(ctx context.Context, menuFoodID int64) ([]string, error) {
-	rows, err := q.db.QueryContext(ctx, listMenuFoodTag, menuFoodID)
+func (q *Queries) ListMenuFoodTag(ctx context.Context, foodID int64) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, listMenuFoodTag, foodID)
 	if err != nil {
 		return nil, err
 	}
@@ -56,15 +77,15 @@ func (q *Queries) ListMenuFoodTag(ctx context.Context, menuFoodID int64) ([]stri
 
 const removeMenuFoodTag = `-- name: RemoveMenuFoodTag :exec
 DELETE FROM food_tag
-WHERE menu_food_id = $1 AND food_tag = $2
+WHERE food_id = $1 AND food_tag = $2
 `
 
 type RemoveMenuFoodTagParams struct {
-	MenuFoodID int64  `json:"menu_food_id"`
-	FoodTag    string `json:"food_tag"`
+	FoodID  int64  `json:"food_id"`
+	FoodTag string `json:"food_tag"`
 }
 
 func (q *Queries) RemoveMenuFoodTag(ctx context.Context, arg RemoveMenuFoodTagParams) error {
-	_, err := q.db.ExecContext(ctx, removeMenuFoodTag, arg.MenuFoodID, arg.FoodTag)
+	_, err := q.db.ExecContext(ctx, removeMenuFoodTag, arg.FoodID, arg.FoodTag)
 	return err
 }

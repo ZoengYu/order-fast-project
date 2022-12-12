@@ -9,10 +9,16 @@ import (
 	"time"
 )
 
+type Food struct {
+	ID       int64  `json:"id"`
+	MenuID   int64  `json:"menu_id"`
+	FoodName string `json:"food_name"`
+}
+
 type FoodTag struct {
-	ID         int64  `json:"id"`
-	MenuFoodID int64  `json:"menu_food_id"`
-	FoodTag    string `json:"food_tag"`
+	ID      int64  `json:"id"`
+	FoodID  int64  `json:"food_id"`
+	FoodTag string `json:"food_tag"`
 }
 
 type Menu struct {
@@ -21,13 +27,6 @@ type Menu struct {
 	MenuName  string       `json:"menu_name"`
 	CreatedAt time.Time    `json:"created_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
-}
-
-type MenuFood struct {
-	ID           int64    `json:"id"`
-	MenuID       int64    `json:"menu_id"`
-	FoodName     string   `json:"food_name"`
-	CustomOption []string `json:"custom_option"`
 }
 
 type Store struct {

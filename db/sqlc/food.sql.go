@@ -7,40 +7,31 @@ package db
 
 import (
 	"context"
-
-	"github.com/lib/pq"
 )
 
 const addMenuFood = `-- name: AddMenuFood :one
-INSERT INTO menu_food (
+INSERT INTO food (
 	menu_id,
-	food_name,
-	custom_option
+	food_name
 ) VALUES (
-	$1, $2, $3
-) RETURNING id, menu_id, food_name, custom_option
+	$1, $2
+) RETURNING id, menu_id, food_name
 `
 
 type AddMenuFoodParams struct {
-	MenuID       int64    `json:"menu_id"`
-	FoodName     string   `json:"food_name"`
-	CustomOption []string `json:"custom_option"`
+	MenuID   int64  `json:"menu_id"`
+	FoodName string `json:"food_name"`
 }
 
-func (q *Queries) AddMenuFood(ctx context.Context, arg AddMenuFoodParams) (MenuFood, error) {
-	row := q.db.QueryRowContext(ctx, addMenuFood, arg.MenuID, arg.FoodName, pq.Array(arg.CustomOption))
-	var i MenuFood
-	err := row.Scan(
-		&i.ID,
-		&i.MenuID,
-		&i.FoodName,
-		pq.Array(&i.CustomOption),
-	)
+func (q *Queries) AddMenuFood(ctx context.Context, arg AddMenuFoodParams) (Food, error) {
+	row := q.db.QueryRowContext(ctx, addMenuFood, arg.MenuID, arg.FoodName)
+	var i Food
+	err := row.Scan(&i.ID, &i.MenuID, &i.FoodName)
 	return i, err
 }
 
 const getMenuFood = `-- name: GetMenuFood :one
-SELECT id, menu_id, food_name, custom_option FROM menu_food
+SELECT id, menu_id, food_name FROM food
 WHERE menu_id = $1 AND food_name = $2
 `
 
@@ -49,14 +40,9 @@ type GetMenuFoodParams struct {
 	FoodName string `json:"food_name"`
 }
 
-func (q *Queries) GetMenuFood(ctx context.Context, arg GetMenuFoodParams) (MenuFood, error) {
+func (q *Queries) GetMenuFood(ctx context.Context, arg GetMenuFoodParams) (Food, error) {
 	row := q.db.QueryRowContext(ctx, getMenuFood, arg.MenuID, arg.FoodName)
-	var i MenuFood
-	err := row.Scan(
-		&i.ID,
-		&i.MenuID,
-		&i.FoodName,
-		pq.Array(&i.CustomOption),
-	)
+	var i Food
+	err := row.Scan(&i.ID, &i.MenuID, &i.FoodName)
 	return i, err
 }
