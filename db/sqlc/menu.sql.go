@@ -46,6 +46,24 @@ func (q *Queries) DeleteMenu(ctx context.Context, id int64) error {
 	return err
 }
 
+const getMenu = `-- name: GetMenu :one
+SELECT id, store_id, menu_name, created_at, updated_at FROM menu
+WHERE id = $1
+`
+
+func (q *Queries) GetMenu(ctx context.Context, id int64) (Menu, error) {
+	row := q.db.QueryRowContext(ctx, getMenu, id)
+	var i Menu
+	err := row.Scan(
+		&i.ID,
+		&i.StoreID,
+		&i.MenuName,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getStoreMenu = `-- name: GetStoreMenu :one
 SELECT id, store_id, menu_name, created_at, updated_at FROM menu
 WHERE store_id = $1 AND id = $2

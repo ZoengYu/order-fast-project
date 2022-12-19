@@ -27,3 +27,7 @@ WHERE store_id = $1
 ORDER BY id
 LIMIT $2
 OFFSET $3;
+
+-- name: GetMenu :one
+SELECT * FROM menu
+WHERE id = $1;

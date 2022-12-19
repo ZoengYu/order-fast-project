@@ -53,3 +53,36 @@ func (q *Queries) GetMenuFood(ctx context.Context, id int64) (Food, error) {
 	)
 	return i, err
 }
+
+const listMenuFood = `-- name: ListMenuFood :many
+SELECT id, menu_id, name, price FROM food
+WHERE menu_id = $1
+`
+
+func (q *Queries) ListMenuFood(ctx context.Context, menuID int64) ([]Food, error) {
+	rows, err := q.db.QueryContext(ctx, listMenuFood, menuID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Food{}
+	for rows.Next() {
+		var i Food
+		if err := rows.Scan(
+			&i.ID,
+			&i.MenuID,
+			&i.Name,
+			&i.Price,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

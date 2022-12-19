@@ -10,3 +10,7 @@ INSERT INTO food (
 -- name: GetMenuFood :one
 SELECT * FROM food
 WHERE id = $1;
+
+-- name: ListMenuFood :many
+SELECT * FROM food
+WHERE menu_id = $1;

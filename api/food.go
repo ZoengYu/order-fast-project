@@ -16,39 +16,60 @@ type CreateMenuFoodRequest struct {
 	FoodTag		[]string	`json:"tag"`
 }
 
-func (server *Server) addMenuFood(ctx *gin.Context){
+func (server *Server) createMenuFood(ctx *gin.Context){
 	var req CreateMenuFoodRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil{
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
+	// check menu exist
+	menu, err := server.db_service.GetMenu(ctx, req.MenuID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	// list all the food of menu
+	menu_foods, err := server.db_service.ListMenuFood(ctx, menu.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	for _, food := range(menu_foods) {
+		if req.FoodName == food.Name {
+			err = fmt.Errorf("cannot create menu, the menu name %s already exist", req.FoodName)
+			ctx.JSON(http.StatusUnprocessableEntity, errorResponse(err))
+			return
+		}
+	}
+
 	arg := db.CreateMenuFoodParams{
-		MenuID: 	req.MenuID,
+		MenuID: 	menu.ID,
 		Name: 		req.FoodName,
 		Price: 		req.FoodPrice,
 	}
 	menu_food, err := server.db_service.CreateMenuFood(ctx, arg)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, errorResponse(err))
-			return
-		} else {
-			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-			return
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 		}
-	}
-	if req.FoodTag != nil{
-		for i := range(req.FoodTag) {
-			fmt.Printf(req.FoodTag[i])
+
+	if len(req.FoodTag) > 0{
+		for _, tag := range(req.FoodTag) {
 			arg := db.CreateMenuFoodTagParams{
 				FoodID: menu_food.ID,
-				FoodTag: req.FoodTag[i],
+				FoodTag: tag,
 			}
 			_, err := server.db_service.CreateMenuFoodTag(ctx, arg)
 			if err != nil {
-				err = fmt.Errorf("food tag %s cannot be created", arg.FoodTag)
+				err = fmt.Errorf("food tag %s created fail", arg.FoodTag)
 				ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+				return
 			}
 		}
 	}

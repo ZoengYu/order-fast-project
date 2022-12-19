@@ -20,6 +20,7 @@ import (
 func TestAddMenuFoodAPI(t *testing.T) {
 	store := randomStore()
 	menu := randomStoreMenu(store)
+	existed_food := randomMenuFood(menu)
 	food := randomMenuFood(menu)
 	food_tag := randomFoodTag(food)
 
@@ -44,9 +45,14 @@ func TestAddMenuFoodAPI(t *testing.T) {
 					Price: 	food.Price,
 				}
 				mockdb.EXPECT().
+					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
+					Times(1).Return(menu, nil)
+				mockdb.EXPECT().
+					ListMenuFood(gomock.Any(), menu.ID).
+					Times(1).Return([]db.Food{existed_food}, nil)
+				mockdb.EXPECT().
 					CreateMenuFood(gomock.Any(), gomock.Eq(arg)).
-					Times(1).
-					Return(food, nil)
+					Times(1).Return(food, nil)
 				tag_arg := db.CreateMenuFoodTagParams{
 					FoodID: 	food.ID,
 					FoodTag: 	food_tag.FoodTag,
@@ -69,16 +75,13 @@ func TestAddMenuFoodAPI(t *testing.T) {
 				"tag":			[]string{food_tag.FoodTag},
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService){
-				mockdb.EXPECT().
-					CreateMenuFood(gomock.Any(), gomock.Any()).
-					Times(0)
 			},
 			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
 				require.Equal(t, http.StatusBadRequest, recoder.Code)
 			},
 		},
 		{
-			name: "NotFound",
+			name: "MenuNotFound",
 			body: gin.H{
 				"menu_id":		menu.ID,
 				"name": 		food.Name,
@@ -86,15 +89,9 @@ func TestAddMenuFoodAPI(t *testing.T) {
 				"tag":			[]string{food_tag.FoodTag},
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService){
-				arg := db.CreateMenuFoodParams{
-					MenuID: 	menu.ID,
-					Name: 		food.Name,
-					Price: 		food.Price,
-				}
 				mockdb.EXPECT().
-					CreateMenuFood(gomock.Any(), gomock.Eq(arg)).
-					Times(1).
-					Return(food, sql.ErrNoRows)
+					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
+					Times(1).Return(db.Menu{}, sql.ErrNoRows)
 			},
 			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
 				require.Equal(t, http.StatusNotFound, recoder.Code)
@@ -110,12 +107,51 @@ func TestAddMenuFoodAPI(t *testing.T) {
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService){
 				mockdb.EXPECT().
-					CreateMenuFood(gomock.Any(), gomock.Any()).
-					Times(1).
-					Return(food, sql.ErrConnDone)
+					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
+					Times(1).Return(db.Menu{}, sql.ErrConnDone)
 			},
 			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
 				require.Equal(t, http.StatusInternalServerError, recoder.Code)
+			},
+		},
+		{
+			name: "DuplicatedFoodOnSameMenuReturn422",
+			body: gin.H{
+				"menu_id":		menu.ID,
+				"name": 		existed_food.Name,
+				"price":		existed_food.Price,
+				"tag":			[]string{food_tag.FoodTag},
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				mockdb.EXPECT().
+					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
+					Times(1).Return(menu, nil)
+				mockdb.EXPECT().
+					ListMenuFood(gomock.Any(), menu.ID).
+					Times(1).Return([]db.Food{existed_food}, nil)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusUnprocessableEntity, recoder.Code)
+			},
+		},
+		{
+			name: "DuplicatedFoodOnSameMenuShouldReturn422",
+			body: gin.H{
+				"menu_id":		menu.ID,
+				"name": 		existed_food.Name,
+				"price":		existed_food.Price,
+				"tag":			[]string{food_tag.FoodTag},
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				mockdb.EXPECT().
+					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
+					Times(1).Return(menu, nil)
+				mockdb.EXPECT().
+					ListMenuFood(gomock.Any(), menu.ID).
+					Times(1).Return([]db.Food{existed_food}, nil)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusUnprocessableEntity, recoder.Code)
 			},
 		},
 	}
@@ -135,7 +171,7 @@ func TestAddMenuFoodAPI(t *testing.T) {
 			data, err := json.Marshal(tc.body)
 			require.NoError(t, err)
 
-			url := "/v1/menu/food"
+			url := "/v1/store/menu/food"
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
