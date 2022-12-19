@@ -21,6 +21,7 @@ func TestAddMenuFoodAPI(t *testing.T) {
 	store := randomStore()
 	menu := randomStoreMenu(store)
 	food := randomMenuFood(menu)
+	food_tag := randomFoodTag(food)
 
 	testCases := []struct {
 		name			string
@@ -32,17 +33,28 @@ func TestAddMenuFoodAPI(t *testing.T) {
 			name: "OK",
 			body: gin.H{
 				"menu_id":		menu.ID,
-				"food_name": 	food.Name,
+				"name": 		food.Name,
+				"price":		food.Price,
+				"tag":			[]string{food_tag.FoodTag},
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService){
 				arg := db.CreateMenuFoodParams{
 					MenuID: menu.ID,
 					Name: 	food.Name,
+					Price: 	food.Price,
 				}
 				mockdb.EXPECT().
 					CreateMenuFood(gomock.Any(), gomock.Eq(arg)).
 					Times(1).
 					Return(food, nil)
+				tag_arg := db.CreateMenuFoodTagParams{
+					FoodID: 	food.ID,
+					FoodTag: 	food_tag.FoodTag,
+				}
+				mockdb.EXPECT().
+					CreateMenuFoodTag(gomock.Any(), gomock.Eq(tag_arg)).
+					Times(1).
+					Return(food_tag, nil)
 			},
 			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
 				require.Equal(t, http.StatusOK, recoder.Code)
@@ -53,6 +65,8 @@ func TestAddMenuFoodAPI(t *testing.T) {
 			body: gin.H{
 				"menu_id":		0,
 				"food_name": 	food.Name,
+				"price":		food.Price,
+				"tag":			[]string{food_tag.FoodTag},
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService){
 				mockdb.EXPECT().
@@ -67,12 +81,15 @@ func TestAddMenuFoodAPI(t *testing.T) {
 			name: "NotFound",
 			body: gin.H{
 				"menu_id":		menu.ID,
-				"food_name": 	food.Name,
+				"name": 		food.Name,
+				"price":		food.Price,
+				"tag":			[]string{food_tag.FoodTag},
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService){
 				arg := db.CreateMenuFoodParams{
 					MenuID: 	menu.ID,
 					Name: 		food.Name,
+					Price: 		food.Price,
 				}
 				mockdb.EXPECT().
 					CreateMenuFood(gomock.Any(), gomock.Eq(arg)).
@@ -87,7 +104,9 @@ func TestAddMenuFoodAPI(t *testing.T) {
 			name: "UnexpectedDBErrCreateMenu",
 			body: gin.H{
 				"menu_id":		menu.ID,
-				"food_name": 	food.Name,
+				"name": 		food.Name,
+				"price":		food.Price,
+				"tag":			[]string{food_tag.FoodTag},
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService){
 				mockdb.EXPECT().
@@ -124,7 +143,6 @@ func TestAddMenuFoodAPI(t *testing.T) {
 			tc.checkResponse(t, recorder)
 		})
 	}
-
 }
 
 func randomMenuFood(menu db.Menu) db.Food {
@@ -132,5 +150,14 @@ func randomMenuFood(menu db.Menu) db.Food {
 		ID:		1,
 		MenuID: menu.ID,
 		Name: 	util.RandomFoodName(),
+		Price: 	int32(util.RandomInt(20, 100)),
+	}
+}
+
+func randomFoodTag(food db.Food) db.FoodTag {
+	return db.FoodTag{
+		ID: 1,
+		FoodID: food.ID,
+		FoodTag: util.RandomFoodTag(),
 	}
 }

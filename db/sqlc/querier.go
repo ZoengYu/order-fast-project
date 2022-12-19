@@ -18,7 +18,7 @@ type Querier interface {
 	DeleteStore(ctx context.Context, id int64) error
 	DeleteStoreTable(ctx context.Context, id int64) error
 	DeleteStoreTableByName(ctx context.Context, arg DeleteStoreTableByNameParams) error
-	GetMenuFood(ctx context.Context, arg GetMenuFoodParams) (Food, error)
+	GetMenuFood(ctx context.Context, id int64) (Food, error)
 	GetMenuFoodTag(ctx context.Context, arg GetMenuFoodTagParams) (FoodTag, error)
 	GetStore(ctx context.Context, id int64) (Store, error)
 	GetStoreByName(ctx context.Context, storeName string) (Store, error)

@@ -12,37 +12,44 @@ import (
 const createMenuFood = `-- name: CreateMenuFood :one
 INSERT INTO food (
 	menu_id,
-	name
+	name,
+	price
 ) VALUES (
-	$1, $2
-) RETURNING id, menu_id, name
+	$1, $2, $3
+) RETURNING id, menu_id, name, price
 `
 
 type CreateMenuFoodParams struct {
 	MenuID int64  `json:"menu_id"`
 	Name   string `json:"name"`
+	Price  int32  `json:"price"`
 }
 
 func (q *Queries) CreateMenuFood(ctx context.Context, arg CreateMenuFoodParams) (Food, error) {
-	row := q.db.QueryRowContext(ctx, createMenuFood, arg.MenuID, arg.Name)
+	row := q.db.QueryRowContext(ctx, createMenuFood, arg.MenuID, arg.Name, arg.Price)
 	var i Food
-	err := row.Scan(&i.ID, &i.MenuID, &i.Name)
+	err := row.Scan(
+		&i.ID,
+		&i.MenuID,
+		&i.Name,
+		&i.Price,
+	)
 	return i, err
 }
 
 const getMenuFood = `-- name: GetMenuFood :one
-SELECT id, menu_id, name FROM food
-WHERE menu_id = $1 AND name = $2
+SELECT id, menu_id, name, price FROM food
+WHERE id = $1
 `
 
-type GetMenuFoodParams struct {
-	MenuID int64  `json:"menu_id"`
-	Name   string `json:"name"`
-}
-
-func (q *Queries) GetMenuFood(ctx context.Context, arg GetMenuFoodParams) (Food, error) {
-	row := q.db.QueryRowContext(ctx, getMenuFood, arg.MenuID, arg.Name)
+func (q *Queries) GetMenuFood(ctx context.Context, id int64) (Food, error) {
+	row := q.db.QueryRowContext(ctx, getMenuFood, id)
 	var i Food
-	err := row.Scan(&i.ID, &i.MenuID, &i.Name)
+	err := row.Scan(
+		&i.ID,
+		&i.MenuID,
+		&i.Name,
+		&i.Price,
+	)
 	return i, err
 }

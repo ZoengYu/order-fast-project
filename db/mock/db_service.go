@@ -167,7 +167,7 @@ func (mr *MockDBServiceMockRecorder) DeleteStoreTableByName(arg0, arg1 interface
 }
 
 // GetMenuFood mocks base method.
-func (m *MockDBService) GetMenuFood(arg0 context.Context, arg1 db.GetMenuFoodParams) (db.Food, error) {
+func (m *MockDBService) GetMenuFood(arg0 context.Context, arg1 int64) (db.Food, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMenuFood", arg0, arg1)
 	ret0, _ := ret[0].(db.Food)

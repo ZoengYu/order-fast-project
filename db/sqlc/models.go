@@ -13,6 +13,7 @@ type Food struct {
 	ID     int64  `json:"id"`
 	MenuID int64  `json:"menu_id"`
 	Name   string `json:"name"`
+	Price  int32  `json:"price"`
 }
 
 type FoodTag struct {
