@@ -37,13 +37,38 @@ func (q *Queries) CreateMenuFood(ctx context.Context, arg CreateMenuFoodParams) 
 	return i, err
 }
 
-const getMenuFood = `-- name: GetMenuFood :one
+const deleteMenuFood = `-- name: DeleteMenuFood :exec
+DELETE FROM food
+WHERE id = $1 AND menu_id = $2
+`
+
+type DeleteMenuFoodParams struct {
+	ID     int64 `json:"id"`
+	MenuID int64 `json:"menu_id"`
+}
+
+func (q *Queries) DeleteMenuFood(ctx context.Context, arg DeleteMenuFoodParams) error {
+	_, err := q.db.ExecContext(ctx, deleteMenuFood, arg.ID, arg.MenuID)
+	return err
+}
+
+const deleteMenuFoodAll = `-- name: DeleteMenuFoodAll :exec
+DELETE FROM food
+WHERE menu_id = $1
+`
+
+func (q *Queries) DeleteMenuFoodAll(ctx context.Context, menuID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteMenuFoodAll, menuID)
+	return err
+}
+
+const getFood = `-- name: GetFood :one
 SELECT id, menu_id, name, price FROM food
 WHERE id = $1
 `
 
-func (q *Queries) GetMenuFood(ctx context.Context, id int64) (Food, error) {
-	row := q.db.QueryRowContext(ctx, getMenuFood, id)
+func (q *Queries) GetFood(ctx context.Context, id int64) (Food, error) {
+	row := q.db.QueryRowContext(ctx, getFood, id)
 	var i Food
 	err := row.Scan(
 		&i.ID,

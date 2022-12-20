@@ -75,3 +75,51 @@ func (server *Server) createMenuFood(ctx *gin.Context){
 	}
 	ctx.JSON(http.StatusOK, menu_food.ID)
 }
+
+type delMenuFoodRequest struct{
+	FoodID int64 `uri:"id" binding:"required,min=1"`
+}
+
+func (server *Server) deleteMenuFood(ctx *gin.Context){
+	var req delMenuFoodRequest
+	if err := ctx.ShouldBindUri(&req); err != nil{
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	food, err := server.db_service.GetFood(ctx, req.FoodID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = fmt.Errorf("cannot find the food ID %d", req.FoodID)
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	// check menu exist
+	menu, err := server.db_service.GetMenu(ctx, food.MenuID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = fmt.Errorf("something went wrong, the food exist but the food menu is not")
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	arg := db.DeleteMenuFoodParams{
+		ID:		food.ID,
+		MenuID: menu.ID,
+	}
+	// delete the food
+	err = server.db_service.DeleteMenuFood(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusNoContent, nil)
+}

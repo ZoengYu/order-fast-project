@@ -7,10 +7,18 @@ INSERT INTO food (
 	$1, $2, $3
 ) RETURNING *;
 
--- name: GetMenuFood :one
+-- name: GetFood :one
 SELECT * FROM food
 WHERE id = $1;
 
 -- name: ListMenuFood :many
 SELECT * FROM food
+WHERE menu_id = $1;
+
+-- name: DeleteMenuFood :exec
+DELETE FROM food
+WHERE id = $1 AND menu_id = $2;
+
+-- name: DeleteMenuFoodAll :exec
+DELETE FROM food
 WHERE menu_id = $1;

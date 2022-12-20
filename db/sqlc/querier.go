@@ -15,11 +15,13 @@ type Querier interface {
 	CreateStoreMenu(ctx context.Context, arg CreateStoreMenuParams) (Menu, error)
 	CreateTable(ctx context.Context, arg CreateTableParams) (Table, error)
 	DeleteMenu(ctx context.Context, id int64) error
+	DeleteMenuFood(ctx context.Context, arg DeleteMenuFoodParams) error
+	DeleteMenuFoodAll(ctx context.Context, menuID int64) error
 	DeleteStore(ctx context.Context, id int64) error
 	DeleteStoreTable(ctx context.Context, id int64) error
 	DeleteStoreTableByName(ctx context.Context, arg DeleteStoreTableByNameParams) error
+	GetFood(ctx context.Context, id int64) (Food, error)
 	GetMenu(ctx context.Context, id int64) (Menu, error)
-	GetMenuFood(ctx context.Context, id int64) (Food, error)
 	GetMenuFoodTag(ctx context.Context, arg GetMenuFoodTagParams) (FoodTag, error)
 	GetStore(ctx context.Context, id int64) (Store, error)
 	GetStoreByName(ctx context.Context, storeName string) (Store, error)

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -173,6 +174,112 @@ func TestAddMenuFoodAPI(t *testing.T) {
 
 			url := "/v1/store/menu/food"
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
+			require.NoError(t, err)
+
+			server.router.ServeHTTP(recorder, request)
+			tc.checkResponse(t, recorder)
+		})
+	}
+}
+
+func TestDelMenuFoodAPI(t *testing.T) {
+	store := randomStore()
+	menu := randomStoreMenu(store)
+	food := randomMenuFood(menu)
+
+	testCases := []struct {
+		name 			string
+		foodID			int64
+		buildStubs 		func(mock_db *mockdb.MockDBService)
+		checkResponse 	func(t *testing.T, recoder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "OK",
+			foodID: food.ID,
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				mockdb.EXPECT().
+				GetFood(gomock.Any(), gomock.Eq(food.ID)).
+					Times(1).Return(food, nil)
+				mockdb.EXPECT().
+					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
+					Times(1).Return(menu, nil)
+				arg := db.DeleteMenuFoodParams{
+					ID:		food.ID,
+					MenuID: menu.ID,
+				}
+				mockdb.EXPECT().
+					DeleteMenuFood(gomock.Any(), gomock.Eq(arg)).
+					Times(1).Return(nil)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusNoContent, recoder.Code)
+			},
+		},
+		{
+			name: "NotFound",
+			foodID: food.ID,
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				mockdb.EXPECT().
+				GetFood(gomock.Any(), gomock.Eq(food.ID)).
+					Times(1).Return(db.Food{}, sql.ErrNoRows)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusNotFound, recoder.Code)
+			},
+		},
+		{
+			name: "InvalidID",
+			foodID: 0,
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				mockdb.EXPECT().
+				DeleteMenu(gomock.Any(), gomock.Any()).
+				Times(0)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusBadRequest, recoder.Code)
+			},
+		},
+		{
+			name: "DBError",
+			foodID: food.ID,
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				mockdb.EXPECT().
+				GetFood(gomock.Any(), gomock.Eq(food.ID)).
+				Times(1).Return(db.Food{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusInternalServerError, recoder.Code)
+			},
+		},
+		{
+			name: "HaveFoodInDBButNotHaveMenuShouldReturn500",
+			foodID: food.ID,
+			buildStubs: func(mockdb *mockdb.MockDBService){
+				mockdb.EXPECT().
+				GetFood(gomock.Any(), gomock.Eq(food.ID)).
+					Times(1).Return(food, nil)
+				mockdb.EXPECT().
+					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
+					Times(1).Return(db.Menu{}, sql.ErrNoRows)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+				require.Equal(t, http.StatusInternalServerError, recoder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mockdb_service := mock_db.NewMockDBService(ctrl)
+			tc.buildStubs(mockdb_service)
+			server := newTestServer(t, mockdb_service)
+			recorder := httptest.NewRecorder()
+			url := fmt.Sprintf("/v1/store/menu/food/%d", tc.foodID)
+			request, err := http.NewRequest(http.MethodDelete, url, nil)
 			require.NoError(t, err)
 
 			server.router.ServeHTTP(recorder, request)
