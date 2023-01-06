@@ -79,13 +79,55 @@ func (q *Queries) GetFood(ctx context.Context, id int64) (Food, error) {
 	return i, err
 }
 
-const listMenuFood = `-- name: ListMenuFood :many
+const listAllMenuFood = `-- name: ListAllMenuFood :many
 SELECT id, menu_id, name, price FROM food
 WHERE menu_id = $1
 `
 
-func (q *Queries) ListMenuFood(ctx context.Context, menuID int64) ([]Food, error) {
-	rows, err := q.db.QueryContext(ctx, listMenuFood, menuID)
+func (q *Queries) ListAllMenuFood(ctx context.Context, menuID int64) ([]Food, error) {
+	rows, err := q.db.QueryContext(ctx, listAllMenuFood, menuID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Food{}
+	for rows.Next() {
+		var i Food
+		if err := rows.Scan(
+			&i.ID,
+			&i.MenuID,
+			&i.Name,
+			&i.Price,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listMenuFood = `-- name: ListMenuFood :many
+SELECT id, menu_id, name, price FROM food
+WHERE menu_id = $1
+ORDER BY id
+LIMIT $2
+OFFSET $3
+`
+
+type ListMenuFoodParams struct {
+	MenuID int64 `json:"menu_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) ListMenuFood(ctx context.Context, arg ListMenuFoodParams) ([]Food, error) {
+	rows, err := q.db.QueryContext(ctx, listMenuFood, arg.MenuID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

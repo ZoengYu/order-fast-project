@@ -11,9 +11,16 @@ INSERT INTO food (
 SELECT * FROM food
 WHERE id = $1;
 
--- name: ListMenuFood :many
+-- name: ListAllMenuFood :many
 SELECT * FROM food
 WHERE menu_id = $1;
+
+-- name: ListMenuFood :many
+SELECT * FROM food
+WHERE menu_id = $1
+ORDER BY id
+LIMIT $2
+OFFSET $3;
 
 -- name: DeleteMenuFood :exec
 DELETE FROM food

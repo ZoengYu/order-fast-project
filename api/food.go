@@ -34,7 +34,7 @@ func (server *Server) createMenuFood(ctx *gin.Context){
 		return
 	}
 	// list all the food of menu
-	menu_foods, err := server.db_service.ListMenuFood(ctx, menu.ID)
+	menu_foods, err := server.db_service.ListAllMenuFood(ctx, menu.ID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -122,4 +122,35 @@ func (server *Server) deleteMenuFood(ctx *gin.Context){
 	}
 
 	ctx.JSON(http.StatusNoContent, nil)
+}
+
+
+type ListMenuItemsRequest struct {
+	MenuID 		int64 	`form:"menu_id" binding:"required,min=1"`
+	PageID 		int32 	`form:"page_id" binding:"required,min=1"`
+	PageSize 	int32	`form:"page_size" binding:"required,min=5,max=10"`
+}
+
+func(server *Server) listMenuItems(ctx *gin.Context){
+	var req ListMenuItemsRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil{
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	arg := db.ListMenuFoodParams{
+		MenuID: 	req.MenuID,
+		Limit: 		req.PageSize,
+		Offset: 	calculate_offset(req.PageID, req.PageSize),
+	}
+	menu_food, err := server.db_service.ListMenuFood(ctx, arg)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			menu_food = []db.Food{}
+		} else {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+	}
+	ctx.JSON(http.StatusOK, menu_food)
 }

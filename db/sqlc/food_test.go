@@ -61,7 +61,7 @@ func TestDeleteFood(t *testing.T) {
 	}
 	err = testQueries.DeleteMenuFood(context.Background(), del_arg)
 	require.NoError(t, err)
-	food_list, err := testQueries.ListMenuFood(context.Background(), menu.ID)
+	food_list, err := testQueries.ListAllMenuFood(context.Background(), menu.ID)
 	require.NoError(t, err)
 	require.NotContains(t, food_list, food)
 	require.Contains(t, food_list, food2)
@@ -79,12 +79,12 @@ func TestDeleteFoodAll(t *testing.T) {
 		_, err := testQueries.CreateMenuFood(context.Background(), arg)
 		require.NoError(t, err)
 	}
-	food_list, err := testQueries.ListMenuFood(context.Background(), menu.ID)
+	food_list, err := testQueries.ListAllMenuFood(context.Background(), menu.ID)
 	require.NoError(t, err)
 	require.Len(t, food_list, 3)
 	err = testQueries.DeleteMenuFoodAll(context.Background(), menu.ID)
 	require.NoError(t, err)
-	food_list, err = testQueries.ListMenuFood(context.Background(), menu.ID)
+	food_list, err = testQueries.ListAllMenuFood(context.Background(), menu.ID)
 	require.NoError(t, err)
 	require.Len(t, food_list, 0)
 }
