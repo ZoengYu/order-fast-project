@@ -9,30 +9,30 @@ import (
 )
 
 type Querier interface {
-	CreateMenuFood(ctx context.Context, arg CreateMenuFoodParams) (Food, error)
-	CreateMenuFoodTag(ctx context.Context, arg CreateMenuFoodTagParams) (FoodTag, error)
+	CreateMenuItem(ctx context.Context, arg CreateMenuItemParams) (Item, error)
+	CreateMenuItemTag(ctx context.Context, arg CreateMenuItemTagParams) (ItemTag, error)
 	CreateStore(ctx context.Context, arg CreateStoreParams) (Store, error)
 	CreateStoreMenu(ctx context.Context, arg CreateStoreMenuParams) (Menu, error)
 	CreateTable(ctx context.Context, arg CreateTableParams) (Table, error)
 	DeleteMenu(ctx context.Context, id int64) error
-	DeleteMenuFood(ctx context.Context, arg DeleteMenuFoodParams) error
-	DeleteMenuFoodAll(ctx context.Context, menuID int64) error
+	DeleteMenuItem(ctx context.Context, arg DeleteMenuItemParams) error
+	DeleteMenuItemAll(ctx context.Context, menuID int64) error
 	DeleteStore(ctx context.Context, id int64) error
 	DeleteStoreTable(ctx context.Context, id int64) error
 	DeleteStoreTableByName(ctx context.Context, arg DeleteStoreTableByNameParams) error
-	GetFood(ctx context.Context, id int64) (Food, error)
+	GetItem(ctx context.Context, id int64) (Item, error)
 	GetMenu(ctx context.Context, id int64) (Menu, error)
-	GetMenuFoodTag(ctx context.Context, arg GetMenuFoodTagParams) (FoodTag, error)
+	GetMenuItemTag(ctx context.Context, arg GetMenuItemTagParams) (ItemTag, error)
 	GetStore(ctx context.Context, id int64) (Store, error)
 	GetStoreByName(ctx context.Context, storeName string) (Store, error)
 	GetStoreMenu(ctx context.Context, arg GetStoreMenuParams) (Menu, error)
 	GetStoreTable(ctx context.Context, arg GetStoreTableParams) (Table, error)
-	ListAllMenuFood(ctx context.Context, menuID int64) ([]Food, error)
-	ListMenuFood(ctx context.Context, arg ListMenuFoodParams) ([]Food, error)
-	ListMenuFoodTag(ctx context.Context, foodID int64) ([]string, error)
+	ListAllMenuItem(ctx context.Context, menuID int64) ([]Item, error)
+	ListMenuItem(ctx context.Context, arg ListMenuItemParams) ([]Item, error)
+	ListMenuItemTag(ctx context.Context, itemID int64) ([]string, error)
 	ListStoreMenu(ctx context.Context, arg ListStoreMenuParams) ([]Menu, error)
 	ListStoreTables(ctx context.Context, arg ListStoreTablesParams) ([]Table, error)
-	RemoveMenuFoodTag(ctx context.Context, arg RemoveMenuFoodTagParams) error
+	RemoveMenuItemTag(ctx context.Context, arg RemoveMenuItemTagParams) error
 	UpdateStore(ctx context.Context, arg UpdateStoreParams) (Store, error)
 	UpdateStoreMenu(ctx context.Context, arg UpdateStoreMenuParams) (Menu, error)
 	UpdateStoreTable(ctx context.Context, arg UpdateStoreTableParams) error

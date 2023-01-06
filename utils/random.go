@@ -68,15 +68,15 @@ func RandomPhone() string {
 	return phone_number.String()
 }
 
-func RandomFoodName() string {
-	return fmt.Sprintf("Food-%s", RandomString(2))
+func RandomItemName() string {
+	return fmt.Sprintf("Item-%s", RandomString(2))
 }
 
-func RandomFoodTag() string {
+func RandomItemTag() string {
 	return fmt.Sprintf("Tag-%s", RandomString(2))
 }
 
-func RandomFoodCustom() []string {
+func RandomItemCustom() []string {
 	// "小麥麵包 +NT5", "去醬", "雙煎蛋 +NT10"
 	var custom_option []string
 	for i := 0; i < 3; i++ {

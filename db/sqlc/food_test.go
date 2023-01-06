@@ -8,83 +8,83 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func CreateRandomMenuFood(t *testing.T) (Menu, Food){
+func CreateRandomMenuItem(t *testing.T) (Menu, Item){
 	store := createRandomStore(t)
 	menu := createRandomStoreMenu(t, store)
-	arg := CreateMenuFoodParams{
+	arg := CreateMenuItemParams{
 		MenuID: menu.ID,
-		Name: 	util.RandomFoodName(),
+		Name: 	util.RandomItemName(),
 		Price:  int32(util.RandomInt(20, 100)),
 	}
-	food, err := testQueries.CreateMenuFood(context.Background(), arg)
+	item, err := testQueries.CreateMenuItem(context.Background(), arg)
 	require.NoError(t, err)
-	require.Equal(t, food.Name, arg.Name)
-	require.Equal(t, food.Price, arg.Price)
-	return menu, food
+	require.Equal(t, item.Name, arg.Name)
+	require.Equal(t, item.Price, arg.Price)
+	return menu, item
 }
 
-func TestCreateMenuFood(t *testing.T) {
-	CreateRandomMenuFood(t)
+func TestCreateMenuItem(t *testing.T) {
+	CreateRandomMenuItem(t)
 }
 
-func TestGetFood(t *testing.T) {
-	_, food := CreateRandomMenuFood(t)
-	get_food, err := testQueries.GetFood(context.Background(), food.ID)
+func TestGetItem(t *testing.T) {
+	_, item := CreateRandomMenuItem(t)
+	get_item, err := testQueries.GetItem(context.Background(), item.ID)
 	require.NoError(t, err)
-	require.Equal(t, get_food, food)
+	require.Equal(t, get_item, item)
 }
 
-func TestDeleteFood(t *testing.T) {
+func TestDeleteItem(t *testing.T) {
 	store := createRandomStore(t)
 	menu := createRandomStoreMenu(t, store)
-	// create two food in the menu
-	arg1 := CreateMenuFoodParams{
+	// create two item in the menu
+	arg1 := CreateMenuItemParams{
 		MenuID: menu.ID,
-		Name: 	util.RandomFoodName(),
+		Name: 	util.RandomItemName(),
 		Price:  int32(util.RandomInt(20, 100)),
 	}
-	food, err := testQueries.CreateMenuFood(context.Background(), arg1)
+	item, err := testQueries.CreateMenuItem(context.Background(), arg1)
 	require.NoError(t, err)
-	require.NotEmpty(t, food)
-	arg2 := CreateMenuFoodParams{
+	require.NotEmpty(t, item)
+	arg2 := CreateMenuItemParams{
 		MenuID: menu.ID,
-		Name: 	util.RandomFoodName(),
+		Name: 	util.RandomItemName(),
 		Price:  int32(util.RandomInt(20, 100)),
 	}
-	food2, err := testQueries.CreateMenuFood(context.Background(), arg2)
+	item2, err := testQueries.CreateMenuItem(context.Background(), arg2)
 	require.NoError(t, err)
-	require.NotEmpty(t, food2)
-	// delete one food
-	del_arg := DeleteMenuFoodParams{
-		ID:		food.ID,
+	require.NotEmpty(t, item2)
+	// delete one item
+	del_arg := DeleteMenuItemParams{
+		ID:		item.ID,
 		MenuID: menu.ID,
 	}
-	err = testQueries.DeleteMenuFood(context.Background(), del_arg)
+	err = testQueries.DeleteMenuItem(context.Background(), del_arg)
 	require.NoError(t, err)
-	food_list, err := testQueries.ListAllMenuFood(context.Background(), menu.ID)
+	item_list, err := testQueries.ListAllMenuItem(context.Background(), menu.ID)
 	require.NoError(t, err)
-	require.NotContains(t, food_list, food)
-	require.Contains(t, food_list, food2)
+	require.NotContains(t, item_list, item)
+	require.Contains(t, item_list, item2)
 }
 
-func TestDeleteFoodAll(t *testing.T) {
+func TestDeleteItemAll(t *testing.T) {
 	store := createRandomStore(t)
 	menu := createRandomStoreMenu(t, store)
-	arg := CreateMenuFoodParams{
+	arg := CreateMenuItemParams{
 		MenuID: menu.ID,
-		Name: 	util.RandomFoodName(),
+		Name: 	util.RandomItemName(),
 		Price:  int32(util.RandomInt(20, 100)),
 	}
 	for i := 0; i < 3; i++ {
-		_, err := testQueries.CreateMenuFood(context.Background(), arg)
+		_, err := testQueries.CreateMenuItem(context.Background(), arg)
 		require.NoError(t, err)
 	}
-	food_list, err := testQueries.ListAllMenuFood(context.Background(), menu.ID)
+	item_list, err := testQueries.ListAllMenuItem(context.Background(), menu.ID)
 	require.NoError(t, err)
-	require.Len(t, food_list, 3)
-	err = testQueries.DeleteMenuFoodAll(context.Background(), menu.ID)
+	require.Len(t, item_list, 3)
+	err = testQueries.DeleteMenuItemAll(context.Background(), menu.ID)
 	require.NoError(t, err)
-	food_list, err = testQueries.ListAllMenuFood(context.Background(), menu.ID)
+	item_list, err = testQueries.ListAllMenuItem(context.Background(), menu.ID)
 	require.NoError(t, err)
-	require.Len(t, food_list, 0)
+	require.Len(t, item_list, 0)
 }

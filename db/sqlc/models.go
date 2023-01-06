@@ -9,17 +9,17 @@ import (
 	"time"
 )
 
-type Food struct {
+type Item struct {
 	ID     int64  `json:"id"`
 	MenuID int64  `json:"menu_id"`
 	Name   string `json:"name"`
 	Price  int32  `json:"price"`
 }
 
-type FoodTag struct {
+type ItemTag struct {
 	ID      int64  `json:"id"`
-	FoodID  int64  `json:"food_id"`
-	FoodTag string `json:"food_tag"`
+	ItemID  int64  `json:"item_id"`
+	ItemTag string `json:"item_tag"`
 }
 
 type Menu struct {
