@@ -88,3 +88,17 @@ func TestDeleteItemAll(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, item_list, 0)
 }
+
+func TestUpdateItem(t *testing.T) {
+	_, item := CreateRandomMenuItem(t)
+
+	arg := UpdateMenuItemParams{
+		ID:    item.ID,
+		Name:  item.Name,
+		Price: (item.Price + 100),
+	}
+	updated_item, err := testQueries.UpdateMenuItem(context.Background(), arg)
+	require.NoError(t, err)
+	require.Equal(t, updated_item.ID, item.ID)
+	require.Equal(t, updated_item.Price, item.Price+100)
+}

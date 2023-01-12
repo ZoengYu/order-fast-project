@@ -435,6 +435,142 @@ func TestListMenuItemAPI(t *testing.T) {
 	}
 }
 
+func TestUpdateMenuItemAPI(t *testing.T) {
+	store := randomStore()
+	menu := randomStoreMenu(store)
+	item := randomMenuItem(menu)
+	updated_item := randomMenuItem(menu)
+	updated_item.ID = item.ID
+
+	testCases := []struct {
+		name          string
+		body          gin.H
+		buildStubs    func(mock_db *mockdb.MockDBService)
+		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "OK",
+			body: gin.H{
+				"item_id":   item.ID,
+				"item_name": updated_item.Name,
+				"price":     updated_item.Price,
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService) {
+				updated_arg := db.UpdateMenuItemParams{
+					ID:    item.ID,
+					Name:  updated_item.Name,
+					Price: updated_item.Price,
+				}
+				mockdb.EXPECT().
+					GetItem(gomock.Any(), gomock.Eq(item.ID)).
+					Times(1).
+					Return(item, nil)
+
+				mockdb.EXPECT().
+					UpdateMenuItem(gomock.Any(), gomock.Eq(updated_arg)).
+					Times(1).
+					Return(updated_item, nil)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recoder.Code)
+			},
+		},
+		{
+			name: "BadRequestPayload",
+			body: gin.H{
+				"item_id":   item.ID,
+				"item_name": updated_item.Name,
+				"price":     "15",
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService) {
+				mockdb.EXPECT().
+					GetItem(gomock.Any(), gomock.Eq(store.ID)).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recoder.Code)
+			},
+		},
+		{
+			name: "NotFound",
+			body: gin.H{
+				"item_id":   item.ID,
+				"item_name": updated_item.Name,
+				"price":     updated_item.Price,
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService) {
+				updated_arg := db.UpdateMenuItemParams{
+					ID:    item.ID,
+					Name:  updated_item.Name,
+					Price: updated_item.Price,
+				}
+				mockdb.EXPECT().
+					GetItem(gomock.Any(), gomock.Eq(item.ID)).
+					Times(1).
+					Return(db.Item{}, sql.ErrNoRows)
+
+				mockdb.EXPECT().
+					UpdateStoreMenu(gomock.Any(), gomock.Eq(updated_arg)).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recoder.Code)
+			},
+		},
+		{
+			name: "UnexpectedDBErrGetStore",
+			body: gin.H{
+				"item_id":   item.ID,
+				"item_name": updated_item.Name,
+				"price":     updated_item.Price,
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService) {
+				updated_arg := db.UpdateMenuItemParams{
+					ID:    item.ID,
+					Name:  updated_item.Name,
+					Price: updated_item.Price,
+				}
+				mockdb.EXPECT().
+					GetItem(gomock.Any(), gomock.Eq(item.ID)).
+					Times(1).
+					Return(item, nil)
+
+				mockdb.EXPECT().
+					UpdateMenuItem(gomock.Any(), gomock.Eq(updated_arg)).
+					Times(1).
+					Return(db.Item{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recoder.Code)
+			},
+		},
+	}
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			mockdb_service := mock_db.NewMockDBService(ctrl)
+			tc.buildStubs(mockdb_service)
+
+			server := newTestServer(t, mockdb_service)
+			recorder := httptest.NewRecorder()
+
+			data, err := json.Marshal(tc.body)
+			require.NoError(t, err)
+
+			url := "/v1/store/menu/item"
+			request, err := http.NewRequest(http.MethodPut, url, bytes.NewReader(data))
+			require.NoError(t, err)
+
+			server.router.ServeHTTP(recorder, request)
+			tc.checkResponse(t, recorder)
+		})
+	}
+}
+
 func randomMenuItem(menu db.Menu) db.Item {
 	return db.Item{
 		ID:     1,

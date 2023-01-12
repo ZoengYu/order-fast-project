@@ -388,6 +388,21 @@ func (mr *MockDBServiceMockRecorder) RemoveMenuItemTag(arg0, arg1 interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveMenuItemTag", reflect.TypeOf((*MockDBService)(nil).RemoveMenuItemTag), arg0, arg1)
 }
 
+// UpdateMenuItem mocks base method.
+func (m *MockDBService) UpdateMenuItem(arg0 context.Context, arg1 db.UpdateMenuItemParams) (db.Item, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateMenuItem", arg0, arg1)
+	ret0, _ := ret[0].(db.Item)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateMenuItem indicates an expected call of UpdateMenuItem.
+func (mr *MockDBServiceMockRecorder) UpdateMenuItem(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMenuItem", reflect.TypeOf((*MockDBService)(nil).UpdateMenuItem), arg0, arg1)
+}
+
 // UpdateStore mocks base method.
 func (m *MockDBService) UpdateStore(arg0 context.Context, arg1 db.UpdateStoreParams) (db.Store, error) {
 	m.ctrl.T.Helper()

@@ -45,6 +45,7 @@ func (server *Server) setupRouter() {
 	v1.POST("store/menu/item", server.CreateMenuItem)
 	v1.DELETE("store/menu/item/:id", server.DeleteMenuItem)
 	v1.GET("/store/menu/list_items", server.listMenuItems)
+	v1.PUT("/store/menu/item", server.updateMenuItem)
 	server.router = router
 }
 

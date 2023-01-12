@@ -33,6 +33,7 @@ type Querier interface {
 	ListStoreMenu(ctx context.Context, arg ListStoreMenuParams) ([]Menu, error)
 	ListStoreTables(ctx context.Context, arg ListStoreTablesParams) ([]Table, error)
 	RemoveMenuItemTag(ctx context.Context, arg RemoveMenuItemTagParams) error
+	UpdateMenuItem(ctx context.Context, arg UpdateMenuItemParams) (Item, error)
 	UpdateStore(ctx context.Context, arg UpdateStoreParams) (Store, error)
 	UpdateStoreMenu(ctx context.Context, arg UpdateStoreMenuParams) (Menu, error)
 	UpdateStoreTable(ctx context.Context, arg UpdateStoreTableParams) error

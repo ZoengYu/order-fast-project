@@ -27,7 +27,7 @@ go install github.com/kyleconroy/sqlc/cmd/sqlc@latest
 go install github.com/golang/mock/mockgen@v1.6.0
 ```
 ## *Running the Order-Fast backend service**
-*Launch the service*
+*Launch the db service*
 ```
 docker-compose up
 ```

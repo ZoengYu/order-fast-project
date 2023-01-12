@@ -29,3 +29,9 @@ WHERE id = $1 AND menu_id = $2;
 -- name: DeleteMenuItemAll :exec
 DELETE FROM item
 WHERE menu_id = $1;
+
+-- name: UpdateMenuItem :one
+UPDATE item
+SET name = $2, price=$3
+WHERE id = $1
+RETURNING *;

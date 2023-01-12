@@ -153,3 +153,39 @@ func (server *Server) listMenuItems(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, menu_item)
 }
+
+type updateMenuItemRequest struct {
+	ItemID   int64  `json:"item_id" binding:"required,min=1"`
+	ItemName string `json:"item_name" binding:"required"`
+	Price    int32  `json:"price" binding:"required"`
+}
+
+func (server *Server) updateMenuItem(ctx *gin.Context) {
+	var req updateMenuItemRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	item, err := server.db_service.GetItem(ctx, req.ItemID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = fmt.Errorf("item %d ID is not exist", req.ItemID)
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	arg := db.UpdateMenuItemParams{
+		ID:    item.ID,
+		Name:  req.ItemName,
+		Price: req.Price,
+	}
+	item, err = server.db_service.UpdateMenuItem(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, item)
+}

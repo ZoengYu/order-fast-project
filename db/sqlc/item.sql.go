@@ -153,3 +153,28 @@ func (q *Queries) ListMenuItem(ctx context.Context, arg ListMenuItemParams) ([]I
 	}
 	return items, nil
 }
+
+const updateMenuItem = `-- name: UpdateMenuItem :one
+UPDATE item
+SET name = $2, price=$3
+WHERE id = $1
+RETURNING id, menu_id, name, price
+`
+
+type UpdateMenuItemParams struct {
+	ID    int64  `json:"id"`
+	Name  string `json:"name"`
+	Price int32  `json:"price"`
+}
+
+func (q *Queries) UpdateMenuItem(ctx context.Context, arg UpdateMenuItemParams) (Item, error) {
+	row := q.db.QueryRowContext(ctx, updateMenuItem, arg.ID, arg.Name, arg.Price)
+	var i Item
+	err := row.Scan(
+		&i.ID,
+		&i.MenuID,
+		&i.Name,
+		&i.Price,
+	)
+	return i, err
+}
