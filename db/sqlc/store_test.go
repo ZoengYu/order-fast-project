@@ -9,12 +9,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func createRandomStore(t *testing.T) Store{
+func createRandomStore(t *testing.T) Store {
 	arg := CreateStoreParams{
-		StoreName: util.RandomStoreName(),
+		StoreName:    util.RandomStoreName(),
 		StoreAddress: "address",
-		StorePhone: util.RandomPhone(),
-		StoreOwner: util.RandomOwner(),
+		StorePhone:   util.RandomPhone(),
+		StoreOwner:   util.RandomOwner(),
 		StoreManager: "王小棣s",
 	}
 	store, err := testQueries.CreateStore(context.Background(), arg)
@@ -59,11 +59,11 @@ func TestUpdateStore(t *testing.T) {
 	store := createRandomStore(t)
 
 	arg := UpdateStoreParams{
-		ID: store.ID,
-		StoreName: store.StoreName,
+		ID:           store.ID,
+		StoreName:    store.StoreName,
 		StoreAddress: store.StoreAddress,
-		StorePhone: store.StorePhone,
-		StoreOwner: store.StoreOwner,
+		StorePhone:   store.StorePhone,
+		StoreOwner:   store.StoreOwner,
 		StoreManager: "Alex",
 	}
 	new_store, err := testQueries.UpdateStore(context.Background(), arg)

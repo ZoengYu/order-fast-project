@@ -12,9 +12,9 @@ type DBQuery struct {
 	db *sql.DB
 }
 
-func NewDBService(db *sql.DB) DBService{
+func NewDBService(db *sql.DB) DBService {
 	return &DBQuery{
-		db: db,
+		db:      db,
 		Queries: New(db),
 	}
 }

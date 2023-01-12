@@ -7,10 +7,10 @@ import (
 )
 
 type Config struct {
-	DBDriver 				string			`mapstructure:"DB_DRIVER"`
-	DBSource 				string			`mapstructure:"DB_SOURCE"`
-	ServerAddress 			string 			`mapstructure:"SERVER_ADDRESS"`
-	AccessTokenDuration 	time.Duration	`mapstructure:"ACCESS_TOKEN_DURATION"`
+	DBDriver            string        `mapstructure:"DB_DRIVER"`
+	DBSource            string        `mapstructure:"DB_SOURCE"`
+	ServerAddress       string        `mapstructure:"SERVER_ADDRESS"`
+	AccessTokenDuration time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
@@ -20,7 +20,7 @@ func LoadConfig(path string) (config Config, err error) {
 
 	viper.AutomaticEnv()
 	err = viper.ReadInConfig()
-	if err != nil{
+	if err != nil {
 		return
 	}
 

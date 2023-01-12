@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func createRandomStoreMenu(t *testing.T, store Store) Menu{
+func createRandomStoreMenu(t *testing.T, store Store) Menu {
 	arg := CreateStoreMenuParams{
-		StoreID: store.ID,
+		StoreID:  store.ID,
 		MenuName: util.RandomMenuName(),
 	}
 	menu, err := testQueries.CreateStoreMenu(context.Background(), arg)
@@ -31,7 +31,7 @@ func TestGetRandomMenu(t *testing.T) {
 	menu := createRandomStoreMenu(t, store)
 	get_menu_arg := GetStoreMenuParams{
 		StoreID: store.ID,
-		ID: menu.ID,
+		ID:      menu.ID,
 	}
 	menu, err := testQueries.GetStoreMenu(context.Background(), get_menu_arg)
 	require.NoError(t, err)
@@ -47,9 +47,9 @@ func TestUpdateStoreMenu(t *testing.T) {
 	store := createRandomStore(t)
 	menu := createRandomStoreMenu(t, store)
 	update_menu_arg := UpdateStoreMenuParams{
-		StoreID: 	store.ID,
-		ID: 		menu.ID,
-		MenuName: 	"My Menu2",
+		StoreID:  store.ID,
+		ID:       menu.ID,
+		MenuName: "My Menu2",
 	}
 	updated_menu, err := testQueries.UpdateStoreMenu(context.Background(), update_menu_arg)
 	require.NoError(t, err)
@@ -64,8 +64,8 @@ func TestDeleteMenu(t *testing.T) {
 	err := testQueries.DeleteMenu(context.Background(), menu.ID)
 	require.NoError(t, err)
 	arg := GetStoreMenuParams{
-		StoreID: 	store.ID,
-		ID:			menu.ID,
+		StoreID: store.ID,
+		ID:      menu.ID,
 	}
 	get_menu, err := testQueries.GetStoreMenu(context.Background(), arg)
 	require.Empty(t, get_menu)
@@ -79,8 +79,8 @@ func TestListMenu(t *testing.T) {
 	}
 	arg := ListStoreMenuParams{
 		StoreID: store.ID,
-		Limit: 5,
-		Offset: 5,
+		Limit:   5,
+		Offset:  5,
 	}
 	menu_list, err := testQueries.ListStoreMenu(context.Background(), arg)
 	require.NoError(t, err)

@@ -26,24 +26,24 @@ func TestAddMenuItemAPI(t *testing.T) {
 	item_tag := RandomItemTag(item)
 
 	testCases := []struct {
-		name			string
-		body 			gin.H
-		buildStubs 		func(mock_db *mockdb.MockDBService)
-		checkResponse 	func(t *testing.T, recoder *httptest.ResponseRecorder)
+		name          string
+		body          gin.H
+		buildStubs    func(mock_db *mockdb.MockDBService)
+		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
 		{
 			name: "OK",
 			body: gin.H{
-				"menu_id":		menu.ID,
-				"name": 		item.Name,
-				"price":		item.Price,
-				"tag":			[]string{item_tag.ItemTag},
+				"menu_id": menu.ID,
+				"name":    item.Name,
+				"price":   item.Price,
+				"tag":     []string{item_tag.ItemTag},
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				arg := db.CreateMenuItemParams{
 					MenuID: menu.ID,
-					Name: 	item.Name,
-					Price: 	item.Price,
+					Name:   item.Name,
+					Price:  item.Price,
 				}
 				mockdb.EXPECT().
 					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
@@ -55,75 +55,75 @@ func TestAddMenuItemAPI(t *testing.T) {
 					CreateMenuItem(gomock.Any(), gomock.Eq(arg)).
 					Times(1).Return(item, nil)
 				tag_arg := db.CreateMenuItemTagParams{
-					ItemID: 	item.ID,
-					ItemTag: 	item_tag.ItemTag,
+					ItemID:  item.ID,
+					ItemTag: item_tag.ItemTag,
 				}
 				mockdb.EXPECT().
 					CreateMenuItemTag(gomock.Any(), gomock.Eq(tag_arg)).
 					Times(1).
 					Return(item_tag, nil)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recoder.Code)
 			},
 		},
 		{
 			name: "InvalidID",
 			body: gin.H{
-				"menu_id":		0,
-				"item_name": 	item.Name,
-				"price":		item.Price,
-				"tag":			[]string{item_tag.ItemTag},
+				"menu_id":   0,
+				"item_name": item.Name,
+				"price":     item.Price,
+				"tag":       []string{item_tag.ItemTag},
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recoder.Code)
 			},
 		},
 		{
 			name: "MenuNotFound",
 			body: gin.H{
-				"menu_id":		menu.ID,
-				"name": 		item.Name,
-				"price":		item.Price,
-				"tag":			[]string{item_tag.ItemTag},
+				"menu_id": menu.ID,
+				"name":    item.Name,
+				"price":   item.Price,
+				"tag":     []string{item_tag.ItemTag},
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
 					Times(1).Return(db.Menu{}, sql.ErrNoRows)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recoder.Code)
 			},
 		},
 		{
 			name: "UnexpectedDBErrCreateMenu",
 			body: gin.H{
-				"menu_id":		menu.ID,
-				"name": 		item.Name,
-				"price":		item.Price,
-				"tag":			[]string{item_tag.ItemTag},
+				"menu_id": menu.ID,
+				"name":    item.Name,
+				"price":   item.Price,
+				"tag":     []string{item_tag.ItemTag},
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
 					Times(1).Return(db.Menu{}, sql.ErrConnDone)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recoder.Code)
 			},
 		},
 		{
 			name: "DuplicatedItemOnSameMenuReturn422",
 			body: gin.H{
-				"menu_id":		menu.ID,
-				"name": 		existed_item.Name,
-				"price":		existed_item.Price,
-				"tag":			[]string{item_tag.ItemTag},
+				"menu_id": menu.ID,
+				"name":    existed_item.Name,
+				"price":   existed_item.Price,
+				"tag":     []string{item_tag.ItemTag},
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
 					Times(1).Return(menu, nil)
@@ -131,19 +131,19 @@ func TestAddMenuItemAPI(t *testing.T) {
 					ListAllMenuItem(gomock.Any(), menu.ID).
 					Times(1).Return([]db.Item{existed_item}, nil)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusUnprocessableEntity, recoder.Code)
 			},
 		},
 		{
 			name: "DuplicatedItemOnSameMenuShouldReturn422",
 			body: gin.H{
-				"menu_id":		menu.ID,
-				"name": 		existed_item.Name,
-				"price":		existed_item.Price,
-				"tag":			[]string{item_tag.ItemTag},
+				"menu_id": menu.ID,
+				"name":    existed_item.Name,
+				"price":   existed_item.Price,
+				"tag":     []string{item_tag.ItemTag},
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
 					Times(1).Return(menu, nil)
@@ -151,7 +151,7 @@ func TestAddMenuItemAPI(t *testing.T) {
 					ListAllMenuItem(gomock.Any(), menu.ID).
 					Times(1).Return([]db.Item{existed_item}, nil)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusUnprocessableEntity, recoder.Code)
 			},
 		},
@@ -188,81 +188,81 @@ func TestDelMenuItemAPI(t *testing.T) {
 	item := randomMenuItem(menu)
 
 	testCases := []struct {
-		name 			string
-		ItemID			int64
-		buildStubs 		func(mock_db *mockdb.MockDBService)
-		checkResponse 	func(t *testing.T, recoder *httptest.ResponseRecorder)
+		name          string
+		ItemID        int64
+		buildStubs    func(mock_db *mockdb.MockDBService)
+		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
 		{
-			name: "OK",
+			name:   "OK",
 			ItemID: item.ID,
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
-				GetItem(gomock.Any(), gomock.Eq(menu.ID)).
+					GetItem(gomock.Any(), gomock.Eq(menu.ID)).
 					Times(1).Return(item, nil)
 				mockdb.EXPECT().
 					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
 					Times(1).Return(menu, nil)
 				arg := db.DeleteMenuItemParams{
-					ID:		item.ID,
+					ID:     item.ID,
 					MenuID: menu.ID,
 				}
 				mockdb.EXPECT().
 					DeleteMenuItem(gomock.Any(), gomock.Eq(arg)).
 					Times(1).Return(nil)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNoContent, recoder.Code)
 			},
 		},
 		{
-			name: "NotFound",
+			name:   "NotFound",
 			ItemID: item.ID,
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
-				GetItem(gomock.Any(), gomock.Eq(menu.ID)).
+					GetItem(gomock.Any(), gomock.Eq(menu.ID)).
 					Times(1).Return(db.Item{}, sql.ErrNoRows)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recoder.Code)
 			},
 		},
 		{
-			name: "InvalidID",
+			name:   "InvalidID",
 			ItemID: 0,
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
-				DeleteMenu(gomock.Any(), gomock.Any()).
-				Times(0)
+					DeleteMenu(gomock.Any(), gomock.Any()).
+					Times(0)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recoder.Code)
 			},
 		},
 		{
-			name: "DBError",
+			name:   "DBError",
 			ItemID: item.ID,
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
-				GetItem(gomock.Any(), gomock.Eq(menu.ID)).
-				Times(1).Return(db.Item{}, sql.ErrConnDone)
+					GetItem(gomock.Any(), gomock.Eq(menu.ID)).
+					Times(1).Return(db.Item{}, sql.ErrConnDone)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recoder.Code)
 			},
 		},
 		{
-			name: "HaveItemInDBButNotHaveMenuShouldReturn500",
+			name:   "HaveItemInDBButNotHaveMenuShouldReturn500",
 			ItemID: item.ID,
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
-				GetItem(gomock.Any(), gomock.Eq(menu.ID)).
+					GetItem(gomock.Any(), gomock.Eq(menu.ID)).
 					Times(1).Return(item, nil)
 				mockdb.EXPECT().
 					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
 					Times(1).Return(db.Menu{}, sql.ErrNoRows)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recoder.Code)
 			},
 		},
@@ -288,7 +288,7 @@ func TestDelMenuItemAPI(t *testing.T) {
 	}
 }
 
-func TestListMenuItemAPI(t *testing.T){
+func TestListMenuItemAPI(t *testing.T) {
 	store := randomStore()
 	menu := randomStoreMenu(store)
 
@@ -298,157 +298,156 @@ func TestListMenuItemAPI(t *testing.T){
 		item_list[i] = randomMenuItem(menu)
 	}
 
-	type ListQuery struct{
-		menuID		int64
-		pageID		int
-		pageSize	int
+	type ListQuery struct {
+		menuID   int64
+		pageID   int
+		pageSize int
 	}
 
 	testCases := []struct {
-		name 			string
-		query			ListQuery
-		buildStubs 		func(mock_db *mockdb.MockDBService)
-		checkResponse 	func(t *testing.T, recoder *httptest.ResponseRecorder)
+		name          string
+		query         ListQuery
+		buildStubs    func(mock_db *mockdb.MockDBService)
+		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
 		{
 			name: "OK",
 			query: ListQuery{
-				menuID: 	menu.ID,
-				pageID:		1,
-				pageSize:	n/2,
+				menuID:   menu.ID,
+				pageID:   1,
+				pageSize: n / 2,
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				arg := db.ListMenuItemParams{
 					MenuID: menu.ID,
-					Limit:	int32(n/2),
+					Limit:  int32(n / 2),
 					Offset: 0,
 				}
 				mockdb.EXPECT().
-				ListMenuItem(gomock.Any(), gomock.Eq(arg)).
+					ListMenuItem(gomock.Any(), gomock.Eq(arg)).
 					Times(1).
 					Return(item_list, nil)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recoder.Code)
 			},
 		},
 		{
 			name: "InvalidPageID",
 			query: ListQuery{
-				menuID: 	menu.ID,
-				pageID:		-1,
-				pageSize:	n,
+				menuID:   menu.ID,
+				pageID:   -1,
+				pageSize: n,
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
-				ListMenuItem(gomock.Any(), gomock.Any()).
+					ListMenuItem(gomock.Any(), gomock.Any()).
 					Times(0)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recoder.Code)
 			},
 		},
 		{
 			name: "InvalidPageSize",
 			query: ListQuery{
-				menuID: 	menu.ID,
-				pageID:		1,
-				pageSize:	20,
+				menuID:   menu.ID,
+				pageID:   1,
+				pageSize: 20,
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
-				ListMenuItem(gomock.Any(), gomock.Any()).
+					ListMenuItem(gomock.Any(), gomock.Any()).
 					Times(0)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recoder.Code)
 			},
 		},
 		{
 			name: "NotFoundReturnStatusOK",
 			query: ListQuery{
-				menuID: 	menu.ID,
-				pageID:		1,
-				pageSize:	n,
+				menuID:   menu.ID,
+				pageID:   1,
+				pageSize: n,
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				arg := db.ListMenuItemParams{
 					MenuID: menu.ID,
-					Limit:	int32(n),
+					Limit:  int32(n),
 					Offset: 0,
 				}
 				mockdb.EXPECT().
-				ListMenuItem(gomock.Any(), gomock.Eq(arg)).
+					ListMenuItem(gomock.Any(), gomock.Eq(arg)).
 					Times(1).
 					Return([]db.Item{}, sql.ErrNoRows)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recoder.Code)
 			},
 		},
 		{
 			name: "UnexpectedDBErr",
 			query: ListQuery{
-				menuID: 	menu.ID,
-				pageID:		1,
-				pageSize:	n,
+				menuID:   menu.ID,
+				pageID:   1,
+				pageSize: n,
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				arg := db.ListMenuItemParams{
 					MenuID: menu.ID,
-					Limit:	int32(n),
+					Limit:  int32(n),
 					Offset: 0,
 				}
 				mockdb.EXPECT().
-				ListMenuItem(gomock.Any(), gomock.Eq(arg)).
+					ListMenuItem(gomock.Any(), gomock.Eq(arg)).
 					Times(1).
 					Return([]db.Item{}, sql.ErrConnDone)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recoder.Code)
 			},
 		},
 	}
-		for i := range testCases {
-			tc := testCases[i]
+	for i := range testCases {
+		tc := testCases[i]
 
-			t.Run(tc.name, func(t *testing.T) {
-				ctrl := gomock.NewController(t)
-				defer ctrl.Finish()
-				mockdb_service := mock_db.NewMockDBService(ctrl)
-				tc.buildStubs(mockdb_service)
-				server := newTestServer(t, mockdb_service)
-				recorder := httptest.NewRecorder()
-				url := "/v1/store/menu/list_items"
-				request, err := http.NewRequest(http.MethodGet, url, nil)
-				require.NoError(t, err)
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mockdb_service := mock_db.NewMockDBService(ctrl)
+			tc.buildStubs(mockdb_service)
+			server := newTestServer(t, mockdb_service)
+			recorder := httptest.NewRecorder()
+			url := "/v1/store/menu/list_items"
+			request, err := http.NewRequest(http.MethodGet, url, nil)
+			require.NoError(t, err)
 
-				q := request.URL.Query()
-				q.Add("menu_id", fmt.Sprintf("%d", tc.query.menuID))
-				q.Add("page_id", fmt.Sprintf("%d", tc.query.pageID))
-				q.Add("page_size", fmt.Sprintf("%d", tc.query.pageSize))
-				request.URL.RawQuery = q.Encode()
+			q := request.URL.Query()
+			q.Add("menu_id", fmt.Sprintf("%d", tc.query.menuID))
+			q.Add("page_id", fmt.Sprintf("%d", tc.query.pageID))
+			q.Add("page_size", fmt.Sprintf("%d", tc.query.pageSize))
+			request.URL.RawQuery = q.Encode()
 
-				server.router.ServeHTTP(recorder, request)
-				tc.checkResponse(t, recorder)
-			})
-		}
+			server.router.ServeHTTP(recorder, request)
+			tc.checkResponse(t, recorder)
+		})
+	}
 }
-
 
 func randomMenuItem(menu db.Menu) db.Item {
 	return db.Item{
-		ID:		1,
+		ID:     1,
 		MenuID: menu.ID,
-		Name: 	util.RandomItemName(),
-		Price: 	int32(util.RandomInt(20, 100)),
+		Name:   util.RandomItemName(),
+		Price:  int32(util.RandomInt(20, 100)),
 	}
 }
 
 func RandomItemTag(item db.Item) db.ItemTag {
 	return db.ItemTag{
-		ID: 1,
-		ItemID: item.ID,
+		ID:      1,
+		ItemID:  item.ID,
 		ItemTag: util.RandomItemTag(),
 	}
 }

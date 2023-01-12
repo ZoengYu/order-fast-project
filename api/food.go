@@ -10,15 +10,15 @@ import (
 )
 
 type CreateMenuItemRequest struct {
-	MenuID 		int64 		`json:"menu_id" binding:"required,min=1"`
-	ItemName	string		`json:"name" binding:"required"`
-	ItemPrice	int32		`json:"price" binding:"required"`
-	ItemTag		[]string	`json:"tag"`
+	MenuID    int64    `json:"menu_id" binding:"required,min=1"`
+	ItemName  string   `json:"name" binding:"required"`
+	ItemPrice int32    `json:"price" binding:"required"`
+	ItemTag   []string `json:"tag"`
 }
 
-func (server *Server) CreateMenuItem(ctx *gin.Context){
+func (server *Server) CreateMenuItem(ctx *gin.Context) {
 	var req CreateMenuItemRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil{
+	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -40,7 +40,7 @@ func (server *Server) CreateMenuItem(ctx *gin.Context){
 		return
 	}
 
-	for _, item := range(menu_items) {
+	for _, item := range menu_items {
 		if req.ItemName == item.Name {
 			err = fmt.Errorf("cannot create menu, the menu name %s already exist", req.ItemName)
 			ctx.JSON(http.StatusUnprocessableEntity, errorResponse(err))
@@ -49,20 +49,20 @@ func (server *Server) CreateMenuItem(ctx *gin.Context){
 	}
 
 	arg := db.CreateMenuItemParams{
-		MenuID: 	menu.ID,
-		Name: 		req.ItemName,
-		Price: 		req.ItemPrice,
+		MenuID: menu.ID,
+		Name:   req.ItemName,
+		Price:  req.ItemPrice,
 	}
 	menu_item, err := server.db_service.CreateMenuItem(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
-		}
+	}
 
-	if len(req.ItemTag) > 0{
-		for _, tag := range(req.ItemTag) {
+	if len(req.ItemTag) > 0 {
+		for _, tag := range req.ItemTag {
 			arg := db.CreateMenuItemTagParams{
-				ItemID: menu_item.ID,
+				ItemID:  menu_item.ID,
 				ItemTag: tag,
 			}
 			_, err := server.db_service.CreateMenuItemTag(ctx, arg)
@@ -76,13 +76,13 @@ func (server *Server) CreateMenuItem(ctx *gin.Context){
 	ctx.JSON(http.StatusOK, menu_item.ID)
 }
 
-type delMenuItemRequest struct{
+type delMenuItemRequest struct {
 	MenuID int64 `uri:"id" binding:"required,min=1"`
 }
 
-func (server *Server) DeleteMenuItem(ctx *gin.Context){
+func (server *Server) DeleteMenuItem(ctx *gin.Context) {
 	var req delMenuItemRequest
-	if err := ctx.ShouldBindUri(&req); err != nil{
+	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -111,7 +111,7 @@ func (server *Server) DeleteMenuItem(ctx *gin.Context){
 	}
 
 	arg := db.DeleteMenuItemParams{
-		ID:		menu.ID,
+		ID:     menu.ID,
 		MenuID: menu.ID,
 	}
 	// delete the item
@@ -124,24 +124,23 @@ func (server *Server) DeleteMenuItem(ctx *gin.Context){
 	ctx.JSON(http.StatusNoContent, nil)
 }
 
-
 type ListMenuItemsRequest struct {
-	MenuID 		int64 	`form:"menu_id" binding:"required,min=1"`
-	PageID 		int32 	`form:"page_id" binding:"required,min=1"`
-	PageSize 	int32	`form:"page_size" binding:"required,min=5,max=10"`
+	MenuID   int64 `form:"menu_id" binding:"required,min=1"`
+	PageID   int32 `form:"page_id" binding:"required,min=1"`
+	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
-func(server *Server) listMenuItems(ctx *gin.Context){
+func (server *Server) listMenuItems(ctx *gin.Context) {
 	var req ListMenuItemsRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil{
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
 	arg := db.ListMenuItemParams{
-		MenuID: 	req.MenuID,
-		Limit: 		req.PageSize,
-		Offset: 	calculate_offset(req.PageID, req.PageSize),
+		MenuID: req.MenuID,
+		Limit:  req.PageSize,
+		Offset: calculate_offset(req.PageID, req.PageSize),
 	}
 	menu_item, err := server.db_service.ListMenuItem(ctx, arg)
 	if err != nil {

@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func createRandomStoreTable(t *testing.T, store Store) Table{
+func createRandomStoreTable(t *testing.T, store Store) Table {
 
 	table1_arg := CreateTableParams{
 		StoreID: store.ID,
@@ -47,8 +47,8 @@ func TestUpdateStoreTable(t *testing.T) {
 	table := createRandomStoreTable(t, store)
 
 	arg := UpdateStoreTableParams{
-		StoreID: table.StoreID,
-		TableID: table.TableID,
+		StoreID:   table.StoreID,
+		TableID:   table.TableID,
 		TableName: "earth",
 	}
 	err := testQueries.UpdateStoreTable(context.Background(), arg)
@@ -87,8 +87,8 @@ func TestListStoreTable(t *testing.T) {
 
 	arg := ListStoreTablesParams{
 		StoreID: store.ID,
-		Limit: 5,
-		Offset: 1,
+		Limit:   5,
+		Offset:  1,
 	}
 
 	tables, err := testQueries.ListStoreTables(context.Background(), arg)
@@ -100,7 +100,7 @@ func TestDeleteStoreTableByName(t *testing.T) {
 	store := createRandomStore(t)
 	table := createRandomStoreTable(t, store)
 	arg := DeleteStoreTableByNameParams{
-		StoreID: store.ID,
+		StoreID:   store.ID,
 		TableName: table.TableName,
 	}
 	err := testQueries.DeleteStoreTableByName(context.Background(), arg)

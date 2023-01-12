@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func newTestServer(t *testing.T, mockdb db.DBService) *Server{
+func newTestServer(t *testing.T, mockdb db.DBService) *Server {
 	config := util.Config{}
 
 	server, err := NewServer(config, mockdb)

@@ -8,12 +8,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func CreateRandomMenuItem(t *testing.T) (Menu, Item){
+func CreateRandomMenuItem(t *testing.T) (Menu, Item) {
 	store := createRandomStore(t)
 	menu := createRandomStoreMenu(t, store)
 	arg := CreateMenuItemParams{
 		MenuID: menu.ID,
-		Name: 	util.RandomItemName(),
+		Name:   util.RandomItemName(),
 		Price:  int32(util.RandomInt(20, 100)),
 	}
 	item, err := testQueries.CreateMenuItem(context.Background(), arg)
@@ -40,7 +40,7 @@ func TestDeleteItem(t *testing.T) {
 	// create two item in the menu
 	arg1 := CreateMenuItemParams{
 		MenuID: menu.ID,
-		Name: 	util.RandomItemName(),
+		Name:   util.RandomItemName(),
 		Price:  int32(util.RandomInt(20, 100)),
 	}
 	item, err := testQueries.CreateMenuItem(context.Background(), arg1)
@@ -48,7 +48,7 @@ func TestDeleteItem(t *testing.T) {
 	require.NotEmpty(t, item)
 	arg2 := CreateMenuItemParams{
 		MenuID: menu.ID,
-		Name: 	util.RandomItemName(),
+		Name:   util.RandomItemName(),
 		Price:  int32(util.RandomInt(20, 100)),
 	}
 	item2, err := testQueries.CreateMenuItem(context.Background(), arg2)
@@ -56,7 +56,7 @@ func TestDeleteItem(t *testing.T) {
 	require.NotEmpty(t, item2)
 	// delete one item
 	del_arg := DeleteMenuItemParams{
-		ID:		item.ID,
+		ID:     item.ID,
 		MenuID: menu.ID,
 	}
 	err = testQueries.DeleteMenuItem(context.Background(), del_arg)
@@ -72,7 +72,7 @@ func TestDeleteItemAll(t *testing.T) {
 	menu := createRandomStoreMenu(t, store)
 	arg := CreateMenuItemParams{
 		MenuID: menu.ID,
-		Name: 	util.RandomItemName(),
+		Name:   util.RandomItemName(),
 		Price:  int32(util.RandomInt(20, 100)),
 	}
 	for i := 0; i < 3; i++ {

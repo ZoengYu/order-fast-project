@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestServerStartBadAddress(t *testing.T){
+func TestServerStartBadAddress(t *testing.T) {
 	config, _ := util.LoadConfig(".")
 
 	conn, _ := sql.Open(config.DBDriver, config.DBSource)

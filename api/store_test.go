@@ -23,59 +23,59 @@ func TestGetStoreAPI(t *testing.T) {
 	store := randomStore()
 
 	testCases := []struct {
-		name 			string
-		storeID			int64
-		buildStubs 		func(mock_db *mockdb.MockDBService)
-		checkResponse 	func(t *testing.T, recoder *httptest.ResponseRecorder)
+		name          string
+		storeID       int64
+		buildStubs    func(mock_db *mockdb.MockDBService)
+		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
 		{
-			name: "OK",
+			name:    "OK",
 			storeID: store.ID,
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
-				GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					GetStore(gomock.Any(), gomock.Eq(store.ID)).
 					Times(1).
 					Return(store, nil)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recoder.Code)
 			},
 		},
 		{
-			name: "NotFound",
+			name:    "NotFound",
 			storeID: store.ID,
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetStore(gomock.Any(), gomock.Eq(store.ID)).
 					Times(1).
 					Return(db.Store{}, sql.ErrNoRows)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recoder.Code)
 			},
 		},
 		{
-			name: "InvalidID",
+			name:    "InvalidID",
 			storeID: 0,
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
-				GetStore(gomock.Any(), gomock.Any()).
+					GetStore(gomock.Any(), gomock.Any()).
 					Times(0)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recoder.Code)
 			},
 		},
 		{
-			name: "DBError",
+			name:    "DBError",
 			storeID: store.ID,
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
-				GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					GetStore(gomock.Any(), gomock.Eq(store.ID)).
 					Times(1).
 					Return(db.Store{}, sql.ErrConnDone)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recoder.Code)
 			},
 		},
@@ -105,59 +105,59 @@ func TestGetStoreByNameAPI(t *testing.T) {
 	store := randomStore()
 
 	testCases := []struct {
-		name 			string
-		body 			[]byte
-		buildStubs 		func(mock_db *mockdb.MockDBService)
-		checkResponse 	func(t *testing.T, recoder *httptest.ResponseRecorder)
+		name          string
+		body          []byte
+		buildStubs    func(mock_db *mockdb.MockDBService)
+		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
 		{
 			name: "OK",
-			body : []byte(fmt.Sprintf(`{"name": "%s"}`, store.StoreName)),
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			body: []byte(fmt.Sprintf(`{"name": "%s"}`, store.StoreName)),
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetStoreByName(gomock.Any(), gomock.Eq(store.StoreName)).
 					Times(1).
 					Return(store, nil)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recoder.Code)
 			},
 		},
 		{
 			name: "NotFound",
-			body : []byte(fmt.Sprintf(`{"name": "%s"}`, store.StoreName)),
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			body: []byte(fmt.Sprintf(`{"name": "%s"}`, store.StoreName)),
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetStoreByName(gomock.Any(), gomock.Eq(store.StoreName)).
 					Times(1).
 					Return(db.Store{}, sql.ErrNoRows)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recoder.Code)
 			},
 		},
 		{
 			name: "BadRequestPayload",
-			body : []byte(fmt.Sprintf(`{"wrong": "%s"}`, store.StoreName)),
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			body: []byte(fmt.Sprintf(`{"wrong": "%s"}`, store.StoreName)),
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetStoreByName(gomock.Any(), gomock.Any()).
 					Times(0)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recoder.Code)
 			},
 		},
 		{
 			name: "DBError",
-			body : []byte(fmt.Sprintf(`{"name": "%s"}`, store.StoreName)),
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			body: []byte(fmt.Sprintf(`{"name": "%s"}`, store.StoreName)),
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetStoreByName(gomock.Any(), gomock.Eq(store.StoreName)).
 					Times(1).
 					Return(db.Store{}, sql.ErrConnDone)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recoder.Code)
 			},
 		},
@@ -186,77 +186,77 @@ func TestGetStoreByNameAPI(t *testing.T) {
 func TestCreateStoreAPI(t *testing.T) {
 	store := randomStore()
 	testCases := []struct {
-		name			string
-		body 			gin.H
-		buildStubs 		func(mock_db *mockdb.MockDBService)
-		checkResponse 	func(t *testing.T, recoder *httptest.ResponseRecorder)
+		name          string
+		body          gin.H
+		buildStubs    func(mock_db *mockdb.MockDBService)
+		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
 		{
 			name: "OK",
 			body: gin.H{
-				"name": 	store.StoreName,
-				"address": 	store.StoreAddress,
-				"phone": 	store.StorePhone,
-				"owner": 	store.StoreOwner,
-				"manager": 	store.StoreManager,
+				"name":    store.StoreName,
+				"address": store.StoreAddress,
+				"phone":   store.StorePhone,
+				"owner":   store.StoreOwner,
+				"manager": store.StoreManager,
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				arg := db.CreateStoreParams{
-					StoreName: 		store.StoreName,
-					StoreAddress: 	store.StoreAddress,
-					StorePhone: 	store.StorePhone,
-					StoreOwner: 	store.StoreOwner,
-					StoreManager: 	store.StoreManager,
+					StoreName:    store.StoreName,
+					StoreAddress: store.StoreAddress,
+					StorePhone:   store.StorePhone,
+					StoreOwner:   store.StoreOwner,
+					StoreManager: store.StoreManager,
 				}
 				mockdb.EXPECT().
 					CreateStore(gomock.Any(), gomock.Eq(arg)).
 					Times(1).
 					Return(store, nil)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recoder.Code)
 			},
 		},
 		{
 			name: "BadRequestPayload",
 			body: gin.H{
-				"address": 	store.StoreAddress,
-				"phone": 	store.StorePhone,
-				"owner": 	store.StoreOwner,
-				"manager": 	store.StoreManager,
+				"address": store.StoreAddress,
+				"phone":   store.StorePhone,
+				"owner":   store.StoreOwner,
+				"manager": store.StoreManager,
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					CreateStore(gomock.Any(), gomock.Any()).
 					Times(0)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recoder.Code)
 			},
 		},
 		{
 			name: "UnexpectedDBErr",
 			body: gin.H{
-				"name": 	store.StoreName,
-				"address": 	store.StoreAddress,
-				"phone": 	store.StorePhone,
-				"owner": 	store.StoreOwner,
-				"manager": 	store.StoreManager,
+				"name":    store.StoreName,
+				"address": store.StoreAddress,
+				"phone":   store.StorePhone,
+				"owner":   store.StoreOwner,
+				"manager": store.StoreManager,
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				arg := db.CreateStoreParams{
-					StoreName: 		store.StoreName,
-					StoreAddress: 	store.StoreAddress,
-					StorePhone: 	store.StorePhone,
-					StoreOwner: 	store.StoreOwner,
-					StoreManager: 	store.StoreManager,
+					StoreName:    store.StoreName,
+					StoreAddress: store.StoreAddress,
+					StorePhone:   store.StorePhone,
+					StoreOwner:   store.StoreOwner,
+					StoreManager: store.StoreManager,
 				}
 				mockdb.EXPECT().
 					CreateStore(gomock.Any(), gomock.Eq(arg)).
 					Times(1).
 					Return(db.Store{}, sql.ErrConnDone)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recoder.Code)
 			},
 		},
@@ -293,29 +293,29 @@ func TestUpdateStoreAPI(t *testing.T) {
 	updated_store := randomStore()
 	updated_store.ID = store.ID
 	testCases := []struct {
-		name			string
-		body 			gin.H
-		buildStubs 		func(mock_db *mockdb.MockDBService)
-		checkResponse 	func(t *testing.T, recoder *httptest.ResponseRecorder)
+		name          string
+		body          gin.H
+		buildStubs    func(mock_db *mockdb.MockDBService)
+		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
 		{
 			name: "OK",
 			body: gin.H{
-				"store_id":			store.ID,
-				"store_name": 		updated_store.StoreName,
-				"store_address": 	updated_store.StoreAddress,
-				"store_phone": 		updated_store.StorePhone,
-				"store_owner": 		updated_store.StoreOwner,
-				"store_manager": 	updated_store.StoreManager,
+				"store_id":      store.ID,
+				"store_name":    updated_store.StoreName,
+				"store_address": updated_store.StoreAddress,
+				"store_phone":   updated_store.StorePhone,
+				"store_owner":   updated_store.StoreOwner,
+				"store_manager": updated_store.StoreManager,
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				updated_arg := db.UpdateStoreParams{
-					ID:				updated_store.ID,
-					StoreName: 		updated_store.StoreName,
-					StoreAddress: 	updated_store.StoreAddress,
-					StorePhone: 	updated_store.StorePhone,
-					StoreOwner: 	updated_store.StoreOwner,
-					StoreManager: 	updated_store.StoreManager,
+					ID:           updated_store.ID,
+					StoreName:    updated_store.StoreName,
+					StoreAddress: updated_store.StoreAddress,
+					StorePhone:   updated_store.StorePhone,
+					StoreOwner:   updated_store.StoreOwner,
+					StoreManager: updated_store.StoreManager,
 				}
 				mockdb.EXPECT().
 					GetStore(gomock.Any(), gomock.Eq(store.ID)).
@@ -327,85 +327,85 @@ func TestUpdateStoreAPI(t *testing.T) {
 					Times(1).
 					Return(updated_store, nil)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recoder.Code)
 			},
 		},
 		{
 			name: "BadRequestPayload",
 			body: gin.H{
-				"address": 	store.StoreAddress,
-				"phone": 	store.StorePhone,
-				"owner": 	store.StoreOwner,
-				"manager": 	store.StoreManager,
+				"address": store.StoreAddress,
+				"phone":   store.StorePhone,
+				"owner":   store.StoreOwner,
+				"manager": store.StoreManager,
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					UpdateStore(gomock.Any(), gomock.Any()).
 					Times(0)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recoder.Code)
 			},
 		},
 		{
 			name: "NotFound",
 			body: gin.H{
-				"store_id":			updated_store.ID,
-				"store_name": 		updated_store.StoreName,
-				"store_address": 	updated_store.StoreAddress,
-				"store_phone": 		updated_store.StorePhone,
-				"store_owner": 		updated_store.StoreOwner,
-				"store_manager": 	updated_store.StoreManager,
+				"store_id":      updated_store.ID,
+				"store_name":    updated_store.StoreName,
+				"store_address": updated_store.StoreAddress,
+				"store_phone":   updated_store.StorePhone,
+				"store_owner":   updated_store.StoreOwner,
+				"store_manager": updated_store.StoreManager,
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetStore(gomock.Any(), gomock.Eq(store.ID)).
 					Times(1).
 					Return(store, sql.ErrNoRows)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recoder.Code)
 			},
 		},
 		{
 			name: "UnexpectedDBErrGetStore",
 			body: gin.H{
-				"store_id":			updated_store.ID,
-				"store_name": 		updated_store.StoreName,
-				"store_address": 	updated_store.StoreAddress,
-				"store_phone": 		updated_store.StorePhone,
-				"store_owner": 		updated_store.StoreOwner,
-				"store_manager": 	updated_store.StoreManager,
+				"store_id":      updated_store.ID,
+				"store_name":    updated_store.StoreName,
+				"store_address": updated_store.StoreAddress,
+				"store_phone":   updated_store.StorePhone,
+				"store_owner":   updated_store.StoreOwner,
+				"store_manager": updated_store.StoreManager,
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetStore(gomock.Any(), gomock.Eq(store.ID)).
 					Times(1).
 					Return(store, sql.ErrConnDone)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recoder.Code)
 			},
 		},
 		{
 			name: "UnexpectedDBErrUpdateStore",
 			body: gin.H{
-				"store_id":			updated_store.ID,
-				"store_name": 		updated_store.StoreName,
-				"store_address": 	updated_store.StoreAddress,
-				"store_phone": 		updated_store.StorePhone,
-				"store_owner": 		updated_store.StoreOwner,
-				"store_manager": 	updated_store.StoreManager,
+				"store_id":      updated_store.ID,
+				"store_name":    updated_store.StoreName,
+				"store_address": updated_store.StoreAddress,
+				"store_phone":   updated_store.StorePhone,
+				"store_owner":   updated_store.StoreOwner,
+				"store_manager": updated_store.StoreManager,
 			},
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				updated_arg := db.UpdateStoreParams{
-					ID:				updated_store.ID,
-					StoreName: 		updated_store.StoreName,
-					StoreAddress: 	updated_store.StoreAddress,
-					StorePhone: 	updated_store.StorePhone,
-					StoreOwner: 	updated_store.StoreOwner,
-					StoreManager: 	updated_store.StoreManager,
+					ID:           updated_store.ID,
+					StoreName:    updated_store.StoreName,
+					StoreAddress: updated_store.StoreAddress,
+					StorePhone:   updated_store.StorePhone,
+					StoreOwner:   updated_store.StoreOwner,
+					StoreManager: updated_store.StoreManager,
 				}
 				mockdb.EXPECT().
 					GetStore(gomock.Any(), gomock.Eq(store.ID)).
@@ -417,7 +417,7 @@ func TestUpdateStoreAPI(t *testing.T) {
 					Times(1).
 					Return(db.Store{}, sql.ErrConnDone)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recoder.Code)
 			},
 		},
@@ -452,59 +452,59 @@ func TestDelStoreAPI(t *testing.T) {
 	store := randomStore()
 
 	testCases := []struct {
-		name 			string
-		storeID			int64
-		buildStubs 		func(mock_db *mockdb.MockDBService)
-		checkResponse 	func(t *testing.T, recoder *httptest.ResponseRecorder)
+		name          string
+		storeID       int64
+		buildStubs    func(mock_db *mockdb.MockDBService)
+		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
 		{
-			name: "OK",
+			name:    "OK",
 			storeID: store.ID,
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
-				DeleteStore(gomock.Any(), gomock.Eq(store.ID)).
+					DeleteStore(gomock.Any(), gomock.Eq(store.ID)).
 					Times(1).
 					Return(nil)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNoContent, recoder.Code)
 			},
 		},
 		{
-			name: "NotFound",
+			name:    "NotFound",
 			storeID: store.ID,
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					DeleteStore(gomock.Any(), gomock.Eq(store.ID)).
 					Times(1).
 					Return(sql.ErrNoRows)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recoder.Code)
 			},
 		},
 		{
-			name: "InvalidID",
+			name:    "InvalidID",
 			storeID: 0,
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
-				DeleteStore(gomock.Any(), gomock.Any()).
+					DeleteStore(gomock.Any(), gomock.Any()).
 					Times(0)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recoder.Code)
 			},
 		},
 		{
-			name: "DBError",
+			name:    "DBError",
 			storeID: store.ID,
-			buildStubs: func(mockdb *mockdb.MockDBService){
+			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
-				DeleteStore(gomock.Any(), gomock.Eq(store.ID)).
+					DeleteStore(gomock.Any(), gomock.Eq(store.ID)).
 					Times(1).
 					Return(sql.ErrConnDone)
 			},
-			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder){
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recoder.Code)
 			},
 		},
@@ -532,12 +532,12 @@ func TestDelStoreAPI(t *testing.T) {
 
 func randomStore() db.Store {
 	return db.Store{
-		ID:	1,
-		StoreName: util.RandomStoreName(),
+		ID:           1,
+		StoreName:    util.RandomStoreName(),
 		StoreAddress: util.RandomStoreAddress(),
-		StorePhone: util.RandomPhone(),
-		StoreOwner: util.RandomOwner(),
+		StorePhone:   util.RandomPhone(),
+		StoreOwner:   util.RandomOwner(),
 		StoreManager: util.RandomManager(),
-		CreatedAt: time.Now(),
+		CreatedAt:    time.Now(),
 	}
 }
