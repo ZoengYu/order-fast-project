@@ -13,9 +13,11 @@ INSERT INTO stores (
 SELECT * FROM stores
 WHERE id = $1 LIMIT 1;
 
--- name: GetStoreByName :one
+-- name: GetStoreByName :many
 SELECT * FROM stores
-WHERE store_name = $1 LIMIT 1;
+WHERE store_name ~* $1
+LIMIT $2
+OFFSET $3;
 
 -- name: UpdateStore :one
 UPDATE stores

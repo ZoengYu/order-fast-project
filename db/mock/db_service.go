@@ -255,10 +255,10 @@ func (mr *MockDBServiceMockRecorder) GetStore(arg0, arg1 interface{}) *gomock.Ca
 }
 
 // GetStoreByName mocks base method.
-func (m *MockDBService) GetStoreByName(arg0 context.Context, arg1 string) (db.Store, error) {
+func (m *MockDBService) GetStoreByName(arg0 context.Context, arg1 db.GetStoreByNameParams) ([]db.Store, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetStoreByName", arg0, arg1)
-	ret0, _ := ret[0].(db.Store)
+	ret0, _ := ret[0].([]db.Store)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

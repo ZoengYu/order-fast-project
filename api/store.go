@@ -66,27 +66,32 @@ func (server *Server) getStore(ctx *gin.Context) {
 }
 
 type getStoreByNameRequest struct {
-	StoreName string `json:"name" binding:"required"`
+	StoreName string `form:"name" binding:"required"`
+	PageID    int32  `form:"page_id" binding:"required"`
+	PageSize  int32  `form:"page_size" binding:"required,min=5,max=10"`
 }
 
 func (server *Server) getStoreByName(ctx *gin.Context) {
 	var req getStoreByNameRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	store, err := server.db_service.GetStoreByName(ctx, req.StoreName)
+	arg := db.GetStoreByNameParams{
+		StoreName: req.StoreName,
+		Limit:     req.PageSize,
+		Offset:    (req.PageID - 1),
+	}
+
+	stores, err := server.db_service.GetStoreByName(ctx, arg)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			err = fmt.Errorf("cannot find store name: %s", req.StoreName)
-			ctx.JSON(http.StatusNotFound, errorResponse(err))
+		if err != sql.ErrNoRows {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 			return
 		}
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
 	}
-	ctx.JSON(http.StatusOK, store)
+	ctx.JSON(http.StatusOK, stores)
 }
 
 type updateStoreRequest struct {

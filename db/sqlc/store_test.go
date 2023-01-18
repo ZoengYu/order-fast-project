@@ -33,6 +33,15 @@ func createRandomStore(t *testing.T) Store {
 	return store
 }
 
+func createMultipleStore(t *testing.T, num int) []Store {
+	var storeList []Store
+	for i := 0; i < num; i++ {
+		store := createRandomStore(t)
+		storeList = append(storeList, store)
+	}
+	return storeList
+}
+
 func TestCreateStore(t *testing.T) {
 	createRandomStore(t)
 }
@@ -47,12 +56,17 @@ func TestGetStore(t *testing.T) {
 }
 
 func TestGetStoreByName(t *testing.T) {
-	store := createRandomStore(t)
-	get_store, err := testQueries.GetStoreByName(context.Background(), store.StoreName)
+	stores := createMultipleStore(t, 3)
+	arg := GetStoreByNameParams{
+		StoreName: stores[0].StoreName,
+		Limit:     3,
+		Offset:    0,
+	}
+	get_stores, err := testQueries.GetStoreByName(context.Background(), arg)
 	require.NoError(t, err)
-	require.NotEmpty(t, get_store)
+	require.NotEmpty(t, get_stores)
 
-	require.Equal(t, get_store.StoreName, store.StoreName)
+	require.Equal(t, get_stores[0], stores[0])
 }
 
 func TestUpdateStore(t *testing.T) {
@@ -79,7 +93,7 @@ func TestDeleteStore(t *testing.T) {
 
 	err := testQueries.DeleteStore(context.Background(), store.ID)
 	require.NoError(t, err)
-	get_store, err := testQueries.GetStoreByName(context.Background(), store.StoreName)
+	get_store, err := testQueries.GetStore(context.Background(), store.ID)
 	require.Empty(t, get_store)
 	require.Equal(t, err, sql.ErrNoRows)
 }

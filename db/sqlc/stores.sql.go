@@ -80,24 +80,48 @@ func (q *Queries) GetStore(ctx context.Context, id int64) (Store, error) {
 	return i, err
 }
 
-const getStoreByName = `-- name: GetStoreByName :one
+const getStoreByName = `-- name: GetStoreByName :many
 SELECT id, store_name, store_address, store_phone, store_owner, store_manager, created_at FROM stores
-WHERE store_name = $1 LIMIT 1
+WHERE store_name ~* $1
+LIMIT $2
+OFFSET $3
 `
 
-func (q *Queries) GetStoreByName(ctx context.Context, storeName string) (Store, error) {
-	row := q.db.QueryRowContext(ctx, getStoreByName, storeName)
-	var i Store
-	err := row.Scan(
-		&i.ID,
-		&i.StoreName,
-		&i.StoreAddress,
-		&i.StorePhone,
-		&i.StoreOwner,
-		&i.StoreManager,
-		&i.CreatedAt,
-	)
-	return i, err
+type GetStoreByNameParams struct {
+	StoreName string `json:"store_name"`
+	Limit     int32  `json:"limit"`
+	Offset    int32  `json:"offset"`
+}
+
+func (q *Queries) GetStoreByName(ctx context.Context, arg GetStoreByNameParams) ([]Store, error) {
+	rows, err := q.db.QueryContext(ctx, getStoreByName, arg.StoreName, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Store{}
+	for rows.Next() {
+		var i Store
+		if err := rows.Scan(
+			&i.ID,
+			&i.StoreName,
+			&i.StoreAddress,
+			&i.StorePhone,
+			&i.StoreOwner,
+			&i.StoreManager,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateStore = `-- name: UpdateStore :one

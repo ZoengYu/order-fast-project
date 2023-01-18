@@ -102,43 +102,71 @@ func TestGetStoreAPI(t *testing.T) {
 }
 
 func TestGetStoreByNameAPI(t *testing.T) {
-	store := randomStore()
+	stores := randomStores(3)
+
+	type ListQuery struct {
+		StoreName string
+		pageID    int
+		pageSize  int
+	}
 
 	testCases := []struct {
 		name          string
-		body          []byte
+		query_param   ListQuery
 		buildStubs    func(mock_db *mockdb.MockDBService)
 		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
 		{
 			name: "OK",
-			body: []byte(fmt.Sprintf(`{"name": "%s"}`, store.StoreName)),
+			query_param: ListQuery{
+				StoreName: stores[0].StoreName[0:5],
+				pageID:    1,
+				pageSize:  5,
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
+				arg := db.GetStoreByNameParams{
+					StoreName: stores[0].StoreName[0:5],
+					Limit:     5,
+					Offset:    0,
+				}
 				mockdb.EXPECT().
-					GetStoreByName(gomock.Any(), gomock.Eq(store.StoreName)).
+					GetStoreByName(gomock.Any(), gomock.Eq(arg)).
 					Times(1).
-					Return(store, nil)
+					Return(stores, nil)
 			},
 			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recoder.Code)
 			},
 		},
 		{
-			name: "NotFound",
-			body: []byte(fmt.Sprintf(`{"name": "%s"}`, store.StoreName)),
+			name: "UnExistResultShouldReturnEmpty",
+			query_param: ListQuery{
+				StoreName: stores[0].StoreName[0:5],
+				pageID:    1,
+				pageSize:  5,
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
+				arg := db.GetStoreByNameParams{
+					StoreName: stores[0].StoreName[0:5],
+					Limit:     5,
+					Offset:    0,
+				}
 				mockdb.EXPECT().
-					GetStoreByName(gomock.Any(), gomock.Eq(store.StoreName)).
+					GetStoreByName(gomock.Any(), gomock.Eq(arg)).
 					Times(1).
-					Return(db.Store{}, sql.ErrNoRows)
+					Return([]db.Store{}, nil)
 			},
 			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusNotFound, recoder.Code)
+				require.Equal(t, http.StatusOK, recoder.Code)
 			},
 		},
 		{
-			name: "BadRequestPayload",
-			body: []byte(fmt.Sprintf(`{"wrong": "%s"}`, store.StoreName)),
+			name: "PageIDShouldNotEqualToZero",
+			query_param: ListQuery{
+				StoreName: stores[0].StoreName[0:5],
+				pageID:    0,
+				pageSize:  5,
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetStoreByName(gomock.Any(), gomock.Any()).
@@ -149,13 +177,22 @@ func TestGetStoreByNameAPI(t *testing.T) {
 			},
 		},
 		{
-			name: "DBError",
-			body: []byte(fmt.Sprintf(`{"name": "%s"}`, store.StoreName)),
+			name: "DBConnError",
+			query_param: ListQuery{
+				StoreName: stores[0].StoreName[0:5],
+				pageID:    1,
+				pageSize:  5,
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
+				arg := db.GetStoreByNameParams{
+					StoreName: stores[0].StoreName[0:5],
+					Limit:     5,
+					Offset:    0,
+				}
 				mockdb.EXPECT().
-					GetStoreByName(gomock.Any(), gomock.Eq(store.StoreName)).
+					GetStoreByName(gomock.Any(), gomock.Eq(arg)).
 					Times(1).
-					Return(db.Store{}, sql.ErrConnDone)
+					Return([]db.Store{}, sql.ErrConnDone)
 			},
 			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recoder.Code)
@@ -173,8 +210,9 @@ func TestGetStoreByNameAPI(t *testing.T) {
 			tc.buildStubs(mockdb_service)
 			server := newTestServer(t, mockdb_service)
 			recorder := httptest.NewRecorder()
-			url := "/v1/store/name"
-			request, err := http.NewRequest(http.MethodGet, url, bytes.NewReader(tc.body))
+			url := fmt.Sprintf("/v1/store?name=%s&page_id=%d&page_size=%d",
+				tc.query_param.StoreName, tc.query_param.pageID, tc.query_param.pageSize)
+			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
 			server.router.ServeHTTP(recorder, request)
@@ -540,4 +578,12 @@ func randomStore() db.Store {
 		StoreManager: util.RandomManager(),
 		CreatedAt:    time.Now(),
 	}
+}
+
+func randomStores(num int) []db.Store {
+	var stores []db.Store
+	for i := 0; i < num; i++ {
+		stores = append(stores, randomStore())
+	}
+	return stores
 }

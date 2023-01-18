@@ -24,7 +24,7 @@ type Querier interface {
 	GetMenu(ctx context.Context, id int64) (Menu, error)
 	GetMenuItemTag(ctx context.Context, arg GetMenuItemTagParams) (ItemTag, error)
 	GetStore(ctx context.Context, id int64) (Store, error)
-	GetStoreByName(ctx context.Context, storeName string) (Store, error)
+	GetStoreByName(ctx context.Context, arg GetStoreByNameParams) ([]Store, error)
 	GetStoreMenu(ctx context.Context, arg GetStoreMenuParams) (Menu, error)
 	GetStoreTable(ctx context.Context, arg GetStoreTableParams) (Table, error)
 	ListAllMenuItem(ctx context.Context, menuID int64) ([]Item, error)
