@@ -30,6 +30,9 @@ func (server *Server) setupRouter() {
 	// allow all origins request
 	router.Use(cors.Default())
 
+	v1.POST("/account", server.createAccount)
+	v1.GET("/account/:id", server.getAccount)
+
 	v1.POST("/store", server.createStore)
 	v1.GET("/store/:id", server.getStore)
 	v1.GET("/store", server.listStoresByName)
