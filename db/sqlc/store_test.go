@@ -57,12 +57,12 @@ func TestGetStore(t *testing.T) {
 
 func TestGetStoreByName(t *testing.T) {
 	stores := createMultipleStore(t, 3)
-	arg := GetStoreByNameParams{
+	arg := ListStoresByNameParams{
 		StoreName: stores[0].StoreName,
 		Limit:     3,
 		Offset:    0,
 	}
-	get_stores, err := testQueries.GetStoreByName(context.Background(), arg)
+	get_stores, err := testQueries.ListStoresByName(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, get_stores)
 

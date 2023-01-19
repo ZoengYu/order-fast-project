@@ -80,21 +80,21 @@ func (q *Queries) GetStore(ctx context.Context, id int64) (Store, error) {
 	return i, err
 }
 
-const getStoreByName = `-- name: GetStoreByName :many
+const listStoresByName = `-- name: ListStoresByName :many
 SELECT id, store_name, store_address, store_phone, store_owner, store_manager, created_at FROM stores
 WHERE store_name ~* $1
 LIMIT $2
 OFFSET $3
 `
 
-type GetStoreByNameParams struct {
+type ListStoresByNameParams struct {
 	StoreName string `json:"store_name"`
 	Limit     int32  `json:"limit"`
 	Offset    int32  `json:"offset"`
 }
 
-func (q *Queries) GetStoreByName(ctx context.Context, arg GetStoreByNameParams) ([]Store, error) {
-	rows, err := q.db.QueryContext(ctx, getStoreByName, arg.StoreName, arg.Limit, arg.Offset)
+func (q *Queries) ListStoresByName(ctx context.Context, arg ListStoresByNameParams) ([]Store, error) {
+	rows, err := q.db.QueryContext(ctx, listStoresByName, arg.StoreName, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

@@ -65,26 +65,26 @@ func (server *Server) getStore(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, store)
 }
 
-type getStoreByNameRequest struct {
+type listStoresByNameRequest struct {
 	StoreName string `form:"name" binding:"required"`
 	PageID    int32  `form:"page_id" binding:"required"`
 	PageSize  int32  `form:"page_size" binding:"required,min=5,max=10"`
 }
 
-func (server *Server) getStoreByName(ctx *gin.Context) {
-	var req getStoreByNameRequest
+func (server *Server) listStoresByName(ctx *gin.Context) {
+	var req listStoresByNameRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	arg := db.GetStoreByNameParams{
+	arg := db.ListStoresByNameParams{
 		StoreName: req.StoreName,
 		Limit:     req.PageSize,
 		Offset:    (req.PageID - 1),
 	}
 
-	stores, err := server.db_service.GetStoreByName(ctx, arg)
+	stores, err := server.db_service.ListStoresByName(ctx, arg)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))

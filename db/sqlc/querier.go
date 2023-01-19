@@ -24,7 +24,6 @@ type Querier interface {
 	GetMenu(ctx context.Context, id int64) (Menu, error)
 	GetMenuItemTag(ctx context.Context, arg GetMenuItemTagParams) (ItemTag, error)
 	GetStore(ctx context.Context, id int64) (Store, error)
-	GetStoreByName(ctx context.Context, arg GetStoreByNameParams) ([]Store, error)
 	GetStoreMenu(ctx context.Context, arg GetStoreMenuParams) (Menu, error)
 	GetStoreTable(ctx context.Context, arg GetStoreTableParams) (Table, error)
 	ListAllMenuItem(ctx context.Context, menuID int64) ([]Item, error)
@@ -32,6 +31,7 @@ type Querier interface {
 	ListMenuItemTag(ctx context.Context, itemID int64) ([]string, error)
 	ListStoreMenu(ctx context.Context, arg ListStoreMenuParams) ([]Menu, error)
 	ListStoreTables(ctx context.Context, arg ListStoreTablesParams) ([]Table, error)
+	ListStoresByName(ctx context.Context, arg ListStoresByNameParams) ([]Store, error)
 	RemoveMenuItemTag(ctx context.Context, arg RemoveMenuItemTagParams) error
 	UpdateMenuItem(ctx context.Context, arg UpdateMenuItemParams) (Item, error)
 	UpdateStore(ctx context.Context, arg UpdateStoreParams) (Store, error)

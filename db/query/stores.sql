@@ -13,7 +13,7 @@ INSERT INTO stores (
 SELECT * FROM stores
 WHERE id = $1 LIMIT 1;
 
--- name: GetStoreByName :many
+-- name: ListStoresByName :many
 SELECT * FROM stores
 WHERE store_name ~* $1
 LIMIT $2

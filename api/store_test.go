@@ -101,7 +101,7 @@ func TestGetStoreAPI(t *testing.T) {
 	}
 }
 
-func TestGetStoreByNameAPI(t *testing.T) {
+func TestListStoresByNameAPI(t *testing.T) {
 	stores := randomStores(3)
 
 	type ListQuery struct {
@@ -124,13 +124,13 @@ func TestGetStoreByNameAPI(t *testing.T) {
 				pageSize:  5,
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
-				arg := db.GetStoreByNameParams{
+				arg := db.ListStoresByNameParams{
 					StoreName: stores[0].StoreName[0:5],
 					Limit:     5,
 					Offset:    0,
 				}
 				mockdb.EXPECT().
-					GetStoreByName(gomock.Any(), gomock.Eq(arg)).
+					ListStoresByName(gomock.Any(), gomock.Eq(arg)).
 					Times(1).
 					Return(stores, nil)
 			},
@@ -146,13 +146,13 @@ func TestGetStoreByNameAPI(t *testing.T) {
 				pageSize:  5,
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
-				arg := db.GetStoreByNameParams{
+				arg := db.ListStoresByNameParams{
 					StoreName: stores[0].StoreName[0:5],
 					Limit:     5,
 					Offset:    0,
 				}
 				mockdb.EXPECT().
-					GetStoreByName(gomock.Any(), gomock.Eq(arg)).
+					ListStoresByName(gomock.Any(), gomock.Eq(arg)).
 					Times(1).
 					Return([]db.Store{}, nil)
 			},
@@ -169,7 +169,7 @@ func TestGetStoreByNameAPI(t *testing.T) {
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
-					GetStoreByName(gomock.Any(), gomock.Any()).
+					ListStoresByName(gomock.Any(), gomock.Any()).
 					Times(0)
 			},
 			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
@@ -184,13 +184,13 @@ func TestGetStoreByNameAPI(t *testing.T) {
 				pageSize:  5,
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
-				arg := db.GetStoreByNameParams{
+				arg := db.ListStoresByNameParams{
 					StoreName: stores[0].StoreName[0:5],
 					Limit:     5,
 					Offset:    0,
 				}
 				mockdb.EXPECT().
-					GetStoreByName(gomock.Any(), gomock.Eq(arg)).
+					ListStoresByName(gomock.Any(), gomock.Eq(arg)).
 					Times(1).
 					Return([]db.Store{}, sql.ErrConnDone)
 			},

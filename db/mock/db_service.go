@@ -254,21 +254,6 @@ func (mr *MockDBServiceMockRecorder) GetStore(arg0, arg1 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStore", reflect.TypeOf((*MockDBService)(nil).GetStore), arg0, arg1)
 }
 
-// GetStoreByName mocks base method.
-func (m *MockDBService) GetStoreByName(arg0 context.Context, arg1 db.GetStoreByNameParams) ([]db.Store, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetStoreByName", arg0, arg1)
-	ret0, _ := ret[0].([]db.Store)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetStoreByName indicates an expected call of GetStoreByName.
-func (mr *MockDBServiceMockRecorder) GetStoreByName(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStoreByName", reflect.TypeOf((*MockDBService)(nil).GetStoreByName), arg0, arg1)
-}
-
 // GetStoreMenu mocks base method.
 func (m *MockDBService) GetStoreMenu(arg0 context.Context, arg1 db.GetStoreMenuParams) (db.Menu, error) {
 	m.ctrl.T.Helper()
@@ -372,6 +357,21 @@ func (m *MockDBService) ListStoreTables(arg0 context.Context, arg1 db.ListStoreT
 func (mr *MockDBServiceMockRecorder) ListStoreTables(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListStoreTables", reflect.TypeOf((*MockDBService)(nil).ListStoreTables), arg0, arg1)
+}
+
+// ListStoresByName mocks base method.
+func (m *MockDBService) ListStoresByName(arg0 context.Context, arg1 db.ListStoresByNameParams) ([]db.Store, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListStoresByName", arg0, arg1)
+	ret0, _ := ret[0].([]db.Store)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListStoresByName indicates an expected call of ListStoresByName.
+func (mr *MockDBServiceMockRecorder) ListStoresByName(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListStoresByName", reflect.TypeOf((*MockDBService)(nil).ListStoresByName), arg0, arg1)
 }
 
 // RemoveMenuItemTag mocks base method.
