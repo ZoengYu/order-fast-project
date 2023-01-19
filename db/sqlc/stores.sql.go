@@ -11,39 +11,39 @@ import (
 
 const createStore = `-- name: CreateStore :one
 INSERT INTO stores (
+    account_id,
     store_name,
     store_address,
     store_phone,
-    store_owner,
     store_manager
 ) VALUES (
     $1, $2, $3, $4, $5
-) RETURNING id, store_name, store_address, store_phone, store_owner, store_manager, created_at
+) RETURNING id, account_id, store_name, store_address, store_phone, store_manager, created_at
 `
 
 type CreateStoreParams struct {
+	AccountID    int64  `json:"account_id"`
 	StoreName    string `json:"store_name"`
 	StoreAddress string `json:"store_address"`
 	StorePhone   string `json:"store_phone"`
-	StoreOwner   string `json:"store_owner"`
 	StoreManager string `json:"store_manager"`
 }
 
 func (q *Queries) CreateStore(ctx context.Context, arg CreateStoreParams) (Store, error) {
 	row := q.db.QueryRowContext(ctx, createStore,
+		arg.AccountID,
 		arg.StoreName,
 		arg.StoreAddress,
 		arg.StorePhone,
-		arg.StoreOwner,
 		arg.StoreManager,
 	)
 	var i Store
 	err := row.Scan(
 		&i.ID,
+		&i.AccountID,
 		&i.StoreName,
 		&i.StoreAddress,
 		&i.StorePhone,
-		&i.StoreOwner,
 		&i.StoreManager,
 		&i.CreatedAt,
 	)
@@ -61,7 +61,7 @@ func (q *Queries) DeleteStore(ctx context.Context, id int64) error {
 }
 
 const getStore = `-- name: GetStore :one
-SELECT id, store_name, store_address, store_phone, store_owner, store_manager, created_at FROM stores
+SELECT id, account_id, store_name, store_address, store_phone, store_manager, created_at FROM stores
 WHERE id = $1 LIMIT 1
 `
 
@@ -70,10 +70,10 @@ func (q *Queries) GetStore(ctx context.Context, id int64) (Store, error) {
 	var i Store
 	err := row.Scan(
 		&i.ID,
+		&i.AccountID,
 		&i.StoreName,
 		&i.StoreAddress,
 		&i.StorePhone,
-		&i.StoreOwner,
 		&i.StoreManager,
 		&i.CreatedAt,
 	)
@@ -81,7 +81,7 @@ func (q *Queries) GetStore(ctx context.Context, id int64) (Store, error) {
 }
 
 const listStoresByName = `-- name: ListStoresByName :many
-SELECT id, store_name, store_address, store_phone, store_owner, store_manager, created_at FROM stores
+SELECT id, account_id, store_name, store_address, store_phone, store_manager, created_at FROM stores
 WHERE store_name ~* $1
 LIMIT $2
 OFFSET $3
@@ -104,10 +104,10 @@ func (q *Queries) ListStoresByName(ctx context.Context, arg ListStoresByNamePara
 		var i Store
 		if err := rows.Scan(
 			&i.ID,
+			&i.AccountID,
 			&i.StoreName,
 			&i.StoreAddress,
 			&i.StorePhone,
-			&i.StoreOwner,
 			&i.StoreManager,
 			&i.CreatedAt,
 		); err != nil {
@@ -126,36 +126,36 @@ func (q *Queries) ListStoresByName(ctx context.Context, arg ListStoresByNamePara
 
 const updateStore = `-- name: UpdateStore :one
 UPDATE stores
-SET store_name = $2, store_address = $3, store_phone = $4, store_owner = $5, store_manager = $6
+SET account_id = $2, store_name = $3, store_address = $4, store_phone = $5, store_manager = $6
 WHERE id = $1
-RETURNING id, store_name, store_address, store_phone, store_owner, store_manager, created_at
+RETURNING id, account_id, store_name, store_address, store_phone, store_manager, created_at
 `
 
 type UpdateStoreParams struct {
 	ID           int64  `json:"id"`
+	AccountID    int64  `json:"account_id"`
 	StoreName    string `json:"store_name"`
 	StoreAddress string `json:"store_address"`
 	StorePhone   string `json:"store_phone"`
-	StoreOwner   string `json:"store_owner"`
 	StoreManager string `json:"store_manager"`
 }
 
 func (q *Queries) UpdateStore(ctx context.Context, arg UpdateStoreParams) (Store, error) {
 	row := q.db.QueryRowContext(ctx, updateStore,
 		arg.ID,
+		arg.AccountID,
 		arg.StoreName,
 		arg.StoreAddress,
 		arg.StorePhone,
-		arg.StoreOwner,
 		arg.StoreManager,
 	)
 	var i Store
 	err := row.Scan(
 		&i.ID,
+		&i.AccountID,
 		&i.StoreName,
 		&i.StoreAddress,
 		&i.StorePhone,
-		&i.StoreOwner,
 		&i.StoreManager,
 		&i.CreatedAt,
 	)

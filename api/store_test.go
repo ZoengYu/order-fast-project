@@ -20,7 +20,8 @@ import (
 )
 
 func TestGetStoreAPI(t *testing.T) {
-	store := randomStore()
+	account := randomAccount()
+	store := randomStore(account)
 
 	testCases := []struct {
 		name          string
@@ -102,7 +103,8 @@ func TestGetStoreAPI(t *testing.T) {
 }
 
 func TestListStoresByNameAPI(t *testing.T) {
-	stores := randomStores(3)
+	account := randomAccount()
+	stores := randomStores(account, 3)
 
 	type ListQuery struct {
 		StoreName string
@@ -222,7 +224,8 @@ func TestListStoresByNameAPI(t *testing.T) {
 }
 
 func TestCreateStoreAPI(t *testing.T) {
-	store := randomStore()
+	account := randomAccount()
+	store := randomStore(account)
 	testCases := []struct {
 		name          string
 		body          gin.H
@@ -232,18 +235,18 @@ func TestCreateStoreAPI(t *testing.T) {
 		{
 			name: "OK",
 			body: gin.H{
-				"name":    store.StoreName,
-				"address": store.StoreAddress,
-				"phone":   store.StorePhone,
-				"owner":   store.StoreOwner,
-				"manager": store.StoreManager,
+				"account_id": account.ID,
+				"name":       store.StoreName,
+				"address":    store.StoreAddress,
+				"phone":      store.StorePhone,
+				"manager":    store.StoreManager,
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				arg := db.CreateStoreParams{
+					AccountID:    store.AccountID,
 					StoreName:    store.StoreName,
 					StoreAddress: store.StoreAddress,
 					StorePhone:   store.StorePhone,
-					StoreOwner:   store.StoreOwner,
 					StoreManager: store.StoreManager,
 				}
 				mockdb.EXPECT().
@@ -258,10 +261,10 @@ func TestCreateStoreAPI(t *testing.T) {
 		{
 			name: "BadRequestPayload",
 			body: gin.H{
-				"address": store.StoreAddress,
-				"phone":   store.StorePhone,
-				"owner":   store.StoreOwner,
-				"manager": store.StoreManager,
+				"acount_id": store.AccountID,
+				"address":   store.StoreAddress,
+				"phone":     store.StorePhone,
+				"manager":   store.StoreManager,
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
@@ -275,18 +278,18 @@ func TestCreateStoreAPI(t *testing.T) {
 		{
 			name: "UnexpectedDBErr",
 			body: gin.H{
-				"name":    store.StoreName,
-				"address": store.StoreAddress,
-				"phone":   store.StorePhone,
-				"owner":   store.StoreOwner,
-				"manager": store.StoreManager,
+				"account_id": account.ID,
+				"name":       store.StoreName,
+				"address":    store.StoreAddress,
+				"phone":      store.StorePhone,
+				"manager":    store.StoreManager,
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				arg := db.CreateStoreParams{
+					AccountID:    account.ID,
 					StoreName:    store.StoreName,
 					StoreAddress: store.StoreAddress,
 					StorePhone:   store.StorePhone,
-					StoreOwner:   store.StoreOwner,
 					StoreManager: store.StoreManager,
 				}
 				mockdb.EXPECT().
@@ -327,8 +330,9 @@ func TestCreateStoreAPI(t *testing.T) {
 }
 
 func TestUpdateStoreAPI(t *testing.T) {
-	store := randomStore()
-	updated_store := randomStore()
+	account := randomAccount()
+	store := randomStore(account)
+	updated_store := randomStore(account)
 	updated_store.ID = store.ID
 	testCases := []struct {
 		name          string
@@ -343,22 +347,26 @@ func TestUpdateStoreAPI(t *testing.T) {
 				"store_name":    updated_store.StoreName,
 				"store_address": updated_store.StoreAddress,
 				"store_phone":   updated_store.StorePhone,
-				"store_owner":   updated_store.StoreOwner,
 				"store_manager": updated_store.StoreManager,
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				updated_arg := db.UpdateStoreParams{
 					ID:           updated_store.ID,
+					AccountID:    account.ID,
 					StoreName:    updated_store.StoreName,
 					StoreAddress: updated_store.StoreAddress,
 					StorePhone:   updated_store.StorePhone,
-					StoreOwner:   updated_store.StoreOwner,
 					StoreManager: updated_store.StoreManager,
 				}
 				mockdb.EXPECT().
 					GetStore(gomock.Any(), gomock.Eq(store.ID)).
 					Times(1).
 					Return(store, nil)
+
+				mockdb.EXPECT().
+					GetAccount(gomock.Any(), gomock.Eq(store.AccountID)).
+					Times(1).
+					Return(account, nil)
 
 				mockdb.EXPECT().
 					UpdateStore(gomock.Any(), gomock.Eq(updated_arg)).
@@ -374,7 +382,6 @@ func TestUpdateStoreAPI(t *testing.T) {
 			body: gin.H{
 				"address": store.StoreAddress,
 				"phone":   store.StorePhone,
-				"owner":   store.StoreOwner,
 				"manager": store.StoreManager,
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
@@ -393,7 +400,6 @@ func TestUpdateStoreAPI(t *testing.T) {
 				"store_name":    updated_store.StoreName,
 				"store_address": updated_store.StoreAddress,
 				"store_phone":   updated_store.StorePhone,
-				"store_owner":   updated_store.StoreOwner,
 				"store_manager": updated_store.StoreManager,
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
@@ -413,7 +419,6 @@ func TestUpdateStoreAPI(t *testing.T) {
 				"store_name":    updated_store.StoreName,
 				"store_address": updated_store.StoreAddress,
 				"store_phone":   updated_store.StorePhone,
-				"store_owner":   updated_store.StoreOwner,
 				"store_manager": updated_store.StoreManager,
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
@@ -433,22 +438,26 @@ func TestUpdateStoreAPI(t *testing.T) {
 				"store_name":    updated_store.StoreName,
 				"store_address": updated_store.StoreAddress,
 				"store_phone":   updated_store.StorePhone,
-				"store_owner":   updated_store.StoreOwner,
 				"store_manager": updated_store.StoreManager,
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				updated_arg := db.UpdateStoreParams{
 					ID:           updated_store.ID,
+					AccountID:    account.ID,
 					StoreName:    updated_store.StoreName,
 					StoreAddress: updated_store.StoreAddress,
 					StorePhone:   updated_store.StorePhone,
-					StoreOwner:   updated_store.StoreOwner,
 					StoreManager: updated_store.StoreManager,
 				}
 				mockdb.EXPECT().
 					GetStore(gomock.Any(), gomock.Eq(store.ID)).
 					Times(1).
 					Return(store, nil)
+
+				mockdb.EXPECT().
+					GetAccount(gomock.Any(), gomock.Eq(store.AccountID)).
+					Times(1).
+					Return(account, nil)
 
 				mockdb.EXPECT().
 					UpdateStore(gomock.Any(), gomock.Eq(updated_arg)).
@@ -487,7 +496,8 @@ func TestUpdateStoreAPI(t *testing.T) {
 }
 
 func TestDelStoreAPI(t *testing.T) {
-	store := randomStore()
+	account := randomAccount()
+	store := randomStore(account)
 
 	testCases := []struct {
 		name          string
@@ -568,22 +578,30 @@ func TestDelStoreAPI(t *testing.T) {
 	}
 }
 
-func randomStore() db.Store {
+func randomAccount() db.Account {
+	return db.Account{
+		ID:        1,
+		Owner:     util.RandomOwner(),
+		CreatedAt: time.Now(),
+	}
+}
+
+func randomStore(account db.Account) db.Store {
 	return db.Store{
 		ID:           1,
+		AccountID:    account.ID,
 		StoreName:    util.RandomStoreName(),
 		StoreAddress: util.RandomStoreAddress(),
 		StorePhone:   util.RandomPhone(),
-		StoreOwner:   util.RandomOwner(),
 		StoreManager: util.RandomManager(),
 		CreatedAt:    time.Now(),
 	}
 }
 
-func randomStores(num int) []db.Store {
+func randomStores(account db.Account, num int) []db.Store {
 	var stores []db.Store
 	for i := 0; i < num; i++ {
-		stores = append(stores, randomStore())
+		stores = append(stores, randomStore(account))
 	}
 	return stores
 }

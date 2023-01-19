@@ -1,9 +1,9 @@
 -- name: CreateStore :one
 INSERT INTO stores (
+    account_id,
     store_name,
     store_address,
     store_phone,
-    store_owner,
     store_manager
 ) VALUES (
     $1, $2, $3, $4, $5
@@ -21,7 +21,7 @@ OFFSET $3;
 
 -- name: UpdateStore :one
 UPDATE stores
-SET store_name = $2, store_address = $3, store_phone = $4, store_owner = $5, store_manager = $6
+SET account_id = $2, store_name = $3, store_address = $4, store_phone = $5, store_manager = $6
 WHERE id = $1
 RETURNING *;
 

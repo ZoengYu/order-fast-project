@@ -35,6 +35,21 @@ func (m *MockDBService) EXPECT() *MockDBServiceMockRecorder {
 	return m.recorder
 }
 
+// CreateAccount mocks base method.
+func (m *MockDBService) CreateAccount(arg0 context.Context, arg1 string) (db.Account, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateAccount", arg0, arg1)
+	ret0, _ := ret[0].(db.Account)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateAccount indicates an expected call of CreateAccount.
+func (mr *MockDBServiceMockRecorder) CreateAccount(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAccount", reflect.TypeOf((*MockDBService)(nil).CreateAccount), arg0, arg1)
+}
+
 // CreateMenuItem mocks base method.
 func (m *MockDBService) CreateMenuItem(arg0 context.Context, arg1 db.CreateMenuItemParams) (db.Item, error) {
 	m.ctrl.T.Helper()
@@ -108,6 +123,20 @@ func (m *MockDBService) CreateTable(arg0 context.Context, arg1 db.CreateTablePar
 func (mr *MockDBServiceMockRecorder) CreateTable(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTable", reflect.TypeOf((*MockDBService)(nil).CreateTable), arg0, arg1)
+}
+
+// DeleteAccount mocks base method.
+func (m *MockDBService) DeleteAccount(arg0 context.Context, arg1 int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteAccount", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteAccount indicates an expected call of DeleteAccount.
+func (mr *MockDBServiceMockRecorder) DeleteAccount(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAccount", reflect.TypeOf((*MockDBService)(nil).DeleteAccount), arg0, arg1)
 }
 
 // DeleteMenu mocks base method.
@@ -192,6 +221,21 @@ func (m *MockDBService) DeleteStoreTableByName(arg0 context.Context, arg1 db.Del
 func (mr *MockDBServiceMockRecorder) DeleteStoreTableByName(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteStoreTableByName", reflect.TypeOf((*MockDBService)(nil).DeleteStoreTableByName), arg0, arg1)
+}
+
+// GetAccount mocks base method.
+func (m *MockDBService) GetAccount(arg0 context.Context, arg1 int64) (db.Account, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAccount", arg0, arg1)
+	ret0, _ := ret[0].(db.Account)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAccount indicates an expected call of GetAccount.
+func (mr *MockDBServiceMockRecorder) GetAccount(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccount", reflect.TypeOf((*MockDBService)(nil).GetAccount), arg0, arg1)
 }
 
 // GetItem mocks base method.
@@ -386,6 +430,21 @@ func (m *MockDBService) RemoveMenuItemTag(arg0 context.Context, arg1 db.RemoveMe
 func (mr *MockDBServiceMockRecorder) RemoveMenuItemTag(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveMenuItemTag", reflect.TypeOf((*MockDBService)(nil).RemoveMenuItemTag), arg0, arg1)
+}
+
+// UpdateAccount mocks base method.
+func (m *MockDBService) UpdateAccount(arg0 context.Context, arg1 db.UpdateAccountParams) (db.Account, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateAccount", arg0, arg1)
+	ret0, _ := ret[0].(db.Account)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateAccount indicates an expected call of UpdateAccount.
+func (mr *MockDBServiceMockRecorder) UpdateAccount(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAccount", reflect.TypeOf((*MockDBService)(nil).UpdateAccount), arg0, arg1)
 }
 
 // UpdateMenuItem mocks base method.

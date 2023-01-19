@@ -1,9 +1,15 @@
+CREATE TABLE IF NOT EXISTS "accounts" (
+  "id" bigserial PRIMARY KEY,
+  "owner" varchar(60) NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now())
+);
+
 CREATE TABLE IF NOT EXISTS stores (
   "id" bigserial PRIMARY KEY,
+  "account_id" bigint NOT NULL,
   "store_name" varchar(60) NOT NULL,
   "store_address" varchar(120) NOT NULL,
   "store_phone" varchar(10) UNIQUE NOT NULL,
-  "store_owner" varchar NOT NULL,
   "store_manager" varchar NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
@@ -37,9 +43,12 @@ CREATE TABLE IF NOT EXISTS item_tag (
   "item_tag" varchar(60) NOT NULL
 );
 
+ALTER TABLE "stores" ADD FOREIGN KEY ("account_id") REFERENCES "accounts" ("id");
 ALTER TABLE "tables" ADD FOREIGN KEY ("store_id") REFERENCES "stores" ("id");
 ALTER TABLE "item" ADD FOREIGN KEY ("menu_id") REFERENCES "menu" ("id");
 ALTER TABLE "item_tag" ADD FOREIGN KEY ("item_id") REFERENCES "item" ("id");
+
+CREATE INDEX ON "accounts" ("owner");
 
 CREATE INDEX ON "stores" ("store_name");
 

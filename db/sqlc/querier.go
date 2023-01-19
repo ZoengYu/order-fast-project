@@ -9,17 +9,20 @@ import (
 )
 
 type Querier interface {
+	CreateAccount(ctx context.Context, owner string) (Account, error)
 	CreateMenuItem(ctx context.Context, arg CreateMenuItemParams) (Item, error)
 	CreateMenuItemTag(ctx context.Context, arg CreateMenuItemTagParams) (ItemTag, error)
 	CreateStore(ctx context.Context, arg CreateStoreParams) (Store, error)
 	CreateStoreMenu(ctx context.Context, arg CreateStoreMenuParams) (Menu, error)
 	CreateTable(ctx context.Context, arg CreateTableParams) (Table, error)
+	DeleteAccount(ctx context.Context, id int64) error
 	DeleteMenu(ctx context.Context, id int64) error
 	DeleteMenuItem(ctx context.Context, arg DeleteMenuItemParams) error
 	DeleteMenuItemAll(ctx context.Context, menuID int64) error
 	DeleteStore(ctx context.Context, id int64) error
 	DeleteStoreTable(ctx context.Context, id int64) error
 	DeleteStoreTableByName(ctx context.Context, arg DeleteStoreTableByNameParams) error
+	GetAccount(ctx context.Context, id int64) (Account, error)
 	GetItem(ctx context.Context, id int64) (Item, error)
 	GetMenu(ctx context.Context, id int64) (Menu, error)
 	GetMenuItemTag(ctx context.Context, arg GetMenuItemTagParams) (ItemTag, error)
@@ -33,6 +36,7 @@ type Querier interface {
 	ListStoreTables(ctx context.Context, arg ListStoreTablesParams) ([]Table, error)
 	ListStoresByName(ctx context.Context, arg ListStoresByNameParams) ([]Store, error)
 	RemoveMenuItemTag(ctx context.Context, arg RemoveMenuItemTagParams) error
+	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
 	UpdateMenuItem(ctx context.Context, arg UpdateMenuItemParams) (Item, error)
 	UpdateStore(ctx context.Context, arg UpdateStoreParams) (Store, error)
 	UpdateStoreMenu(ctx context.Context, arg UpdateStoreMenuParams) (Menu, error)

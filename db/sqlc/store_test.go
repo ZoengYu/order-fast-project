@@ -10,21 +10,22 @@ import (
 )
 
 func createRandomStore(t *testing.T) Store {
+	account := createRandomAccount(t)
 	arg := CreateStoreParams{
+		AccountID:    account.ID,
 		StoreName:    util.RandomStoreName(),
 		StoreAddress: "address",
 		StorePhone:   util.RandomPhone(),
-		StoreOwner:   util.RandomOwner(),
 		StoreManager: "王小棣s",
 	}
 	store, err := testQueries.CreateStore(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, store)
 
+	require.Equal(t, account.ID, store.AccountID)
 	require.Equal(t, arg.StoreName, store.StoreName)
 	require.Equal(t, arg.StoreAddress, store.StoreAddress)
 	require.Equal(t, arg.StorePhone, store.StorePhone)
-	require.Equal(t, arg.StoreOwner, store.StoreOwner)
 	require.Equal(t, arg.StoreManager, store.StoreManager)
 
 	require.NotZero(t, store.ID)
@@ -74,10 +75,10 @@ func TestUpdateStore(t *testing.T) {
 
 	arg := UpdateStoreParams{
 		ID:           store.ID,
+		AccountID:    store.AccountID,
 		StoreName:    store.StoreName,
 		StoreAddress: store.StoreAddress,
 		StorePhone:   store.StorePhone,
-		StoreOwner:   store.StoreOwner,
 		StoreManager: "Alex",
 	}
 	new_store, err := testQueries.UpdateStore(context.Background(), arg)

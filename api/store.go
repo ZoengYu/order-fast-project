@@ -10,11 +10,11 @@ import (
 )
 
 type createStoreRequest struct {
-	Name    string `json:"name" binding:"required"`
-	Address string `json:"address" binding:"required"`
-	Phone   string `json:"phone" binding:"required"`
-	Owner   string `json:"owner" binding:"required"`
-	Manager string `json:"manager"`
+	AccountID int64  `json:"account_id" binding:"required"`
+	Name      string `json:"name" binding:"required"`
+	Address   string `json:"address" binding:"required"`
+	Phone     string `json:"phone" binding:"required"`
+	Manager   string `json:"manager"`
 }
 
 func (server *Server) createStore(ctx *gin.Context) {
@@ -26,10 +26,10 @@ func (server *Server) createStore(ctx *gin.Context) {
 	}
 
 	arg := db.CreateStoreParams{
+		AccountID:    req.AccountID,
 		StoreName:    req.Name,
 		StoreAddress: req.Address,
 		StorePhone:   req.Phone,
-		StoreOwner:   req.Owner,
 		StoreManager: req.Manager,
 	}
 	store, err := server.db_service.CreateStore(ctx, arg)
@@ -99,7 +99,6 @@ type updateStoreRequest struct {
 	StoreName    string `json:"store_name" binding:"required"`
 	StoreAddress string `json:"store_address" binding:"required"`
 	StorePhone   string `json:"store_phone" binding:"required"`
-	StoreOwner   string `json:"store_owner" binding:"required"`
 	StoreManager string `json:"store_manager"`
 }
 
@@ -121,12 +120,17 @@ func (server *Server) updateStore(ctx *gin.Context) {
 		return
 	}
 
+	account, err := server.db_service.GetAccount(ctx, store.AccountID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
 	arg := db.UpdateStoreParams{
 		ID:           store.ID,
+		AccountID:    account.ID,
 		StoreName:    req.StoreName,
 		StoreAddress: req.StoreAddress,
 		StorePhone:   req.StorePhone,
-		StoreOwner:   req.StoreOwner,
 		StoreManager: req.StoreManager,
 	}
 	updated_store, err := server.db_service.UpdateStore(ctx, arg)

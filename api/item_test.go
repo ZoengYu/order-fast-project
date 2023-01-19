@@ -19,7 +19,8 @@ import (
 )
 
 func TestAddMenuItemAPI(t *testing.T) {
-	store := randomStore()
+	account := randomAccount()
+	store := randomStore(account)
 	menu := randomStoreMenu(store)
 	existed_item := randomMenuItem(menu)
 	item := randomMenuItem(menu)
@@ -183,7 +184,8 @@ func TestAddMenuItemAPI(t *testing.T) {
 }
 
 func TestDelMenuItemAPI(t *testing.T) {
-	store := randomStore()
+	account := randomAccount()
+	store := randomStore(account)
 	menu := randomStoreMenu(store)
 	item := randomMenuItem(menu)
 
@@ -289,7 +291,8 @@ func TestDelMenuItemAPI(t *testing.T) {
 }
 
 func TestListMenuItemAPI(t *testing.T) {
-	store := randomStore()
+	account := randomAccount()
+	store := randomStore(account)
 	menu := randomStoreMenu(store)
 
 	n := 10
@@ -436,7 +439,8 @@ func TestListMenuItemAPI(t *testing.T) {
 }
 
 func TestUpdateMenuItemAPI(t *testing.T) {
-	store := randomStore()
+	account := randomAccount()
+	store := randomStore(account)
 	menu := randomStoreMenu(store)
 	item := randomMenuItem(menu)
 	updated_item := randomMenuItem(menu)

@@ -19,7 +19,8 @@ import (
 )
 
 func TestCreateStoreMenuAPI(t *testing.T) {
-	store := randomStore()
+	account := randomAccount()
+	store := randomStore(account)
 	menu := randomStoreMenu(store)
 	testCases := []struct {
 		name          string
@@ -151,7 +152,8 @@ func TestCreateStoreMenuAPI(t *testing.T) {
 }
 
 func TestGetStoreMenuAPI(t *testing.T) {
-	store := randomStore()
+	account := randomAccount()
+	store := randomStore(account)
 	menu := randomStoreMenu(store)
 
 	testCases := []struct {
@@ -273,7 +275,8 @@ func TestGetStoreMenuAPI(t *testing.T) {
 }
 
 func TestUpdateStoreMenuAPI(t *testing.T) {
-	store := randomStore()
+	account := randomAccount()
+	store := randomStore(account)
 	menu := randomStoreMenu(store)
 	update_menu := randomStoreMenu(store)
 
@@ -408,7 +411,8 @@ func TestUpdateStoreMenuAPI(t *testing.T) {
 }
 
 func TestDelMenuAPI(t *testing.T) {
-	store := randomStore()
+	account := randomAccount()
+	store := randomStore(account)
 	menu := randomStoreMenu(store)
 
 	testCases := []struct {
@@ -491,7 +495,8 @@ func TestDelMenuAPI(t *testing.T) {
 }
 
 func TestListMenuAPI(t *testing.T) {
-	store := randomStore()
+	account := randomAccount()
+	store := randomStore(account)
 	n := 5
 	menu_list := make([]db.Menu, n)
 	for i := 0; i < n; i++ {
