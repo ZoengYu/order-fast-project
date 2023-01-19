@@ -9,12 +9,6 @@ import (
 	"time"
 )
 
-type Account struct {
-	ID        int64     `json:"id"`
-	Owner     string    `json:"owner"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
 type Item struct {
 	ID     int64  `json:"id"`
 	MenuID int64  `json:"menu_id"`
@@ -37,13 +31,13 @@ type Menu struct {
 }
 
 type Store struct {
-	ID           int64     `json:"id"`
-	AccountID    int64     `json:"account_id"`
-	StoreName    string    `json:"store_name"`
-	StoreAddress string    `json:"store_address"`
-	StorePhone   string    `json:"store_phone"`
-	StoreManager string    `json:"store_manager"`
-	CreatedAt    time.Time `json:"created_at"`
+	ID        int64     `json:"id"`
+	Owner     string    `json:"owner"`
+	Name      string    `json:"name"`
+	Address   string    `json:"address"`
+	Phone     string    `json:"phone"`
+	Manager   string    `json:"manager"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type Table struct {
@@ -52,4 +46,12 @@ type Table struct {
 	TableID   int64     `json:"table_id"`
 	TableName string    `json:"table_name"`
 	CreatedAt time.Time `json:"created_at"`
+}
+
+type User struct {
+	Username          string    `json:"username"`
+	HashedPassword    string    `json:"hashed_password"`
+	Email             string    `json:"email"`
+	PasswordChangedAt time.Time `json:"password_changed_at"`
+	CreatedAt         time.Time `json:"created_at"`
 }

@@ -38,11 +38,11 @@ func RandomManager() string {
 	return fmt.Sprintf("Manager-%s", RandomString(4))
 }
 
-func RandomStoreName() string {
+func RandomName() string {
 	return fmt.Sprintf("Store-%s", RandomString(4))
 }
 
-func RandomStoreAddress() string {
+func RandomAddress() string {
 	return fmt.Sprintf("Address-%s-%s", RandomString(4), RandomString(4))
 }
 
@@ -83,4 +83,8 @@ func RandomItemCustom() []string {
 		custom_option = append(custom_option, fmt.Sprintf("Custom-%s", RandomString(2)))
 	}
 	return custom_option
+}
+
+func RandomEmail() string {
+	return fmt.Sprintf("%s@email.com", RandomString(6))
 }

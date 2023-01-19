@@ -10,11 +10,11 @@ import (
 )
 
 type createStoreRequest struct {
-	AccountID int64  `json:"account_id" binding:"required"`
-	Name      string `json:"name" binding:"required"`
-	Address   string `json:"address" binding:"required"`
-	Phone     string `json:"phone" binding:"required"`
-	Manager   string `json:"manager"`
+	Owner   string `json:"owner" binding:"required"`
+	Name    string `json:"name" binding:"required"`
+	Address string `json:"address" binding:"required"`
+	Phone   string `json:"phone" binding:"required"`
+	Manager string `json:"manager"`
 }
 
 func (server *Server) createStore(ctx *gin.Context) {
@@ -26,11 +26,11 @@ func (server *Server) createStore(ctx *gin.Context) {
 	}
 
 	arg := db.CreateStoreParams{
-		AccountID:    req.AccountID,
-		StoreName:    req.Name,
-		StoreAddress: req.Address,
-		StorePhone:   req.Phone,
-		StoreManager: req.Manager,
+		Owner:   req.Owner,
+		Name:    req.Name,
+		Address: req.Address,
+		Phone:   req.Phone,
+		Manager: req.Manager,
 	}
 	store, err := server.db_service.CreateStore(ctx, arg)
 	if err != nil {
@@ -66,9 +66,9 @@ func (server *Server) getStore(ctx *gin.Context) {
 }
 
 type listStoresByNameRequest struct {
-	StoreName string `form:"name" binding:"required"`
-	PageID    int32  `form:"page_id" binding:"required"`
-	PageSize  int32  `form:"page_size" binding:"required,min=5,max=10"`
+	Name     string `form:"name" binding:"required"`
+	PageID   int32  `form:"page_id" binding:"required"`
+	PageSize int32  `form:"page_size" binding:"required,min=5,max=10"`
 }
 
 func (server *Server) listStoresByName(ctx *gin.Context) {
@@ -79,9 +79,9 @@ func (server *Server) listStoresByName(ctx *gin.Context) {
 	}
 
 	arg := db.ListStoresByNameParams{
-		StoreName: req.StoreName,
-		Limit:     req.PageSize,
-		Offset:    (req.PageID - 1),
+		Name:   req.Name,
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1),
 	}
 
 	stores, err := server.db_service.ListStoresByName(ctx, arg)
@@ -95,11 +95,11 @@ func (server *Server) listStoresByName(ctx *gin.Context) {
 }
 
 type updateStoreRequest struct {
-	StoreID      int64  `json:"store_id" binding:"required"`
-	StoreName    string `json:"store_name" binding:"required"`
-	StoreAddress string `json:"store_address" binding:"required"`
-	StorePhone   string `json:"store_phone" binding:"required"`
-	StoreManager string `json:"store_manager"`
+	StoreID int64  `json:"store_id" binding:"required"`
+	Name    string `json:"name" binding:"required"`
+	Address string `json:"address" binding:"required"`
+	Phone   string `json:"phone" binding:"required"`
+	Manager string `json:"manager"`
 }
 
 func (server *Server) updateStore(ctx *gin.Context) {
@@ -112,7 +112,7 @@ func (server *Server) updateStore(ctx *gin.Context) {
 	store, err := server.db_service.GetStore(ctx, req.StoreID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = fmt.Errorf("store %s is not exist", req.StoreName)
+			err = fmt.Errorf("store %s is not exist", req.Name)
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
 			return
 		}
@@ -120,18 +120,18 @@ func (server *Server) updateStore(ctx *gin.Context) {
 		return
 	}
 
-	account, err := server.db_service.GetAccount(ctx, store.AccountID)
+	user, err := server.db_service.GetUser(ctx, store.Owner)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 	arg := db.UpdateStoreParams{
-		ID:           store.ID,
-		AccountID:    account.ID,
-		StoreName:    req.StoreName,
-		StoreAddress: req.StoreAddress,
-		StorePhone:   req.StorePhone,
-		StoreManager: req.StoreManager,
+		ID:      store.ID,
+		Owner:   user.Username,
+		Name:    req.Name,
+		Address: req.Address,
+		Phone:   req.Phone,
+		Manager: req.Manager,
 	}
 	updated_store, err := server.db_service.UpdateStore(ctx, arg)
 	if err != nil {

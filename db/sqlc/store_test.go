@@ -10,23 +10,23 @@ import (
 )
 
 func createRandomStore(t *testing.T) Store {
-	account := createRandomAccount(t)
+	user := createRandomUser(t)
 	arg := CreateStoreParams{
-		AccountID:    account.ID,
-		StoreName:    util.RandomStoreName(),
-		StoreAddress: "address",
-		StorePhone:   util.RandomPhone(),
-		StoreManager: "王小棣s",
+		Owner:   user.Username,
+		Name:    util.RandomName(),
+		Address: "address",
+		Phone:   util.RandomPhone(),
+		Manager: "王小棣s",
 	}
 	store, err := testQueries.CreateStore(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, store)
 
-	require.Equal(t, account.ID, store.AccountID)
-	require.Equal(t, arg.StoreName, store.StoreName)
-	require.Equal(t, arg.StoreAddress, store.StoreAddress)
-	require.Equal(t, arg.StorePhone, store.StorePhone)
-	require.Equal(t, arg.StoreManager, store.StoreManager)
+	require.Equal(t, user.Username, store.Owner)
+	require.Equal(t, arg.Name, store.Name)
+	require.Equal(t, arg.Address, store.Address)
+	require.Equal(t, arg.Phone, store.Phone)
+	require.Equal(t, arg.Manager, store.Manager)
 
 	require.NotZero(t, store.ID)
 	require.NotZero(t, store.CreatedAt)
@@ -53,15 +53,15 @@ func TestGetStore(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, get_store)
 
-	require.Equal(t, get_store.StoreName, store.StoreName)
+	require.Equal(t, get_store.Name, store.Name)
 }
 
 func TestGetStoreByName(t *testing.T) {
 	stores := createMultipleStore(t, 3)
 	arg := ListStoresByNameParams{
-		StoreName: stores[0].StoreName,
-		Limit:     3,
-		Offset:    0,
+		Name:   stores[0].Name,
+		Limit:  3,
+		Offset: 0,
 	}
 	get_stores, err := testQueries.ListStoresByName(context.Background(), arg)
 	require.NoError(t, err)
@@ -74,18 +74,18 @@ func TestUpdateStore(t *testing.T) {
 	store := createRandomStore(t)
 
 	arg := UpdateStoreParams{
-		ID:           store.ID,
-		AccountID:    store.AccountID,
-		StoreName:    store.StoreName,
-		StoreAddress: store.StoreAddress,
-		StorePhone:   store.StorePhone,
-		StoreManager: "Alex",
+		ID:      store.ID,
+		Owner:   store.Owner,
+		Name:    store.Name,
+		Address: store.Address,
+		Phone:   store.Phone,
+		Manager: "Alex",
 	}
 	new_store, err := testQueries.UpdateStore(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, new_store)
 
-	require.Equal(t, "Alex", new_store.StoreManager)
+	require.Equal(t, "Alex", new_store.Manager)
 }
 
 func TestDeleteStore(t *testing.T) {

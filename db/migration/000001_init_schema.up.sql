@@ -1,16 +1,18 @@
-CREATE TABLE IF NOT EXISTS "accounts" (
-  "id" bigserial PRIMARY KEY,
-  "owner" varchar(60) NOT NULL,
+CREATE TABLE users (
+  "username" varchar PRIMARY KEY,
+  "hashed_password" varchar NOT NULL,
+  "email" varchar UNIQUE NOT NULL,
+  "password_changed_at" timestamptz NOT NULL DEFAULT('0001-01-01 00:00:00Z'),
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE IF NOT EXISTS stores (
   "id" bigserial PRIMARY KEY,
-  "account_id" bigint NOT NULL,
-  "store_name" varchar(60) NOT NULL,
-  "store_address" varchar(120) NOT NULL,
-  "store_phone" varchar(10) UNIQUE NOT NULL,
-  "store_manager" varchar NOT NULL,
+  "owner" varchar(60) NOT NULL,
+  "name" varchar(60) NOT NULL,
+  "address" varchar(120) NOT NULL,
+  "phone" varchar(10) UNIQUE NOT NULL,
+  "manager" varchar NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
@@ -43,13 +45,11 @@ CREATE TABLE IF NOT EXISTS item_tag (
   "item_tag" varchar(60) NOT NULL
 );
 
-ALTER TABLE "stores" ADD FOREIGN KEY ("account_id") REFERENCES "accounts" ("id");
+ALTER TABLE "stores" ADD FOREIGN KEY ("owner") REFERENCES "users" ("username");
 ALTER TABLE "tables" ADD FOREIGN KEY ("store_id") REFERENCES "stores" ("id");
 ALTER TABLE "item" ADD FOREIGN KEY ("menu_id") REFERENCES "menu" ("id");
 ALTER TABLE "item_tag" ADD FOREIGN KEY ("item_id") REFERENCES "item" ("id");
 
-CREATE INDEX ON "accounts" ("owner");
-
-CREATE INDEX ON "stores" ("store_name");
+CREATE INDEX ON "stores" ("id", "owner");
 
 CREATE INDEX ON "tables" ("store_id");
