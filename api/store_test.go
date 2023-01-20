@@ -13,6 +13,7 @@ import (
 	mock_db "github.com/ZoengYu/order-fast-project/db/mock"
 	mockdb "github.com/ZoengYu/order-fast-project/db/mock"
 	db "github.com/ZoengYu/order-fast-project/db/sqlc"
+	"github.com/ZoengYu/order-fast-project/token"
 	util "github.com/ZoengYu/order-fast-project/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -26,12 +27,16 @@ func TestGetStoreAPI(t *testing.T) {
 	testCases := []struct {
 		name          string
 		storeID       int64
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStubs    func(mock_db *mockdb.MockDBService)
 		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
 		{
 			name:    "OK",
 			storeID: store.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetStore(gomock.Any(), gomock.Eq(store.ID)).
@@ -45,6 +50,9 @@ func TestGetStoreAPI(t *testing.T) {
 		{
 			name:    "NotFound",
 			storeID: store.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetStore(gomock.Any(), gomock.Eq(store.ID)).
@@ -58,6 +66,9 @@ func TestGetStoreAPI(t *testing.T) {
 		{
 			name:    "InvalidID",
 			storeID: 0,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetStore(gomock.Any(), gomock.Any()).
@@ -70,6 +81,9 @@ func TestGetStoreAPI(t *testing.T) {
 		{
 			name:    "DBError",
 			storeID: store.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetStore(gomock.Any(), gomock.Eq(store.ID)).
@@ -96,6 +110,7 @@ func TestGetStoreAPI(t *testing.T) {
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
@@ -115,6 +130,7 @@ func TestListStoresByNameAPI(t *testing.T) {
 	testCases := []struct {
 		name          string
 		query_param   ListQuery
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStubs    func(mock_db *mockdb.MockDBService)
 		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
@@ -125,8 +141,12 @@ func TestListStoresByNameAPI(t *testing.T) {
 				pageID:   1,
 				pageSize: 5,
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				arg := db.ListStoresByNameParams{
+					Owner:  user.Username,
 					Name:   stores[0].Name[0:5],
 					Limit:  5,
 					Offset: 0,
@@ -147,8 +167,12 @@ func TestListStoresByNameAPI(t *testing.T) {
 				pageID:   1,
 				pageSize: 5,
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				arg := db.ListStoresByNameParams{
+					Owner:  user.Username,
 					Name:   stores[0].Name[0:5],
 					Limit:  5,
 					Offset: 0,
@@ -169,6 +193,9 @@ func TestListStoresByNameAPI(t *testing.T) {
 				pageID:   0,
 				pageSize: 5,
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					ListStoresByName(gomock.Any(), gomock.Any()).
@@ -185,8 +212,12 @@ func TestListStoresByNameAPI(t *testing.T) {
 				pageID:   1,
 				pageSize: 5,
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				arg := db.ListStoresByNameParams{
+					Owner:  user.Username,
 					Name:   stores[0].Name[0:5],
 					Limit:  5,
 					Offset: 0,
@@ -217,6 +248,7 @@ func TestListStoresByNameAPI(t *testing.T) {
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
@@ -229,21 +261,24 @@ func TestCreateStoreAPI(t *testing.T) {
 	testCases := []struct {
 		name          string
 		body          gin.H
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStubs    func(mock_db *mockdb.MockDBService)
 		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
 		{
 			name: "OK",
 			body: gin.H{
-				"owner":   user.Username,
 				"name":    store.Name,
 				"address": store.Address,
 				"phone":   store.Phone,
 				"manager": store.Manager,
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				arg := db.CreateStoreParams{
-					Owner:   store.Owner,
+					Owner:   user.Username,
 					Name:    store.Name,
 					Address: store.Address,
 					Phone:   store.Phone,
@@ -261,10 +296,13 @@ func TestCreateStoreAPI(t *testing.T) {
 		{
 			name: "BadRequestPayload",
 			body: gin.H{
-				"acount_id": store.Owner,
-				"address":   store.Address,
-				"phone":     store.Phone,
-				"manager":   store.Manager,
+				"name2":   user.Username,
+				"address": store.Address,
+				"phone":   store.Phone,
+				"manager": store.Manager,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
@@ -283,6 +321,9 @@ func TestCreateStoreAPI(t *testing.T) {
 				"address": store.Address,
 				"phone":   store.Phone,
 				"manager": store.Manager,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				arg := db.CreateStoreParams{
@@ -322,6 +363,8 @@ func TestCreateStoreAPI(t *testing.T) {
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
+
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
@@ -337,6 +380,7 @@ func TestUpdateStoreAPI(t *testing.T) {
 	testCases := []struct {
 		name          string
 		body          gin.H
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStubs    func(mock_db *mockdb.MockDBService)
 		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
@@ -348,6 +392,9 @@ func TestUpdateStoreAPI(t *testing.T) {
 				"address":  updated_store.Address,
 				"phone":    updated_store.Phone,
 				"manager":  updated_store.Manager,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				updated_arg := db.UpdateStoreParams{
@@ -364,11 +411,6 @@ func TestUpdateStoreAPI(t *testing.T) {
 					Return(store, nil)
 
 				mockdb.EXPECT().
-					GetUser(gomock.Any(), gomock.Eq(store.Owner)).
-					Times(1).
-					Return(user, nil)
-
-				mockdb.EXPECT().
 					UpdateStore(gomock.Any(), gomock.Eq(updated_arg)).
 					Times(1).
 					Return(updated_store, nil)
@@ -383,6 +425,9 @@ func TestUpdateStoreAPI(t *testing.T) {
 				"address": store.Address,
 				"phone":   store.Phone,
 				"manager": store.Manager,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
@@ -401,6 +446,9 @@ func TestUpdateStoreAPI(t *testing.T) {
 				"address":  updated_store.Address,
 				"phone":    updated_store.Phone,
 				"manager":  updated_store.Manager,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
@@ -421,6 +469,9 @@ func TestUpdateStoreAPI(t *testing.T) {
 				"phone":    updated_store.Phone,
 				"manager":  updated_store.Manager,
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetStore(gomock.Any(), gomock.Eq(store.ID)).
@@ -440,6 +491,9 @@ func TestUpdateStoreAPI(t *testing.T) {
 				"phone":    updated_store.Phone,
 				"manager":  updated_store.Manager,
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				updated_arg := db.UpdateStoreParams{
 					ID:      updated_store.ID,
@@ -453,11 +507,6 @@ func TestUpdateStoreAPI(t *testing.T) {
 					GetStore(gomock.Any(), gomock.Eq(store.ID)).
 					Times(1).
 					Return(store, nil)
-
-				mockdb.EXPECT().
-					GetUser(gomock.Any(), gomock.Eq(store.Owner)).
-					Times(1).
-					Return(user, nil)
 
 				mockdb.EXPECT().
 					UpdateStore(gomock.Any(), gomock.Eq(updated_arg)).
@@ -489,6 +538,8 @@ func TestUpdateStoreAPI(t *testing.T) {
 			request, err := http.NewRequest(http.MethodPut, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
+
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
@@ -502,13 +553,22 @@ func TestDelStoreAPI(t *testing.T) {
 	testCases := []struct {
 		name          string
 		storeID       int64
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStubs    func(mock_db *mockdb.MockDBService)
 		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
 		{
 			name:    "OK",
 			storeID: store.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
+				mockdb.EXPECT().
+					GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(1).
+					Return(store, nil)
+
 				mockdb.EXPECT().
 					DeleteStore(gomock.Any(), gomock.Eq(store.ID)).
 					Times(1).
@@ -521,7 +581,15 @@ func TestDelStoreAPI(t *testing.T) {
 		{
 			name:    "NotFound",
 			storeID: store.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
+				mockdb.EXPECT().
+					GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(1).
+					Return(store, nil)
+
 				mockdb.EXPECT().
 					DeleteStore(gomock.Any(), gomock.Eq(store.ID)).
 					Times(1).
@@ -534,7 +602,14 @@ func TestDelStoreAPI(t *testing.T) {
 		{
 			name:    "InvalidID",
 			storeID: 0,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
+				mockdb.EXPECT().
+					GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(0)
+
 				mockdb.EXPECT().
 					DeleteStore(gomock.Any(), gomock.Any()).
 					Times(0)
@@ -546,7 +621,15 @@ func TestDelStoreAPI(t *testing.T) {
 		{
 			name:    "DBError",
 			storeID: store.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
+				mockdb.EXPECT().
+					GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(1).
+					Return(store, nil)
+
 				mockdb.EXPECT().
 					DeleteStore(gomock.Any(), gomock.Eq(store.ID)).
 					Times(1).
@@ -571,6 +654,8 @@ func TestDelStoreAPI(t *testing.T) {
 			url := fmt.Sprintf("/v1/store/%d", tc.storeID)
 			request, err := http.NewRequest(http.MethodDelete, url, nil)
 			require.NoError(t, err)
+
+			tc.setupAuth(t, request, server.tokenMaker)
 
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)

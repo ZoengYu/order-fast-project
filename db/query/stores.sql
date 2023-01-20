@@ -15,9 +15,9 @@ WHERE id = $1 LIMIT 1;
 
 -- name: ListStoresByName :many
 SELECT * FROM stores
-WHERE name ~* $1
-LIMIT $2
-OFFSET $3;
+WHERE owner = $1 AND name ~* $2
+LIMIT $3
+OFFSET $4;
 
 -- name: UpdateStore :one
 UPDATE stores

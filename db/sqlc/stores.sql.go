@@ -82,19 +82,25 @@ func (q *Queries) GetStore(ctx context.Context, id int64) (Store, error) {
 
 const listStoresByName = `-- name: ListStoresByName :many
 SELECT id, owner, name, address, phone, manager, created_at FROM stores
-WHERE name ~* $1
-LIMIT $2
-OFFSET $3
+WHERE owner = $1 AND name ~* $2
+LIMIT $3
+OFFSET $4
 `
 
 type ListStoresByNameParams struct {
+	Owner  string `json:"owner"`
 	Name   string `json:"name"`
 	Limit  int32  `json:"limit"`
 	Offset int32  `json:"offset"`
 }
 
 func (q *Queries) ListStoresByName(ctx context.Context, arg ListStoresByNameParams) ([]Store, error) {
-	rows, err := q.db.QueryContext(ctx, listStoresByName, arg.Name, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, listStoresByName,
+		arg.Owner,
+		arg.Name,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}

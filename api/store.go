@@ -2,15 +2,16 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 
 	db "github.com/ZoengYu/order-fast-project/db/sqlc"
+	"github.com/ZoengYu/order-fast-project/token"
 	"github.com/gin-gonic/gin"
 )
 
 type createStoreRequest struct {
-	Owner   string `json:"owner" binding:"required"`
 	Name    string `json:"name" binding:"required"`
 	Address string `json:"address" binding:"required"`
 	Phone   string `json:"phone" binding:"required"`
@@ -25,8 +26,9 @@ func (server *Server) createStore(ctx *gin.Context) {
 		return
 	}
 
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.CreateStoreParams{
-		Owner:   req.Owner,
+		Owner:   authPayload.Username,
 		Name:    req.Name,
 		Address: req.Address,
 		Phone:   req.Phone,
@@ -62,6 +64,14 @@ func (server *Server) getStore(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if authPayload.Username != store.Owner {
+		err := errors.New("store doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
 	ctx.JSON(http.StatusOK, store)
 }
 
@@ -78,7 +88,9 @@ func (server *Server) listStoresByName(ctx *gin.Context) {
 		return
 	}
 
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.ListStoresByNameParams{
+		Owner:  authPayload.Username,
 		Name:   req.Name,
 		Limit:  req.PageSize,
 		Offset: (req.PageID - 1),
@@ -119,15 +131,16 @@ func (server *Server) updateStore(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-
-	user, err := server.db_service.GetUser(ctx, store.Owner)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if authPayload.Username != store.Owner {
+		err := errors.New("store doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
+
 	arg := db.UpdateStoreParams{
 		ID:      store.ID,
-		Owner:   user.Username,
+		Owner:   authPayload.Username,
 		Name:    req.Name,
 		Address: req.Address,
 		Phone:   req.Phone,
@@ -156,7 +169,24 @@ func (server *Server) delStore(ctx *gin.Context) {
 		return
 	}
 
-	err := server.db_service.DeleteStore(ctx, req.StoreID)
+	store, err := server.db_service.GetStore(ctx, req.StoreID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = fmt.Errorf("cannot find store id: %d", req.StoreID)
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if authPayload.Username != store.Owner {
+		err := errors.New("store doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	err = server.db_service.DeleteStore(ctx, req.StoreID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err = fmt.Errorf("cannot find store id: %d", req.StoreID)

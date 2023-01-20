@@ -59,6 +59,7 @@ func TestGetStore(t *testing.T) {
 func TestGetStoreByName(t *testing.T) {
 	stores := createMultipleStore(t, 3)
 	arg := ListStoresByNameParams{
+		Owner:  stores[0].Owner,
 		Name:   stores[0].Name,
 		Limit:  3,
 		Offset: 0,
@@ -66,6 +67,7 @@ func TestGetStoreByName(t *testing.T) {
 	get_stores, err := testQueries.ListStoresByName(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, get_stores)
+	require.Len(t, get_stores, 1)
 
 	require.Equal(t, get_stores[0], stores[0])
 }

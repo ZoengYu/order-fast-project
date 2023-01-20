@@ -42,11 +42,12 @@ func (server *Server) setupRouter() {
 	v1.POST("/user", server.createUser)
 	v1.POST("/user/login", server.loginUser)
 
-	v1.POST("/store", server.createStore)
-	v1.GET("/store/:id", server.getStore)
-	v1.GET("/store", server.listStoresByName)
-	v1.PUT("/store", server.updateStore)
-	v1.DELETE("/store/:id", server.delStore)
+	authRoutes := v1.Group("/").Use(authMiddleware(server.tokenMaker))
+	authRoutes.POST("/store", server.createStore)
+	authRoutes.GET("/store/:id", server.getStore)
+	authRoutes.GET("/store", server.listStoresByName)
+	authRoutes.PUT("/store", server.updateStore)
+	authRoutes.DELETE("/store/:id", server.delStore)
 
 	v1.POST("/store/menu", server.createStoreMenu)
 	v1.GET("/store/menu", server.getStoreMenu)
