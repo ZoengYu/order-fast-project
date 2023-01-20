@@ -49,16 +49,16 @@ func (server *Server) setupRouter() {
 	authRoutes.PUT("/store", server.updateStore)
 	authRoutes.DELETE("/store/:id", server.delStore)
 
-	v1.POST("/store/menu", server.createStoreMenu)
-	v1.GET("/store/menu", server.getStoreMenu)
-	v1.PUT("/store/menu", server.updateStoreMenu)
-	v1.DELETE("/store/menu/:id", server.deleteStoreMenu)
-	v1.GET("/store/menu_list", server.listStoreMenu)
+	authRoutes.POST("/store/menu", server.createStoreMenu)
+	authRoutes.GET("/store/menu", server.getStoreMenu)
+	authRoutes.PUT("/store/menu", server.updateStoreMenu)
+	authRoutes.DELETE("/store/menu/:id", server.deleteStoreMenu)
+	authRoutes.GET("/store/menu_list", server.listStoreMenu)
 
-	v1.POST("store/menu/item", server.CreateMenuItem)
-	v1.DELETE("store/menu/item/:id", server.DeleteMenuItem)
-	v1.GET("/store/menu/list_items", server.listMenuItems)
-	v1.PUT("/store/menu/item", server.updateMenuItem)
+	authRoutes.POST("store/menu/item", server.CreateMenuItem)
+	authRoutes.DELETE("store/menu/item/:id", server.DeleteMenuItem)
+	authRoutes.GET("/store/menu/list_items", server.listMenuItems)
+	authRoutes.PUT("/store/menu/item", server.updateMenuItem)
 	server.router = router
 }
 

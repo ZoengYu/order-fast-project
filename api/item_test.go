@@ -8,10 +8,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	mock_db "github.com/ZoengYu/order-fast-project/db/mock"
 	mockdb "github.com/ZoengYu/order-fast-project/db/mock"
 	db "github.com/ZoengYu/order-fast-project/db/sqlc"
+	"github.com/ZoengYu/order-fast-project/token"
 	util "github.com/ZoengYu/order-fast-project/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -29,6 +31,7 @@ func TestAddMenuItemAPI(t *testing.T) {
 	testCases := []struct {
 		name          string
 		body          gin.H
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStubs    func(mock_db *mockdb.MockDBService)
 		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
@@ -40,6 +43,9 @@ func TestAddMenuItemAPI(t *testing.T) {
 				"price":   item.Price,
 				"tag":     []string{item_tag.ItemTag},
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				arg := db.CreateMenuItemParams{
 					MenuID: menu.ID,
@@ -49,6 +55,9 @@ func TestAddMenuItemAPI(t *testing.T) {
 				mockdb.EXPECT().
 					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
 					Times(1).Return(menu, nil)
+				mockdb.EXPECT().
+					GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(1).Return(store, nil)
 				mockdb.EXPECT().
 					ListAllMenuItem(gomock.Any(), menu.ID).
 					Times(1).Return([]db.Item{existed_item}, nil)
@@ -76,6 +85,9 @@ func TestAddMenuItemAPI(t *testing.T) {
 				"price":     item.Price,
 				"tag":       []string{item_tag.ItemTag},
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 			},
 			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
@@ -89,6 +101,9 @@ func TestAddMenuItemAPI(t *testing.T) {
 				"name":    item.Name,
 				"price":   item.Price,
 				"tag":     []string{item_tag.ItemTag},
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
@@ -107,6 +122,9 @@ func TestAddMenuItemAPI(t *testing.T) {
 				"price":   item.Price,
 				"tag":     []string{item_tag.ItemTag},
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
@@ -124,10 +142,16 @@ func TestAddMenuItemAPI(t *testing.T) {
 				"price":   existed_item.Price,
 				"tag":     []string{item_tag.ItemTag},
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
 					Times(1).Return(menu, nil)
+				mockdb.EXPECT().
+					GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(1).Return(store, nil)
 				mockdb.EXPECT().
 					ListAllMenuItem(gomock.Any(), menu.ID).
 					Times(1).Return([]db.Item{existed_item}, nil)
@@ -144,10 +168,16 @@ func TestAddMenuItemAPI(t *testing.T) {
 				"price":   existed_item.Price,
 				"tag":     []string{item_tag.ItemTag},
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
 					Times(1).Return(menu, nil)
+				mockdb.EXPECT().
+					GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(1).Return(store, nil)
 				mockdb.EXPECT().
 					ListAllMenuItem(gomock.Any(), menu.ID).
 					Times(1).Return([]db.Item{existed_item}, nil)
@@ -177,6 +207,7 @@ func TestAddMenuItemAPI(t *testing.T) {
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
@@ -192,12 +223,16 @@ func TestDelMenuItemAPI(t *testing.T) {
 	testCases := []struct {
 		name          string
 		ItemID        int64
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStubs    func(mock_db *mockdb.MockDBService)
 		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
 		{
 			name:   "OK",
 			ItemID: item.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetItem(gomock.Any(), gomock.Eq(menu.ID)).
@@ -205,6 +240,9 @@ func TestDelMenuItemAPI(t *testing.T) {
 				mockdb.EXPECT().
 					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
 					Times(1).Return(menu, nil)
+				mockdb.EXPECT().
+					GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(1).Return(store, nil)
 				arg := db.DeleteMenuItemParams{
 					ID:     item.ID,
 					MenuID: menu.ID,
@@ -220,6 +258,9 @@ func TestDelMenuItemAPI(t *testing.T) {
 		{
 			name:   "NotFound",
 			ItemID: item.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetItem(gomock.Any(), gomock.Eq(menu.ID)).
@@ -232,6 +273,9 @@ func TestDelMenuItemAPI(t *testing.T) {
 		{
 			name:   "InvalidID",
 			ItemID: 0,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					DeleteMenu(gomock.Any(), gomock.Any()).
@@ -244,6 +288,9 @@ func TestDelMenuItemAPI(t *testing.T) {
 		{
 			name:   "DBError",
 			ItemID: item.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetItem(gomock.Any(), gomock.Eq(menu.ID)).
@@ -256,6 +303,9 @@ func TestDelMenuItemAPI(t *testing.T) {
 		{
 			name:   "HaveItemInDBButNotHaveMenuShouldReturn500",
 			ItemID: item.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetItem(gomock.Any(), gomock.Eq(menu.ID)).
@@ -284,6 +334,7 @@ func TestDelMenuItemAPI(t *testing.T) {
 			request, err := http.NewRequest(http.MethodDelete, url, nil)
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
@@ -310,6 +361,7 @@ func TestListMenuItemAPI(t *testing.T) {
 	testCases := []struct {
 		name          string
 		query         ListQuery
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStubs    func(mock_db *mockdb.MockDBService)
 		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
@@ -320,12 +372,21 @@ func TestListMenuItemAPI(t *testing.T) {
 				pageID:   1,
 				pageSize: n / 2,
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				arg := db.ListMenuItemParams{
 					MenuID: menu.ID,
 					Limit:  int32(n / 2),
 					Offset: 0,
 				}
+				mockdb.EXPECT().
+					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
+					Times(1).Return(menu, nil)
+				mockdb.EXPECT().
+					GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(1).Return(store, nil)
 				mockdb.EXPECT().
 					ListMenuItem(gomock.Any(), gomock.Eq(arg)).
 					Times(1).
@@ -341,6 +402,9 @@ func TestListMenuItemAPI(t *testing.T) {
 				menuID:   menu.ID,
 				pageID:   -1,
 				pageSize: n,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
@@ -358,6 +422,9 @@ func TestListMenuItemAPI(t *testing.T) {
 				pageID:   1,
 				pageSize: 20,
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					ListMenuItem(gomock.Any(), gomock.Any()).
@@ -374,12 +441,21 @@ func TestListMenuItemAPI(t *testing.T) {
 				pageID:   1,
 				pageSize: n,
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				arg := db.ListMenuItemParams{
 					MenuID: menu.ID,
 					Limit:  int32(n),
 					Offset: 0,
 				}
+				mockdb.EXPECT().
+					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
+					Times(1).Return(menu, nil)
+				mockdb.EXPECT().
+					GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(1).Return(store, nil)
 				mockdb.EXPECT().
 					ListMenuItem(gomock.Any(), gomock.Eq(arg)).
 					Times(1).
@@ -396,12 +472,21 @@ func TestListMenuItemAPI(t *testing.T) {
 				pageID:   1,
 				pageSize: n,
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				arg := db.ListMenuItemParams{
 					MenuID: menu.ID,
 					Limit:  int32(n),
 					Offset: 0,
 				}
+				mockdb.EXPECT().
+					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
+					Times(1).Return(menu, nil)
+				mockdb.EXPECT().
+					GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(1).Return(store, nil)
 				mockdb.EXPECT().
 					ListMenuItem(gomock.Any(), gomock.Eq(arg)).
 					Times(1).
@@ -432,6 +517,7 @@ func TestListMenuItemAPI(t *testing.T) {
 			q.Add("page_size", fmt.Sprintf("%d", tc.query.pageSize))
 			request.URL.RawQuery = q.Encode()
 
+			tc.setupAuth(t, request, server.tokenMaker)
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
@@ -449,6 +535,7 @@ func TestUpdateMenuItemAPI(t *testing.T) {
 	testCases := []struct {
 		name          string
 		body          gin.H
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStubs    func(mock_db *mockdb.MockDBService)
 		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
@@ -458,6 +545,9 @@ func TestUpdateMenuItemAPI(t *testing.T) {
 				"item_id":   item.ID,
 				"item_name": updated_item.Name,
 				"price":     updated_item.Price,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				updated_arg := db.UpdateMenuItemParams{
@@ -469,7 +559,12 @@ func TestUpdateMenuItemAPI(t *testing.T) {
 					GetItem(gomock.Any(), gomock.Eq(item.ID)).
 					Times(1).
 					Return(item, nil)
-
+				mockdb.EXPECT().
+					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
+					Times(1).Return(menu, nil)
+				mockdb.EXPECT().
+					GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(1).Return(store, nil)
 				mockdb.EXPECT().
 					UpdateMenuItem(gomock.Any(), gomock.Eq(updated_arg)).
 					Times(1).
@@ -486,6 +581,9 @@ func TestUpdateMenuItemAPI(t *testing.T) {
 				"item_name": updated_item.Name,
 				"price":     "15",
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				mockdb.EXPECT().
 					GetItem(gomock.Any(), gomock.Eq(store.ID)).
@@ -501,6 +599,9 @@ func TestUpdateMenuItemAPI(t *testing.T) {
 				"item_id":   item.ID,
 				"item_name": updated_item.Name,
 				"price":     updated_item.Price,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				updated_arg := db.UpdateMenuItemParams{
@@ -528,6 +629,9 @@ func TestUpdateMenuItemAPI(t *testing.T) {
 				"item_name": updated_item.Name,
 				"price":     updated_item.Price,
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(mockdb *mockdb.MockDBService) {
 				updated_arg := db.UpdateMenuItemParams{
 					ID:    item.ID,
@@ -538,7 +642,12 @@ func TestUpdateMenuItemAPI(t *testing.T) {
 					GetItem(gomock.Any(), gomock.Eq(item.ID)).
 					Times(1).
 					Return(item, nil)
-
+				mockdb.EXPECT().
+					GetMenu(gomock.Any(), gomock.Eq(menu.ID)).
+					Times(1).Return(menu, nil)
+				mockdb.EXPECT().
+					GetStore(gomock.Any(), gomock.Eq(store.ID)).
+					Times(1).Return(store, nil)
 				mockdb.EXPECT().
 					UpdateMenuItem(gomock.Any(), gomock.Eq(updated_arg)).
 					Times(1).
@@ -569,6 +678,7 @@ func TestUpdateMenuItemAPI(t *testing.T) {
 			request, err := http.NewRequest(http.MethodPut, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})

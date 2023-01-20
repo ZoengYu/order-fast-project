@@ -2,10 +2,12 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 
 	db "github.com/ZoengYu/order-fast-project/db/sqlc"
+	"github.com/ZoengYu/order-fast-project/token"
 	"github.com/gin-gonic/gin"
 )
 
@@ -31,6 +33,13 @@ func (server *Server) createStoreMenu(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if authPayload.Username != store.Owner {
+		err := errors.New("store doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
 	arg := db.CreateStoreMenuParams{
 		StoreID:  store.ID,
 		MenuName: req.MenuName,
@@ -66,6 +75,14 @@ func (server *Server) getStoreMenu(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if authPayload.Username != store.Owner {
+		err := errors.New("store doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
 	arg := db.GetStoreMenuParams{
 		StoreID: store.ID,
 		ID:      req.MenuID,
@@ -105,6 +122,14 @@ func (server *Server) updateStoreMenu(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if authPayload.Username != store.Owner {
+		err := errors.New("store doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
 	arg := db.UpdateStoreMenuParams{
 		StoreID:  store.ID,
 		ID:       req.MenuID,
@@ -134,7 +159,31 @@ func (server *Server) deleteStoreMenu(ctx *gin.Context) {
 		return
 	}
 
-	err := server.db_service.DeleteMenu(ctx, req.MenuID)
+	menu, err := server.db_service.GetMenu(ctx, req.MenuID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = fmt.Errorf("store ID %d is not exist", req.MenuID)
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	store, err := server.db_service.GetStore(ctx, menu.StoreID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if authPayload.Username != store.Owner {
+		err := errors.New("the menu doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	err = server.db_service.DeleteMenu(ctx, req.MenuID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err = fmt.Errorf("cannot find menu id: %d", req.MenuID)
@@ -157,6 +206,19 @@ func (server *Server) listStoreMenu(ctx *gin.Context) {
 	var req listStoreMenuRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	store, err := server.db_service.GetStore(ctx, req.StoreID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if authPayload.Username != store.Owner {
+		err := errors.New("the store doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 
