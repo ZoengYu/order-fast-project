@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"testing"
 
+	mock_db "github.com/ZoengYu/order-fast-project/db/mock"
 	mockdb "github.com/ZoengYu/order-fast-project/db/mock"
 	db "github.com/ZoengYu/order-fast-project/db/sqlc"
 	util "github.com/ZoengYu/order-fast-project/utils"
@@ -191,103 +192,100 @@ func TestCreateUserAPI(t *testing.T) {
 	}
 }
 
-// func TestGetUserAPI(t *testing.T) {
-// 	user, password := randomUser(t)
+func TestLoginUserAPI(t *testing.T) {
+	user, password := randomUser(t)
 
-// 	testCases := []struct {
-// 		name          string
-// 		body          gin.H
-// 		buildStubs    func(mock_db *mockdb.MockDBService)
-// 		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
-// 	}{
-// 		{
-// 			name: "OK",
-// 			body: gin.H{
-// 				"username": user.Username,
-// 				"password": password,
-// 				"email":    user.Email,
-// 			},
-// 			buildStubs: func(mockdb *mockdb.MockDBService) {
-// 				mockdb.EXPECT().
-// 					GetUser(gomock.Any(), gomock.Eq(user.Username)).
-// 					Times(1).
-// 					Return(user, nil)
-// 			},
-// 			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
-// 				require.Equal(t, http.StatusOK, recoder.Code)
-// 			},
-// 		},
-// 		{
-// 			name: "NotFound",
-// 			body: gin.H{
-// 				"username": user.Username,
-// 				"password": password,
-// 				"email":    user.Email,
-// 			},
-// 			buildStubs: func(mockdb *mockdb.MockDBService) {
-// 				mockdb.EXPECT().
-// 					GetUser(gomock.Any(), gomock.Eq(user.Username)).
-// 					Times(1).
-// 					Return(db.User{}, sql.ErrNoRows)
-// 			},
-// 			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
-// 				require.Equal(t, http.StatusNotFound, recoder.Code)
-// 			},
-// 		},
-// 		{
-// 			name: "InvalidID",
-// 			body: gin.H{
-// 				"username": user.Username,
-// 				"password": password,
-// 				"email":    user.Email,
-// 			},
-// 			buildStubs: func(mockdb *mockdb.MockDBService) {
-// 				mockdb.EXPECT().
-// 					GetUser(gomock.Any(), gomock.Any()).
-// 					Times(0)
-// 			},
-// 			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
-// 				require.Equal(t, http.StatusBadRequest, recoder.Code)
-// 			},
-// 		},
-// 		{
-// 			name: "DBError",
-// 			body: gin.H{
-// 				"username": user.Username,
-// 				"password": password,
-// 				"email":    user.Email,
-// 			},
-// 			buildStubs: func(mockdb *mockdb.MockDBService) {
-// 				mockdb.EXPECT().
-// 					GetUser(gomock.Any(), gomock.Eq(user.Username)).
-// 					Times(1).
-// 					Return(db.User{}, sql.ErrConnDone)
-// 			},
-// 			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
-// 				require.Equal(t, http.StatusInternalServerError, recoder.Code)
-// 			},
-// 		},
-// 	}
+	testCases := []struct {
+		name          string
+		body          gin.H
+		buildStubs    func(mock_db *mockdb.MockDBService)
+		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
+	}{
+		{
+			name: "OK",
+			body: gin.H{
+				"username": user.Username,
+				"password": password,
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService) {
+				mockdb.EXPECT().
+					GetUser(gomock.Any(), gomock.Eq(user.Username)).
+					Times(1).
+					Return(user, nil)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recoder.Code)
+			},
+		},
+		{
+			name: "NotFound",
+			body: gin.H{
+				"username": user.Username,
+				"password": password,
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService) {
+				mockdb.EXPECT().
+					GetUser(gomock.Any(), gomock.Eq(user.Username)).
+					Times(1).
+					Return(db.User{}, sql.ErrNoRows)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recoder.Code)
+			},
+		},
+		{
+			name: "TooShortPassword",
+			body: gin.H{
+				"username": user.Username,
+				"password": "123",
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService) {
+				mockdb.EXPECT().
+					GetUser(gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recoder.Code)
+			},
+		},
+		{
+			name: "DBError",
+			body: gin.H{
+				"username": user.Username,
+				"password": password,
+			},
+			buildStubs: func(mockdb *mockdb.MockDBService) {
+				mockdb.EXPECT().
+					GetUser(gomock.Any(), gomock.Eq(user.Username)).
+					Times(1).
+					Return(db.User{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recoder.Code)
+			},
+		},
+	}
 
-// 	for i := range testCases {
-// 		tc := testCases[i]
+	for i := range testCases {
+		tc := testCases[i]
 
-// 		t.Run(tc.name, func(t *testing.T) {
-// 			ctrl := gomock.NewController(t)
-// 			defer ctrl.Finish()
-// 			mockdb_service := mock_db.NewMockDBService(ctrl)
-// 			tc.buildStubs(mockdb_service)
-// 			server := newTestServer(t, mockdb_service)
-// 			recorder := httptest.NewRecorder()
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mockdb_service := mock_db.NewMockDBService(ctrl)
+			tc.buildStubs(mockdb_service)
+			server := newTestServer(t, mockdb_service)
+			recorder := httptest.NewRecorder()
 
-// 			data, err := json.Marshal(tc.body)
-// 			url := fmt.Sprintf("/v1/users/login", data)
+			data, err := json.Marshal(tc.body)
+			require.NoError(t, err)
+			url := "/v1/user/login"
 
-// 			request, err := http.NewRequest(http.MethodGet, url, bytes.NewReader(data))
-// 			require.NoError(t, err)
+			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
+			require.NoError(t, err)
 
-// 			server.router.ServeHTTP(recorder, request)
-// 			tc.checkResponse(t, recorder)
-// 		})
-// 	}
-// }
+			server.router.ServeHTTP(recorder, request)
+			tc.checkResponse(t, recorder)
+		})
+	}
+}

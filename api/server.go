@@ -31,7 +31,7 @@ func (server *Server) setupRouter() {
 	router.Use(cors.Default())
 
 	v1.POST("/user", server.CreateUser)
-	// v1.GET("/user/login", server.GetUser)
+	v1.POST("/user/login", server.LoginUser)
 
 	v1.POST("/store", server.createStore)
 	v1.GET("/store/:id", server.getStore)
