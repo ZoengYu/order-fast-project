@@ -1,7 +1,10 @@
 package api
 
 import (
+	"fmt"
+
 	db "github.com/ZoengYu/order-fast-project/db/sqlc"
+	"github.com/ZoengYu/order-fast-project/token"
 	util "github.com/ZoengYu/order-fast-project/utils"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -9,13 +12,19 @@ import (
 
 type Server struct {
 	db_service db.DBService
+	tokenMaker token.Maker
 	router     *gin.Engine
 	config     util.Config
 }
 
 func NewServer(config util.Config, db_service db.DBService) (*Server, error) {
+	tokenMaker, err := token.NewJWTMaker(config.TokenSymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create token maker :%w", err)
+	}
 	server := &Server{
 		db_service: db_service,
+		tokenMaker: tokenMaker,
 		config:     config,
 	}
 
@@ -30,8 +39,8 @@ func (server *Server) setupRouter() {
 	// allow all origins request
 	router.Use(cors.Default())
 
-	v1.POST("/user", server.CreateUser)
-	v1.POST("/user/login", server.LoginUser)
+	v1.POST("/user", server.createUser)
+	v1.POST("/user/login", server.loginUser)
 
 	v1.POST("/store", server.createStore)
 	v1.GET("/store/:id", server.getStore)

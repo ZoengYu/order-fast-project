@@ -33,7 +33,7 @@ func newUserResponse(user db.User) userResponse {
 	}
 }
 
-func (server *Server) CreateUser(ctx *gin.Context) {
+func (server *Server) createUser(ctx *gin.Context) {
 	var req createUserRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -76,10 +76,11 @@ type LoginUserRequest struct {
 }
 
 type LoginUserResponse struct {
-	user userResponse
+	AccessToken string       `json:"access_token"`
+	User        userResponse `json:"user"`
 }
 
-func (server *Server) LoginUser(ctx *gin.Context) {
+func (server *Server) loginUser(ctx *gin.Context) {
 	var req LoginUserRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -102,8 +103,19 @@ func (server *Server) LoginUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
+
+	accessToken, err := server.tokenMaker.CreateToken(
+		user.Username,
+		server.config.AccessTokenDuration,
+	)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
 	rsp := LoginUserResponse{
-		newUserResponse(user),
+		AccessToken: accessToken,
+		User:        newUserResponse(user),
 	}
 	ctx.JSON(http.StatusOK, rsp)
 }

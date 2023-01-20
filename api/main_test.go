@@ -3,6 +3,7 @@ package api
 import (
 	"os"
 	"testing"
+	"time"
 
 	db "github.com/ZoengYu/order-fast-project/db/sqlc"
 	util "github.com/ZoengYu/order-fast-project/utils"
@@ -11,7 +12,10 @@ import (
 )
 
 func newTestServer(t *testing.T, mockdb db.DBService) *Server {
-	config := util.Config{}
+	config := util.Config{
+		TokenSymmetricKey:   util.RandomString(32),
+		AccessTokenDuration: time.Minute,
+	}
 
 	server, err := NewServer(config, mockdb)
 	require.NoError(t, err)

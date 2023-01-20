@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net"
 	"testing"
+	"time"
 
 	db "github.com/ZoengYu/order-fast-project/db/sqlc"
 	util "github.com/ZoengYu/order-fast-project/utils"
@@ -11,7 +12,10 @@ import (
 )
 
 func TestServerStartBadAddress(t *testing.T) {
-	config, _ := util.LoadConfig(".")
+	config := util.Config{
+		TokenSymmetricKey:   util.RandomString(32),
+		AccessTokenDuration: time.Minute,
+	}
 
 	conn, _ := sql.Open(config.DBDriver, config.DBSource)
 	db_service := db.NewDBService(conn)
