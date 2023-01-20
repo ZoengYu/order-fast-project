@@ -20,7 +20,7 @@ import (
 )
 
 func TestGetStoreAPI(t *testing.T) {
-	user := randomUser()
+	user, _ := randomUser(t)
 	store := randomStore(user)
 
 	testCases := []struct {
@@ -103,7 +103,7 @@ func TestGetStoreAPI(t *testing.T) {
 }
 
 func TestListStoresByNameAPI(t *testing.T) {
-	user := randomUser()
+	user, _ := randomUser(t)
 	stores := randomStores(user, 3)
 
 	type ListQuery struct {
@@ -224,7 +224,7 @@ func TestListStoresByNameAPI(t *testing.T) {
 }
 
 func TestCreateStoreAPI(t *testing.T) {
-	user := randomUser()
+	user, _ := randomUser(t)
 	store := randomStore(user)
 	testCases := []struct {
 		name          string
@@ -330,7 +330,7 @@ func TestCreateStoreAPI(t *testing.T) {
 }
 
 func TestUpdateStoreAPI(t *testing.T) {
-	user := randomUser()
+	user, _ := randomUser(t)
 	store := randomStore(user)
 	updated_store := randomStore(user)
 	updated_store.ID = store.ID
@@ -496,7 +496,7 @@ func TestUpdateStoreAPI(t *testing.T) {
 }
 
 func TestDelStoreAPI(t *testing.T) {
-	user := randomUser()
+	user, _ := randomUser(t)
 	store := randomStore(user)
 
 	testCases := []struct {
@@ -578,12 +578,17 @@ func TestDelStoreAPI(t *testing.T) {
 	}
 }
 
-func randomUser() db.User {
-	return db.User{
-		Username:       util.RandomOwner(),
-		HashedPassword: "hashedPassword",
+func randomUser(t *testing.T) (user db.User, password string) {
+	password = util.RandomString(6)
+	hashedPassword, err := util.HashPassword(password)
+	require.NoError(t, err)
+
+	user = db.User{
+		Username:       util.RandomUser(),
+		HashedPassword: hashedPassword,
 		Email:          util.RandomEmail(),
 	}
+	return
 }
 
 func randomStore(user db.User) db.Store {

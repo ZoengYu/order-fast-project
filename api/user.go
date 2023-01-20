@@ -5,6 +5,7 @@ import (
 	"time"
 
 	db "github.com/ZoengYu/order-fast-project/db/sqlc"
+	util "github.com/ZoengYu/order-fast-project/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 )
@@ -39,11 +40,18 @@ func (server *Server) CreateUser(ctx *gin.Context) {
 		return
 	}
 
+	hashPassword, err := util.HashPassword(req.Password)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
 	arg := db.CreateUserParams{
 		Username:       req.Username,
 		Email:          req.Email,
-		HashedPassword: req.Password,
+		HashedPassword: hashPassword,
 	}
+
 	user, err := server.db_service.CreateUser(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
@@ -61,12 +69,11 @@ func (server *Server) CreateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, rsp)
 }
 
-// TODO: Change here to login function
 // type GetUserRequest struct {
 // 	ID int64 `uri:"id" binding:"required,min=1"`
 // }
 
-// func (server *Server) GetUser(ctx *gin.Context) {
+// func (server *Server) LoginUser(ctx *gin.Context) {
 // 	var req GetUserRequest
 
 // 	if err := ctx.ShouldBindUri(&req); err != nil {

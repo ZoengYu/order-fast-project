@@ -30,8 +30,8 @@ func RandomString(n int) string {
 	return sb.String()
 }
 
-func RandomOwner() string {
-	return fmt.Sprintf("Owner-%s", RandomString(4))
+func RandomUser() string {
+	return fmt.Sprintf("User%s", RandomString(4))
 }
 
 func RandomManager() string {
@@ -86,5 +86,5 @@ func RandomItemCustom() []string {
 }
 
 func RandomEmail() string {
-	return fmt.Sprintf("%s@email.com", RandomString(6))
+	return fmt.Sprintf("%s@gmail.com", RandomString(6))
 }
