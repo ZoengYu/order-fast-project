@@ -1,12 +1,28 @@
 version: "3.9"
 
 services:
+  api:
+    container_name: order_fast_api
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: always
+    environment:
+      - GIN_MODE=release
+      - DB_SOURCE=postgresql://runner:password@db:5432/orderfast?sslmode=disable
+      - TZ=Asia/Taipei
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db
+    entrypoint: ["/app/wait-for-it.sh", "db:5432", "--", "/app/start.sh"]
+    command: ["/app/main"]
   db:
     container_name: order_fast_db
     image: postgres:15-alpine
     restart: always
     environment:
-      - POSTGRES_DB=order_fast
+      - POSTGRES_DB=orderfast
       - POSTGRES_USER=runner
       - POSTGRES_PASSWORD=password
       - TZ=Asia/Taipel
