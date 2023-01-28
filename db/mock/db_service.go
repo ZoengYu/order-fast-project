@@ -10,6 +10,7 @@ import (
 
 	db "github.com/ZoengYu/order-fast-project/db/sqlc"
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
 )
 
 // MockDBService is a mock of DBService interface.
@@ -63,6 +64,21 @@ func (m *MockDBService) CreateMenuItemTag(arg0 context.Context, arg1 db.CreateMe
 func (mr *MockDBServiceMockRecorder) CreateMenuItemTag(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateMenuItemTag", reflect.TypeOf((*MockDBService)(nil).CreateMenuItemTag), arg0, arg1)
+}
+
+// CreateSession mocks base method.
+func (m *MockDBService) CreateSession(arg0 context.Context, arg1 db.CreateSessionParams) (db.Session, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateSession", arg0, arg1)
+	ret0, _ := ret[0].(db.Session)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateSession indicates an expected call of CreateSession.
+func (mr *MockDBServiceMockRecorder) CreateSession(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSession", reflect.TypeOf((*MockDBService)(nil).CreateSession), arg0, arg1)
 }
 
 // CreateStore mocks base method.
@@ -266,6 +282,21 @@ func (m *MockDBService) GetMenuItemTag(arg0 context.Context, arg1 db.GetMenuItem
 func (mr *MockDBServiceMockRecorder) GetMenuItemTag(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMenuItemTag", reflect.TypeOf((*MockDBService)(nil).GetMenuItemTag), arg0, arg1)
+}
+
+// GetSession mocks base method.
+func (m *MockDBService) GetSession(arg0 context.Context, arg1 uuid.UUID) (db.Session, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSession", arg0, arg1)
+	ret0, _ := ret[0].(db.Session)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSession indicates an expected call of GetSession.
+func (mr *MockDBServiceMockRecorder) GetSession(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSession", reflect.TypeOf((*MockDBService)(nil).GetSession), arg0, arg1)
 }
 
 // GetStore mocks base method.

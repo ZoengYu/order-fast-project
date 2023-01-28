@@ -6,11 +6,14 @@ package db
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type Querier interface {
 	CreateMenuItem(ctx context.Context, arg CreateMenuItemParams) (Item, error)
 	CreateMenuItemTag(ctx context.Context, arg CreateMenuItemTagParams) (ItemTag, error)
+	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateStore(ctx context.Context, arg CreateStoreParams) (Store, error)
 	CreateStoreMenu(ctx context.Context, arg CreateStoreMenuParams) (Menu, error)
 	CreateTable(ctx context.Context, arg CreateTableParams) (Table, error)
@@ -25,6 +28,7 @@ type Querier interface {
 	GetItem(ctx context.Context, id int64) (Item, error)
 	GetMenu(ctx context.Context, id int64) (Menu, error)
 	GetMenuItemTag(ctx context.Context, arg GetMenuItemTagParams) (ItemTag, error)
+	GetSession(ctx context.Context, id uuid.UUID) (Session, error)
 	GetStore(ctx context.Context, id int64) (Store, error)
 	GetStoreMenu(ctx context.Context, arg GetStoreMenuParams) (Menu, error)
 	GetStoreTable(ctx context.Context, arg GetStoreTableParams) (Table, error)

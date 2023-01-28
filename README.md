@@ -43,7 +43,7 @@ make migratedown
 ```
 make sqlc
 ```
-*Running testing*
+*Running tests*
 ```
 make test
 ```
@@ -55,6 +55,13 @@ go run main.go
 ```
 make mock
 ```
+
+### How to generate code
+- Create a new db migration:
+
+	```bash
+	migrate create -ext sql -dir db/migration -seq <migration_name>
+	```
 ###
 # ***Frontend Development Setup***
 TBD

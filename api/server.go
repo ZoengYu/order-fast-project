@@ -39,6 +39,7 @@ func (server *Server) setupRouter() {
 	// allow all origins request
 	router.Use(cors.Default())
 
+	v1.POST("/tokens/renew_access", server.renewAccessToken)
 	v1.POST("/user", server.createUser)
 	v1.POST("/user/login", server.loginUser)
 
