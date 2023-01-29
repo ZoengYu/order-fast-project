@@ -5,7 +5,6 @@ import (
 	"log"
 	"net"
 
-	"github.com/ZoengYu/order-fast-project/api"
 	db "github.com/ZoengYu/order-fast-project/db/sqlc"
 	"github.com/ZoengYu/order-fast-project/gapi"
 	"github.com/ZoengYu/order-fast-project/pb"
@@ -53,14 +52,14 @@ func runGrpcServer(config util.Config, db_service db.DBService) {
 	}
 }
 
-func runGinServer(config util.Config, db_service db.DBService) {
-	api_server, err := api.NewServer(config, db_service)
-	if err != nil {
-		log.Fatal("cannot create the api server:", err)
-	}
+// func runGinServer(config util.Config, db_service db.DBService) {
+// 	api_server, err := api.NewServer(config, db_service)
+// 	if err != nil {
+// 		log.Fatal("cannot create the api server:", err)
+// 	}
 
-	err = api_server.Start(config.HTTPServerAddress)
-	if err != nil {
-		log.Fatal("cannot start the api server:", err)
-	}
-}
+// 	err = api_server.Start(config.HTTPServerAddress)
+// 	if err != nil {
+// 		log.Fatal("cannot start the api server:", err)
+// 	}
+// }
