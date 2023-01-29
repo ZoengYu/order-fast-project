@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package pb;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/ZoengYu/order-fast-project/pb";
+
+message User {
+	string username = 1;
+	string email = 2;
+	google.protobuf.Timestamp password_changed_at = 3;
+	google.protobuf.Timestamp created_at = 4;
+}
