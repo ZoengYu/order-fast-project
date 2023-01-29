@@ -28,11 +28,13 @@ test:
 mock:
 	mockgen --package mockdb --destination db/mock/db_service.go github.com/ZoengYu/order-fast-project/db/sqlc DBService
 
-protos:
+proto:
 	rm -f pb/*.proto
 	protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative \
     --go-grpc_out=pb --go-grpc_opt=paths=source_relative \
     proto/*.proto
 
+evans:
+	evans --host localhost --port 8082 -r repl
 
-.PHOMY: postgres createdb dropdb migrateup migratedown sqlc tests mock protos
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc tests mock proto evans
