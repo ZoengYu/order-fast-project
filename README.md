@@ -50,10 +50,10 @@ make test
 ```
 *Launch the gin backend server*
 ```
-go run main.go
+make server
 ```
 
-> you can go to **localhost:8081/swagger** to review the API docs, currently we only support gRPC server, http server will coming soon.
+> you can go to **localhost:8081/swagger/grpc** to review the API docs, currently we only support gRPC server, http server is coming soon.
 #
 
 *If you change the content of db/sql/., running the following cmd which generate the Querier(db mock) for api testing*

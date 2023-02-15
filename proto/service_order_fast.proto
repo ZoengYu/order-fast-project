@@ -12,7 +12,7 @@ option go_package = "github.com/ZoengYu/order-fast-project/pb";
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
     title: "Order Fast API";
-    version: "1.0";
+    version: "1.1";
     contact: {
       name: "Harry Wang";
       url: "https://github.com/ZoengYu/order-fast-project";
@@ -27,11 +27,19 @@ service OrderFast {
 			post: "/v1/user"
 			body: "*"
 		};
+		option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+			description: "Use this API to create a new user"
+			summary: "Create new user";
+		};
 	}
 	rpc LoginUser (LoginUserRequest) returns (LoginUserResponse) {
 		option (google.api.http) = {
 			post: "/v1/user/login"
 			body: "*"
+		};
+		option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+			description: "Use this API to login and retrieve access & refresh token"
+			summary: "Login user";
 		};
 	}
 }

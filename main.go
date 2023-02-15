@@ -8,11 +8,14 @@ import (
 	"net/http"
 
 	db "github.com/ZoengYu/order-fast-project/db/sqlc"
+	// import statik sub-package is required for registering the fs zip data
+	_ "github.com/ZoengYu/order-fast-project/docs/statik"
 	"github.com/ZoengYu/order-fast-project/gapi"
 	"github.com/ZoengYu/order-fast-project/pb"
 	util "github.com/ZoengYu/order-fast-project/utils"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	_ "github.com/lib/pq"
+	"github.com/rakyll/statik/fs"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -84,9 +87,13 @@ func runGatewayServer(config util.Config, db_service db.DBService) {
 	mux := http.NewServeMux()
 	mux.Handle("/", grpcMux)
 
-	// server the swagger UI for gRPC server
-	fileServer := http.FileServer(http.Dir("./docs/swagger"))
-	mux.Handle("/swagger/", http.StripPrefix("/swagger", fileServer))
+	// load the static assets to the fs variable(store in memory instead of hard disk)
+	statikFileServer, err := fs.New()
+	if err != nil {
+		log.Fatal("cannot create staik file system:", err)
+	}
+	swaggerHandler := http.StripPrefix("/swagger/grpc/", http.FileServer(statikFileServer))
+	mux.Handle("/swagger/grpc/", swaggerHandler)
 
 	listener, err := net.Listen("tcp", config.HTTPServerAddress)
 	if err != nil {

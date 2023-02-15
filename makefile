@@ -23,6 +23,9 @@ migrateforce:
 sqlc:
 	sqlc generate
 
+server:
+	go run main.go
+
 test:
 	go test -v -cover ./...
 
@@ -37,6 +40,7 @@ proto:
 	--grpc-gateway_out=pb --grpc-gateway_opt=paths=source_relative \
 	--openapiv2_out=docs/swagger --openapiv2_opt=allow_merge=true,merge_file_name=order_fast \
     proto/*.proto
+	statik -src=./docs/swagger -dest=./docs
 
 evans:
 	evans --host localhost --port 8082 -r repl
@@ -45,4 +49,4 @@ fmt:
 	@echo ">> format code style"
 	$(GOFMT) -w $$(find . -path ./vendor -prune -o -name '*.go' -print)
 
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc tests mock proto evans fmt
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc server tests mock proto evans fmt

@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "Order Fast API",
-    "version": "1.0",
+    "version": "1.1",
     "contact": {
       "name": "Harry Wang",
       "url": "https://github.com/ZoengYu/order-fast-project",
@@ -23,6 +23,8 @@
   "paths": {
     "/v1/user": {
       "post": {
+        "summary": "Create new user",
+        "description": "Use this API to create a new user",
         "operationId": "OrderFast_CreateUser",
         "responses": {
           "200": {
@@ -55,6 +57,8 @@
     },
     "/v1/user/login": {
       "post": {
+        "summary": "Login user",
+        "description": "Use this API to login and retrieve access \u0026 refresh token",
         "operationId": "OrderFast_LoginUser",
         "responses": {
           "200": {
