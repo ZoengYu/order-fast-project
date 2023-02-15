@@ -15,7 +15,8 @@ This project is design for link-base order system via scan QRcode.
 **collabrate Request**: If you're frontend engineer and interesting to participant this project, please contact me for further discussion :).
 
 聯繫信箱 Contact Email: harryuwang@gmail.com
-#
+
+
 # ***Backend Development Environmet Setup***
 
  >*Backend Server is base on **Golang Gin Framework**, Frontend Server is base on **React**.*
@@ -51,6 +52,10 @@ make test
 ```
 go run main.go
 ```
+
+> you can go to **localhost:8081/swagger** to review the API docs, currently we only support gRPC server, http server will coming soon.
+#
+
 *If you change the content of db/sql/., running the following cmd which generate the Querier(db mock) for api testing*
 ```
 make mock

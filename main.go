@@ -84,6 +84,10 @@ func runGatewayServer(config util.Config, db_service db.DBService) {
 	mux := http.NewServeMux()
 	mux.Handle("/", grpcMux)
 
+	// server the swagger UI for gRPC server
+	fileServer := http.FileServer(http.Dir("./docs/swagger"))
+	mux.Handle("/swagger/", http.StripPrefix("/swagger", fileServer))
+
 	listener, err := net.Listen("tcp", config.HTTPServerAddress)
 	if err != nil {
 		log.Fatal("cannot create listener:", err)
