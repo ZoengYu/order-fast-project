@@ -5,10 +5,10 @@
 
 This project is design for link-base order system via scan QRcode.
 
- I'm inspired while ordering foods from a busy resturant, it's crazy and really time consuming to get my food, so I hope this project can help each resturants to speed up their order flows and save everyone time ;).
+ I'm inspired while ordering foods from a damn busy resturant, it's time consuming before I got my food, so I thought the Order Fast might be helpful for each resturants to speed up their order flows and save everyone time ;).
 
 
-> ***Chief focus on the cuisine present. Client waiting for the tasty food with finger-licking.***
+> ***Chief focus on the cuisine present. Customer waiting for the tasty food with finger-licking ;).***
 
 **合作請求**: 如果你有前端的經驗並對這項專案有興趣的話請和我聯繫，我們可以討論一起完成這個專案:)
 
@@ -23,9 +23,7 @@ This project is design for link-base order system via scan QRcode.
 
 ## *Install required package*
 ```
-go get -u github.com/gin-gonic/gin
-go install github.com/kyleconroy/sqlc/cmd/sqlc@latest
-go install github.com/golang/mock/mockgen@v1.6.0
+go mod download
 ```
 ## *Running the Order-Fast backend service**
 *Launch the db service*
@@ -53,7 +51,12 @@ make test
 make server
 ```
 
-> you can go to **localhost:8081/swagger/grpc** to review the API docs, currently we only support gRPC server, http server is coming soon.
+
+- HTTP Gateway is listen on port 8081
+- GRPC is listen on port 8082
+- Gin Server is listen on port 8083
+> you can go to **localhost:8081/swagger/grpc** to review the API docs
+
 #
 
 *If you change the content of db/sql/., running the following cmd which generate the Querier(db mock) for api testing*

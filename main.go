@@ -7,7 +7,9 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/ZoengYu/order-fast-project/api"
 	db "github.com/ZoengYu/order-fast-project/db/sqlc"
+
 	// import statik sub-package is required for registering the fs zip data
 	_ "github.com/ZoengYu/order-fast-project/docs/statik"
 	"github.com/ZoengYu/order-fast-project/gapi"
@@ -33,6 +35,7 @@ func main() {
 	}
 
 	db_service := db.NewDBService(conn)
+	go runGinServer(config, db_service)
 	go runGatewayServer(config, db_service)
 	runGrpcServer(config, db_service)
 
@@ -90,12 +93,12 @@ func runGatewayServer(config util.Config, db_service db.DBService) {
 	// load the static assets to the fs variable(store in memory instead of hard disk)
 	statikFileServer, err := fs.New()
 	if err != nil {
-		log.Fatal("cannot create staik file system:", err)
+		log.Fatal("cannot create statik file system:", err)
 	}
 	swaggerHandler := http.StripPrefix("/swagger/grpc/", http.FileServer(statikFileServer))
 	mux.Handle("/swagger/grpc/", swaggerHandler)
 
-	listener, err := net.Listen("tcp", config.HTTPServerAddress)
+	listener, err := net.Listen("tcp", config.HTTPGatewayAddress)
 	if err != nil {
 		log.Fatal("cannot create listener:", err)
 	}
@@ -107,14 +110,15 @@ func runGatewayServer(config util.Config, db_service db.DBService) {
 	}
 }
 
-// func runGinServer(config util.Config, db_service db.DBService) {
-// 	api_server, err := api.NewServer(config, db_service)
-// 	if err != nil {
-// 		log.Fatal("cannot create the api server:", err)
-// 	}
+// Running the Gin Server Only
+func runGinServer(config util.Config, db_service db.DBService) {
+	api_server, err := api.NewServer(config, db_service)
+	if err != nil {
+		log.Fatal("cannot create the api server:", err)
+	}
 
-// 	err = api_server.Start(config.HTTPServerAddress)
-// 	if err != nil {
-// 		log.Fatal("cannot start the api server:", err)
-// 	}
-// }
+	err = api_server.Start(config.HTTPServerAddress)
+	if err != nil {
+		log.Fatal("cannot start the api server:", err)
+	}
+}

@@ -18,3 +18,5 @@ RUN ["chmod", "+x", "/app/wait-for-it.sh", "/app/start.sh"]
 COPY db/migration ./migration
 
 EXPOSE 8081
+EXPOSE 8082
+EXPOSE 8083
